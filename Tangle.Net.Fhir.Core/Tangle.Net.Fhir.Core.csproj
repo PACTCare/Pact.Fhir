@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hl7.Fhir.STU3" Version="0.95.0" />
+    <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.0.1" />
+  </ItemGroup>
+
+</Project>
