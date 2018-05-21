@@ -30,7 +30,7 @@
     public async Task TestCreatedResourceCanBeRead()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var response = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), Seed.Random(), Seed.Random());
 
       var patient = await repository.GetResourceAsync<Patient>(response.Message.Root, response.Channel.Key);
@@ -48,7 +48,7 @@
     public async Task TestCreateSetsUpDataAndPersistsResourceData()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var response = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), Seed.Random(), Seed.Random());
 
       Assert.AreEqual(1, iotaRepository.SentBundles.Count);
@@ -64,10 +64,10 @@
     /// The <see cref="Task"/>.
     /// </returns>
     [TestMethod]
-    public async Task TestGetHistoryReturnsAllResourcesPublicatedOnStream()
+    public async Task TestGetHistoryReturnsAllResourcesPublishedOnStream()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var seed = Seed.Random();
       var createResponse = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), seed, seed);
 
@@ -93,7 +93,7 @@
     public async Task TestUpdateResourceAddsNewBundleAndSetsVersionIdToNextRoot()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var seed = Seed.Random();
       var createResponse = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), seed, seed);
 
@@ -119,7 +119,7 @@
     public async Task TestCachedSubscriptionReturnsSameMessageAsLastMessage()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var seed = Seed.Random();
       var createResponse = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), seed, seed);
 
@@ -139,7 +139,7 @@
     public async Task TestCachedSubscriptionReturnsSameMessageHistory()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var seed = Seed.Random();
       var createResponse = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), seed, seed);
 
@@ -163,7 +163,7 @@
     [ExpectedException(typeof(ArgumentException))]
     public async Task TestExceptionIsThrownOnUnkownChannelWhileUpdating()
     {
-      var repository = new TangleFhirPatientRepository(new InMemoryIotaRepository(), new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(new InMemoryIotaRepository(), new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       await repository.UpdateResourceAsync(PatientHelpers.GetPatient(), Seed.Random());
     }
 
@@ -177,11 +177,11 @@
     public async Task TestPatientCanBeUpdatedAfterChannelAddition()
     {
       var iotaRepository = new InMemoryIotaRepository();
-      var tempRepository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var tempRepository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var seed = Seed.Random();
       var createResponse = await tempRepository.CreateResourceAsync(PatientHelpers.GetPatient(), seed, seed);
 
-      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam());
+      var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
 
       try
       {
@@ -192,7 +192,7 @@
         Assert.IsInstanceOfType(e, typeof(ArgumentException));
       }
 
-      repository.AddChannel(createResponse.Channel);
+      await repository.AddChannel(createResponse.Channel);
 
       var resource = createResponse.Resource;
       resource.Gender = AdministrativeGender.Female;
@@ -201,7 +201,7 @@
       Assert.AreEqual(AdministrativeGender.Female, updateResponse.Resource.Gender);
 
       var resources = await repository.GetHistory<Patient>(createResponse.Message.Root, seed);
-      Assert.AreEqual(2, resources.Count);
+      Assert.AreEqual(3, resources.Count);
     }
   }
 }

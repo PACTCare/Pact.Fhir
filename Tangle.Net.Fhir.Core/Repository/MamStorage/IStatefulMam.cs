@@ -1,5 +1,7 @@
 ﻿namespace Tangle.Net.Fhir.Core.Repository.MamStorage
 {
+  using System.Threading.Tasks;
+
   using Tangle.Net.Entity;
   using Tangle.Net.Mam.Entity;
 
@@ -14,7 +16,10 @@
     /// <param name="channel">
     /// The channel.
     /// </param>
-    void AddChannel(MamChannel channel);
+    /// <returns>
+    /// The <see cref="Task"/>.
+    /// </returns>
+    Task AddChannel(MamChannel channel);
 
     /// <summary>
     /// The add channel subscription.
@@ -22,7 +27,10 @@
     /// <param name="subscription">
     /// The subscription.
     /// </param>
-    void AddChannelSubscription(MamChannelSubscription subscription);
+    /// <returns>
+    /// The <see cref="Task"/>.
+    /// </returns>
+    Task AddChannelSubscription(MamChannelSubscription subscription);
 
     /// <summary>
     /// The get channel.
@@ -31,9 +39,9 @@
     /// The seed.
     /// </param>
     /// <returns>
-    /// The <see cref="MamChannel"/>.
+    /// The <see cref="Task{MamChannel}"/>.
     /// </returns>
-    MamChannel GetChannel(Seed seed);
+    Task<MamChannel> GetChannel(Seed seed);
 
     /// <summary>
     /// The get subscription.
@@ -42,8 +50,8 @@
     /// The root.
     /// </param>
     /// <returns>
-    /// The <see cref="MamChannelSubscription"/>.
+    /// The <see cref="Task{MamChannelSubscription}"/>.
     /// </returns>
-    MamChannelSubscription GetSubscription(Hash root);
+    Task<MamChannelSubscription> GetSubscription(Hash root);
   }
 }

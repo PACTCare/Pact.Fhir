@@ -9,6 +9,8 @@
   using Tangle.Net.Fhir.Core.Repository.Responses;
   using Tangle.Net.Mam.Entity;
 
+  using Task = System.Threading.Tasks.Task;
+
   /// <summary>
   /// The FhirPatientRepository interface.
   /// </summary>
@@ -90,11 +92,43 @@
       where T : DomainResource;
 
     /// <summary>
+    /// The get resource version.
+    /// </summary>
+    /// <param name="root">
+    /// The root.
+    /// </param>
+    /// <param name="channelKey">
+    /// The channel key.
+    /// </param>
+    /// <typeparam name="T">
+    /// The resource type.
+    /// </typeparam>
+    /// <returns>
+    /// The <see cref="Task"/>.
+    /// </returns>
+    Task<T> GetResourceVersion<T>(Hash root, TryteString channelKey)
+      where T : DomainResource;
+
+    /// <summary>
     /// The add channel.
     /// </summary>
     /// <param name="channel">
     /// The channel.
     /// </param>
-    void AddChannel(MamChannel channel);
+    /// <returns>
+    /// The <see cref="Task"/>.
+    /// </returns>
+    Task AddChannel(MamChannel channel);
+
+    /// <summary>
+    /// The has channel.
+    /// </summary>
+    /// <param name="seed">
+    /// The seed.
+    /// </param>
+    /// <returns>
+    /// The <see cref="Task"/>.
+    /// </returns>
+    Task<bool> HasChannel(Seed seed);
   }
 }

@@ -17,6 +17,8 @@
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
+  using Task = System.Threading.Tasks.Task;
+
   /// <inheritdoc />
   public class TangleFhirPatientRepository : IFhirPatientRepository
   {
@@ -32,10 +34,14 @@
     /// <param name="mamStorage">
     /// The mam Storage.
     /// </param>
-    public TangleFhirPatientRepository(IIotaRepository repository, IFhirTryteSerializer serializer, IStatefulMam mamStorage)
+    /// <param name="netMode">
+    /// The netMode.
+    /// </param>
+    public TangleFhirPatientRepository(IIotaRepository repository, IFhirTryteSerializer serializer, IStatefulMam mamStorage, NetMode netMode = NetMode.Mainnet)
     {
       this.Serializer = serializer;
       this.MamStorage = mamStorage;
+      this.NetMode = netMode;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
@@ -49,6 +55,11 @@
     /// Gets the mam storage.
     /// </summary>
     private IStatefulMam MamStorage { get; }
+
+    /// <summary>
+    /// Gets the netMode.
+    /// </summary>
+    private NetMode NetMode { get; }
 
     /// <summary>
     /// Gets the serializer.
@@ -71,9 +82,9 @@
       resource.Id = rootTree.Root.Hash.Value;
 
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
-      await channel.PublishAsync(message);
+      await channel.PublishAsync(message, (int)this.NetMode);
 
-      this.MamStorage.AddChannel(channel);
+      await this.MamStorage.AddChannel(channel);
 
       return new ResourceReponse<T> { Message = message, Resource = resource, Channel = channel };
     }
@@ -82,12 +93,12 @@
     public async Task<List<T>> GetHistory<T>(Hash root, TryteString channelKey)
       where T : DomainResource
     {
-      var subscription = this.MamStorage.GetSubscription(root);
+      var subscription = await this.MamStorage.GetSubscription(root);
 
       if (subscription == null)
       {
         subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
-        this.MamStorage.AddChannelSubscription(subscription);
+        await this.MamStorage.AddChannelSubscription(subscription);
       }
 
       var messages = await subscription.FetchAsync();
@@ -99,12 +110,12 @@
     public async Task<T> GetResourceAsync<T>(Hash root, TryteString channelKey)
       where T : DomainResource
     {
-      var subscription = this.MamStorage.GetSubscription(root);
+      var subscription = await this.MamStorage.GetSubscription(root);
 
       if (subscription == null)
       {
         subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
-        this.MamStorage.AddChannelSubscription(subscription);
+        await this.MamStorage.AddChannelSubscription(subscription);
       }
       
       var messages = await subscription.FetchAsync();
@@ -116,7 +127,7 @@
     public async Task<ResourceReponse<T>> UpdateResourceAsync<T>(T resource, Seed seed)
       where T : DomainResource
     {
-      var channel = this.MamStorage.GetChannel(seed);
+      var channel = await this.MamStorage.GetChannel(seed);
 
       if (channel == null)
       {
@@ -124,7 +135,7 @@
       }
 
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
-      await channel.PublishAsync(message);
+      await channel.PublishAsync(message, (int)this.NetMode);
 
       resource.VersionId = message.Root.Value;
 
@@ -132,9 +143,28 @@
     }
 
     /// <inheritdoc />
-    public void AddChannel(MamChannel channel)
+    public async Task<T> GetResourceVersion<T>(Hash root, TryteString channelKey)
+      where T : DomainResource
     {
-      this.MamStorage.AddChannel(channel);
+      var subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
+      var message = await subscription.FetchSingle(root);
+
+      return this.Serializer.Deserialize<T>(message.Message);
+    }
+
+    /// <inheritdoc />
+    public async Task AddChannel(MamChannel channel)
+    {
+      if (!await this.HasChannel(channel.Seed))
+      {
+        await this.MamStorage.AddChannel(channel);
+      }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> HasChannel(Seed seed)
+    {
+      return await this.MamStorage.GetChannel(seed) != null;
     }
   }
 }

@@ -2,6 +2,7 @@
 {
   using System.Collections.Generic;
   using System.Linq;
+  using System.Threading.Tasks;
 
   using Tangle.Net.Entity;
   using Tangle.Net.Mam.Entity;
@@ -12,46 +13,57 @@
   public class MemoryCacheStatefulMam : IStatefulMam
   {
     /// <summary>
-    /// Initializes a new instance of the <see cref="MemoryCacheStatefulMam"/> class.
+    /// Gets or sets the channels.
     /// </summary>
-    public MemoryCacheStatefulMam()
-    {
-      this.Channels = new List<MamChannel>();
-      this.Subscriptions = new List<MamChannelSubscription>();
-    }
+    private static List<MamChannel> Channels { get; set; }
 
     /// <summary>
-    /// Gets the channels.
+    /// Gets or sets the subscriptions.
     /// </summary>
-    private List<MamChannel> Channels { get; }
-
-    /// <summary>
-    /// Gets the subscriptions.
-    /// </summary>
-    private List<MamChannelSubscription> Subscriptions { get; }
+    private static List<MamChannelSubscription> Subscriptions { get; set; }
 
     /// <inheritdoc />
-    public void AddChannel(MamChannel channel)
+    public async Task AddChannel(MamChannel channel)
     {
-      this.Channels.Add(channel);
+      if (Channels == null)
+      {
+        Channels = new List<MamChannel>();
+      }
+
+      Channels.Add(channel);
     }
 
     /// <inheritdoc />
-    public void AddChannelSubscription(MamChannelSubscription subscription)
+    public async Task AddChannelSubscription(MamChannelSubscription subscription)
     {
-      this.Subscriptions.Add(subscription);
+      if (Subscriptions == null)
+      {
+        Subscriptions = new List<MamChannelSubscription>();
+      }
+
+      Subscriptions.Add(subscription);
     }
 
     /// <inheritdoc />
-    public MamChannel GetChannel(Seed seed)
+    public async Task<MamChannel> GetChannel(Seed seed)
     {
-      return this.Channels.FirstOrDefault(c => c.Seed.Value == seed.Value);
+      if (Channels == null)
+      {
+        Channels = new List<MamChannel>();
+      }
+
+      return Channels.FirstOrDefault(c => c.Seed.Value == seed.Value);
     }
 
     /// <inheritdoc />
-    public MamChannelSubscription GetSubscription(Hash root)
+    public async Task<MamChannelSubscription> GetSubscription(Hash root)
     {
-      return this.Subscriptions.FirstOrDefault(s => s.MessageRoot.Value == root.Value);
+      if (Subscriptions == null)
+      {
+        Subscriptions = new List<MamChannelSubscription>();
+      }
+
+      return Subscriptions.FirstOrDefault(s => s.MessageRoot.Value == root.Value);
     }
   }
 }
