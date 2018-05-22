@@ -84,6 +84,8 @@
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message, (int)this.NetMode);
 
+      resource.VersionId = rootTree.Root.Hash.Value;
+
       await this.MamStorage.AddChannel(channel);
 
       return new ResourceReponse<T> { Message = message, Resource = resource, Channel = channel };
@@ -103,7 +105,7 @@
 
       var messages = await subscription.FetchAsync();
 
-      return messages.Select(m => this.Serializer.Deserialize<T>(m.Message)).ToList();
+      return messages.Select(this.ResourceFromMessage<T>).ToList();
     }
 
     /// <inheritdoc />
@@ -120,7 +122,7 @@
       
       var messages = await subscription.FetchAsync();
 
-      return this.Serializer.Deserialize<T>(messages.Last().Message);
+      return this.ResourceFromMessage<T>(messages.Last());
     }
 
     /// <inheritdoc />
@@ -149,7 +151,7 @@
       var subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
       var message = await subscription.FetchSingle(root);
 
-      return this.Serializer.Deserialize<T>(message.Message);
+      return this.ResourceFromMessage<T>(message);
     }
 
     /// <inheritdoc />
@@ -165,6 +167,27 @@
     public async Task<bool> HasChannel(Seed seed)
     {
       return await this.MamStorage.GetChannel(seed) != null;
+    }
+
+    /// <summary>
+    /// The resource from message.
+    /// </summary>
+    /// <param name="message">
+    /// The message.
+    /// </param>
+    /// <typeparam name="T">
+    /// The resource type.
+    /// </typeparam>
+    /// <returns>
+    /// The <see cref="T"/>.
+    /// </returns>
+    private T ResourceFromMessage<T>(UnmaskedAuthenticatedMessage message)
+      where T : DomainResource
+    {
+      var resource = this.Serializer.Deserialize<T>(message.Message);
+      resource.VersionId = message.Root.Value;
+
+      return resource;
     }
   }
 }
