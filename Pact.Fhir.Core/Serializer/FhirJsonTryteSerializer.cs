@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Serializer
+﻿namespace Pact.Fhir.Core.Serializer
 {
   using Hl7.Fhir.Model;
   using Hl7.Fhir.Serialization;

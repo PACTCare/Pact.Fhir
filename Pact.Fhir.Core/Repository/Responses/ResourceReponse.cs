@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Repository.Responses
+﻿namespace Pact.Fhir.Core.Repository.Responses
 {
   using Hl7.Fhir.Model;
 

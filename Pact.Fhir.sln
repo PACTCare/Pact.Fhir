@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tangle.Net.Fhir.Core", "Tangle.Net.Fhir.Core\Tangle.Net.Fhir.Core.csproj", "{967A5165-0021-4527-BB5C-153B9578603C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core", "Pact.Fhir.Core\Pact.Fhir.Core.csproj", "{967A5165-0021-4527-BB5C-153B9578603C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tangle.Net.Fhir.Core.Tests", "Tangle.Net.Fhir.Core.Tests\Tangle.Net.Fhir.Core.Tests.csproj", "{9EE3D445-75E6-426D-8939-3330B2918C1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core.Tests", "Pact.Fhir.Core.Tests\Pact.Fhir.Core.Tests.csproj", "{9EE3D445-75E6-426D-8939-3330B2918C1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

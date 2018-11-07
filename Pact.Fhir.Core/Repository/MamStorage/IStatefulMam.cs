@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Repository.MamStorage
+﻿namespace Pact.Fhir.Core.Repository.MamStorage
 {
   using System.Threading.Tasks;
 

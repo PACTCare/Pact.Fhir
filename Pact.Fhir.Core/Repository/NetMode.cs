@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Repository
+﻿namespace Pact.Fhir.Core.Repository
 {
   /// <summary>
   /// The mode.

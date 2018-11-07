@@ -10,11 +10,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
-    <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.0.3" />
+    <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tangle.Net.Fhir.Core\Tangle.Net.Fhir.Core.csproj" />
+    <ProjectReference Include="..\Pact.Fhir.Core\Pact.Fhir.Core.csproj" />
   </ItemGroup>
 
 </Project>

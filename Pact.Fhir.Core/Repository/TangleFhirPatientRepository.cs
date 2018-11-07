@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Repository
+﻿namespace Pact.Fhir.Core.Repository
 {
   using System;
   using System.Collections.Generic;
@@ -7,11 +7,12 @@
 
   using Hl7.Fhir.Model;
 
+  using Pact.Fhir.Core.Repository.MamStorage;
+  using Pact.Fhir.Core.Repository.Responses;
+  using Pact.Fhir.Core.Serializer;
+
   using Tangle.Net.Cryptography;
   using Tangle.Net.Entity;
-  using Tangle.Net.Fhir.Core.Repository.MamStorage;
-  using Tangle.Net.Fhir.Core.Repository.Responses;
-  using Tangle.Net.Fhir.Core.Serializer;
   using Tangle.Net.Mam.Entity;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;

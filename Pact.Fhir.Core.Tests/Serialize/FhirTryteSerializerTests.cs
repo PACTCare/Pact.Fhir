@@ -1,11 +1,11 @@
-﻿namespace Tangle.Net.Fhir.Core.Tests.Serialize
+﻿namespace Pact.Fhir.Core.Tests.Serialize
 {
   using Hl7.Fhir.Model;
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-  using Tangle.Net.Fhir.Core.Serializer;
-  using Tangle.Net.Fhir.Core.Tests.Helpers;
+  using Pact.Fhir.Core.Serializer;
+  using Pact.Fhir.Core.Tests.Helpers;
 
   /// <summary>
   /// The fhir tryte serializer tests.

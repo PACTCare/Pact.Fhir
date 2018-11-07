@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Tests.Repository
+﻿namespace Pact.Fhir.Core.Tests.Repository
 {
   using System;
 
@@ -6,11 +6,12 @@
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+  using Pact.Fhir.Core.Repository;
+  using Pact.Fhir.Core.Repository.MamStorage;
+  using Pact.Fhir.Core.Serializer;
+  using Pact.Fhir.Core.Tests.Helpers;
+
   using Tangle.Net.Entity;
-  using Tangle.Net.Fhir.Core.Repository;
-  using Tangle.Net.Fhir.Core.Repository.MamStorage;
-  using Tangle.Net.Fhir.Core.Serializer;
-  using Tangle.Net.Fhir.Core.Tests.Helpers;
 
   using Task = System.Threading.Tasks.Task;
 

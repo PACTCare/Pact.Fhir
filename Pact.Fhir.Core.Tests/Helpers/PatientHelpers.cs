@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Tests.Helpers
+﻿namespace Pact.Fhir.Core.Tests.Helpers
 {
   using Hl7.Fhir.Model;
 
@@ -47,7 +47,7 @@
       patient.Contact.Add(contact);
 
       patient.Address.Add(
-        new Address { Line = new[] { "3300 Washtenaw Avenue, Suite 227" }, City = "Ann Arbor", State = "MI", PostalCode = "48104", Country = "USA" });
+        new Address { Line = new[] { "3333 Dream Avenue, Suite 234" }, City = "Dreamville", State = "DV", PostalCode = "12345", Country = "USA" });
 
       patient.Deceased = new FhirBoolean(false);
 

@@ -1,4 +1,4 @@
-﻿namespace Tangle.Net.Fhir.Core.Tests.Repository
+﻿namespace Pact.Fhir.Core.Tests.Repository
 {
   using System.Collections.Generic;
   using System.Linq;
@@ -164,6 +164,12 @@
     }
 
     /// <inheritdoc />
+    public Task<TransactionsToApprove> GetTransactionsToApproveAsync(int depth = 8, Hash reference = null)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
     public Task<TransactionsToApprove> GetTransactionsToApproveAsync(int depth = 27)
     {
       return null;
@@ -211,6 +217,30 @@
 
     /// <inheritdoc />
     public Task<List<Address>> WereAddressesSpentFromAsync(List<Address> addresses)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
+    public ConsistencyInfo CheckConsistency(List<Hash> tailHashes)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
+    public Task<ConsistencyInfo> CheckConsistencyAsync(List<Hash> tailHashes)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
+    public Task<bool> IsPromotableAsync(Hash tailTransaction, int depth = 6)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
+    public Task PromoteTransactionAsync(Hash tailTransaction, int depth = 8, int minWeightMagnitude = 14, int attempts = 10)
     {
       return null;
     }
