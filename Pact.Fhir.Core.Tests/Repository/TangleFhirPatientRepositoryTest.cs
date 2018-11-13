@@ -34,7 +34,7 @@
       var repository = new TangleFhirPatientRepository(iotaRepository, new FhirJsonTryteSerializer(), new MemoryCacheStatefulMam(), NetMode.Testnet);
       var response = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), Seed.Random(), Seed.Random());
 
-      var patient = await repository.GetResourceAsync<Patient>(response.Message.Root, response.Channel.Key);
+      var patient = await repository.GetResourceAsync<Patient>(response.Message.Root);
 
       Assert.IsTrue(response.Resource.IsExactly(patient));
     }
@@ -77,7 +77,7 @@
 
       await repository.UpdateResourceAsync(resource, seed);
 
-      var resources = await repository.GetHistory<Patient>(createResponse.Message.Root, seed);
+      var resources = await repository.GetHistory<Patient>(createResponse.Message.Root);
 
       Assert.AreEqual(2, resources.Count);
       Assert.AreEqual(AdministrativeGender.Male, resources[0].Gender);
@@ -103,7 +103,7 @@
 
       var updateResponse = await repository.UpdateResourceAsync(resource, seed);
 
-      var patient = await repository.GetResourceAsync<Patient>(createResponse.Message.Root, createResponse.Channel.Key);
+      var patient = await repository.GetResourceAsync<Patient>(createResponse.Message.Root);
 
       Assert.AreEqual(AdministrativeGender.Female, patient.Gender);
       Assert.AreEqual(AdministrativeGender.Female, updateResponse.Resource.Gender);
@@ -124,8 +124,8 @@
       var seed = Seed.Random();
       var createResponse = await repository.CreateResourceAsync(PatientHelpers.GetPatient(), seed, seed);
 
-      var patient = await repository.GetResourceAsync<Patient>(createResponse.Message.Root, createResponse.Channel.Key);
-      var secondPatient = await repository.GetResourceAsync<Patient>(createResponse.Message.Root, createResponse.Channel.Key);
+      var patient = await repository.GetResourceAsync<Patient>(createResponse.Message.Root);
+      var secondPatient = await repository.GetResourceAsync<Patient>(createResponse.Message.Root);
 
       Assert.IsTrue(patient.IsExactly(secondPatient));
     }
@@ -149,9 +149,9 @@
 
       await repository.UpdateResourceAsync(resource, seed);
 
-      var resources = await repository.GetHistory<Patient>(createResponse.Message.Root, seed);
+      var resources = await repository.GetHistory<Patient>(createResponse.Message.Root);
 
-      Assert.AreEqual(resources.Count, (await repository.GetHistory<Patient>(createResponse.Message.Root, seed)).Count);
+      Assert.AreEqual(resources.Count, (await repository.GetHistory<Patient>(createResponse.Message.Root)).Count);
     }
 
     /// <summary>
@@ -201,7 +201,7 @@
       var updateResponse = await repository.UpdateResourceAsync(resource, seed);
       Assert.AreEqual(AdministrativeGender.Female, updateResponse.Resource.Gender);
 
-      var resources = await repository.GetHistory<Patient>(createResponse.Message.Root, seed);
+      var resources = await repository.GetHistory<Patient>(createResponse.Message.Root);
       Assert.AreEqual(3, resources.Count);
     }
   }

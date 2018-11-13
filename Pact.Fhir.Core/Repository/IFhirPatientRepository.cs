@@ -55,16 +55,13 @@
     /// <param name="root">
     /// The root.
     /// </param>
-    /// <param name="channelKey">
-    /// The channel key.
-    /// </param>
     /// <typeparam name="T">
     /// The resource type.
     /// </typeparam>
     /// <returns>
     /// The <see cref="Task{TResult}"/>.
     /// </returns>
-    Task<List<T>> GetHistory<T>(Hash root, TryteString channelKey)
+    Task<List<T>> GetHistory<T>(Hash root)
       where T : DomainResource;
 
     /// <summary>
@@ -76,13 +73,10 @@
     /// <param name="root">
     /// The root.
     /// </param>
-    /// <param name="channelKey">
-    /// The channel key.
-    /// </param>
     /// <returns>
     /// The <see cref="System.Threading.Tasks.Task"/>.
     /// </returns>
-    Task<T> GetResourceAsync<T>(Hash root, TryteString channelKey)
+    Task<T> GetResourceAsync<T>(Hash root)
       where T : DomainResource;
 
     /// <summary>
@@ -91,16 +85,13 @@
     /// <param name="root">
     /// The root.
     /// </param>
-    /// <param name="channelKey">
-    /// The channel key.
-    /// </param>
     /// <typeparam name="T">
     /// The resource type.
     /// </typeparam>
     /// <returns>
     /// The <see cref="Task"/>.
     /// </returns>
-    Task<T> GetResourceVersion<T>(Hash root, TryteString channelKey)
+    Task<T> GetResourceVersion<T>(Hash root)
       where T : DomainResource;
 
     /// <summary>

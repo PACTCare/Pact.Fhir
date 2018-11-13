@@ -88,20 +88,20 @@
       resource.VersionId = rootTree.Root.Hash.Value;
 
       await this.MamStorage.AddChannel(channel);
+      await this.MamStorage.AddChannelSubscription(this.SubscriptionFactory.Create(message.Root, Mode.Restricted, channelKey));
 
       return new ResourceReponse<T> { Message = message, Resource = resource, Channel = channel };
     }
 
     /// <inheritdoc />
-    public async Task<List<T>> GetHistory<T>(Hash root, TryteString channelKey)
+    public async Task<List<T>> GetHistory<T>(Hash root)
       where T : DomainResource
     {
       var subscription = await this.MamStorage.GetSubscription(root);
 
       if (subscription == null)
       {
-        subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
-        await this.MamStorage.AddChannelSubscription(subscription);
+        throw new ArgumentException("The given resource is not registered.");
       }
 
       var messages = await subscription.FetchAsync();
@@ -110,15 +110,14 @@
     }
 
     /// <inheritdoc />
-    public async Task<T> GetResourceAsync<T>(Hash root, TryteString channelKey)
+    public async Task<T> GetResourceAsync<T>(Hash root)
       where T : DomainResource
     {
       var subscription = await this.MamStorage.GetSubscription(root);
 
       if (subscription == null)
       {
-        subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
-        await this.MamStorage.AddChannelSubscription(subscription);
+        throw new ArgumentException("The given resource is not registered.");
       }
       
       var messages = await subscription.FetchAsync();
@@ -146,10 +145,16 @@
     }
 
     /// <inheritdoc />
-    public async Task<T> GetResourceVersion<T>(Hash root, TryteString channelKey)
+    public async Task<T> GetResourceVersion<T>(Hash root)
       where T : DomainResource
     {
-      var subscription = this.SubscriptionFactory.Create(root, Mode.Restricted, channelKey);
+      var subscription = await this.MamStorage.GetSubscription(root);
+
+      if (subscription == null)
+      {
+        throw new ArgumentException("The given resource is not registered.");
+      }
+
       var message = await subscription.FetchSingle(root);
 
       return this.ResourceFromMessage<T>(message);

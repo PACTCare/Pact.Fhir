@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core", "Pact.Fhir
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core.Tests", "Pact.Fhir.Core.Tests\Pact.Fhir.Core.Tests.csproj", "{9EE3D445-75E6-426D-8939-3330B2918C1A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Api", "Pact.Fhir.Api\Pact.Fhir.Api.csproj", "{15228401-2BC8-46FA-BD47-1487FAE435E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9EE3D445-75E6-426D-8939-3330B2918C1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EE3D445-75E6-426D-8939-3330B2918C1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EE3D445-75E6-426D-8939-3330B2918C1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15228401-2BC8-46FA-BD47-1487FAE435E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15228401-2BC8-46FA-BD47-1487FAE435E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15228401-2BC8-46FA-BD47-1487FAE435E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15228401-2BC8-46FA-BD47-1487FAE435E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
