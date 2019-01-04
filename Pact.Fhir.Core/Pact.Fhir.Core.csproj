@@ -21,8 +21,4 @@
     <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Usecase\" />
-  </ItemGroup>
-
 </Project>
