@@ -1,6 +1,6 @@
 # About
 
-This is the FHIR part of the Untangle Care Proof of Concept. It is meant for demonstration purposes only. Anyway feel free to play around with it.
+This is the FHIR part of Untangle Care
 
 Demonstration Video: [Click Me](https://www.youtube.com/watch?v=BXnkzEUQsTY&t=)
 
