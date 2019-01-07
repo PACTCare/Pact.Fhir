@@ -6,6 +6,16 @@
 
   public interface IFhirRepository
   {
+    /// <summary>
+    /// see http://hl7.org/fhir/http.html#create
+    /// implementations MUST set LogicalId, VersionId and LastUpdated
+    /// </summary>
+    /// <param name="resource">
+    /// The resource to create
+    /// </param>
+    /// <returns>
+    /// Resource with adjusted values (LogicalId, VersionId, LastUpdated)
+    /// </returns>
     Task<DomainResource> CreateResourceAsync(DomainResource resource);
 
     Task<DomainResource> ReadResourceAsync(string id);

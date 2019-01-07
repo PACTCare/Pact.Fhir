@@ -23,4 +23,8 @@
     <PackageReference Include="Hl7.Fhir.STU3" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entity\" />
+  </ItemGroup>
+
 </Project>

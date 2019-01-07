@@ -1,5 +1,6 @@
 ﻿namespace Pact.Fhir.Iota.Repository
 {
+  using System;
   using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
@@ -40,10 +41,9 @@
       var seed = Seed.Random();
       var channelKey = Seed.Random();
 
-      // New FHIR resources must be assigned a logical and a version id. Take hash of first message for that
-      var rootTree = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Low);
-      resource.Id = rootTree.Root.Hash.Value;
-      resource.VersionId = rootTree.Root.Hash.Value;
+      // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
+      var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Low).Root.Hash;
+      PopulateMetadata(resource, rootHash.Value, rootHash.Value);
 
       // Working with low security level for the sake of speed
       // TODO: Must be changed later!
@@ -58,6 +58,25 @@
     public Task<DomainResource> ReadResourceAsync(string id)
     {
       return null;
+    }
+
+    /// <summary>
+    /// "The server SHALL populate the id, meta.versionId and meta.lastUpdated"
+    /// </summary>
+    private static void PopulateMetadata(Resource resource, string id, string versionId)
+    {
+      resource.Id = id;
+
+      // TODO: This might be redundant, since meta holds the versionId too
+      resource.VersionId = versionId;
+
+      if (resource.Meta == null)
+      {
+        resource.Meta = new Meta();
+      }
+
+      resource.Meta.LastUpdated = DateTimeOffset.UtcNow;
+      resource.Meta.VersionId = versionId;
     }
   }
 }

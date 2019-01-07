@@ -19,13 +19,12 @@
     [TestMethod]
     public void TestJsonSerializing()
     {
-      var patient = FhirResourceProvider.GetPatient();
       var serializer = new FhirJsonTryteSerializer();
 
-      var patientAsTrytes = serializer.Serialize(patient);
+      var patientAsTrytes = serializer.Serialize(FhirResourceProvider.Patient);
       var unserialized = serializer.Deserialize<Patient>(patientAsTrytes);
 
-      Assert.IsTrue(patient.IsExactly(unserialized));
+      Assert.IsTrue(FhirResourceProvider.Patient.IsExactly(unserialized));
     }
   }
 }
