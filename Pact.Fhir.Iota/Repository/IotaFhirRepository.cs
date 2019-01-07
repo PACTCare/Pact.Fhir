@@ -1,12 +1,15 @@
 ﻿namespace Pact.Fhir.Iota.Repository
 {
   using System;
+  using System.Collections.Generic;
   using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
 
   using Pact.Fhir.Core.Repository;
+  using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Serializer;
+  using Pact.Fhir.Iota.Services;
 
   using Tangle.Net.Cryptography;
   using Tangle.Net.Entity;
@@ -15,14 +18,17 @@
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
+  using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
+
   /// <summary>
   /// Inject repository for now. Core Factory needs to be adjusted or injection has to be done another way, later
   /// </summary>
   public class IotaFhirRepository : IFhirRepository
   {
-    public IotaFhirRepository(IIotaRepository repository, IFhirTryteSerializer serializer)
+    public IotaFhirRepository(IIotaRepository repository, IFhirTryteSerializer serializer, IResourceTracker resourceTracker)
     {
       this.Serializer = serializer;
+      this.ResourceTracker = resourceTracker;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
@@ -30,6 +36,8 @@
     private MamChannelFactory ChannelFactory { get; }
 
     private IFhirTryteSerializer Serializer { get; }
+
+    private IResourceTracker ResourceTracker { get; }
 
     private MamChannelSubscriptionFactory SubscriptionFactory { get; }
 
@@ -50,6 +58,10 @@
       var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel.Low, channelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message);
+
+      // After successfully publishing a message, we can save that to the ResourceTracker.
+      // This will allow us to retrieve the channelKey for other usecases
+      this.ResourceTracker.AddEntry(new ResourceEntry { ChannelKey = channelKey, MerkleRoots = new List<TryteString> { rootHash } });
 
       return resource;
     }
