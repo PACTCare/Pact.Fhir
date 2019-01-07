@@ -1,5 +1,7 @@
 ﻿namespace Pact.Fhir.Core.Usecase
 {
+  using System.Threading.Tasks;
+
   using Pact.Fhir.Core.Repository;
 
   public abstract class UsecaseInteractor<TRequest, TResponse>
@@ -12,6 +14,6 @@
 
     protected IFhirRepository Repository { get; }
 
-    public abstract TResponse Execute(TRequest request);
+    public abstract Task<TResponse> ExecuteAsync(TRequest request);
   }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Pact.Fhir.Core.Usecase.CreateResource
 {
-  using System;
+  using System.Threading.Tasks;
 
   using Pact.Fhir.Core.Repository;
 
@@ -12,11 +12,11 @@
     {
     }
 
-    public override CreateResourceResponse Execute(CreateResourceRequest request)
+    public override async Task<CreateResourceResponse> ExecuteAsync(CreateResourceRequest request)
     {
-      this.Repository.CreateResource(request.Resource);
+      var resource = await this.Repository.CreateResourceAsync(request.Resource);
 
-      return new CreateResourceResponse { Code = ResponseCode.Success };
+      return new CreateResourceResponse { Code = ResponseCode.Success, LogicalId = resource.Id, VersionId = resource.VersionId };
     }
   }
 }

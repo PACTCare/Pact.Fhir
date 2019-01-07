@@ -1,6 +1,8 @@
 ﻿namespace Pact.Fhir.Core.Tests.Repository
 {
+  using System;
   using System.Collections.Generic;
+  using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
 
@@ -16,13 +18,19 @@
     public List<DomainResource> Resources { get; }
 
     /// <inheritdoc />
-    public void CreateResource(DomainResource resource)
+    public async Task<DomainResource> CreateResourceAsync(DomainResource resource)
     {
       this.Resources.Add(resource);
+
+      var resourceId = Guid.NewGuid();
+      resource.Id = resourceId.ToString();
+      resource.VersionId = resourceId.ToString();
+
+      return resource;
     }
 
     /// <inheritdoc />
-    public DomainResource ReadResource(string id)
+    public Task<DomainResource> ReadResourceAsync(string id)
     {
       return null;
     }

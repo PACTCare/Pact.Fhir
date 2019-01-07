@@ -1,11 +1,13 @@
 ﻿namespace Pact.Fhir.Core.Repository
 {
+  using System.Threading.Tasks;
+
   using Hl7.Fhir.Model;
 
   public interface IFhirRepository
   {
-    void CreateResource(DomainResource resource);
+    Task<DomainResource> CreateResourceAsync(DomainResource resource);
 
-    DomainResource ReadResource(string id);
+    Task<DomainResource> ReadResourceAsync(string id);
   }
 }
