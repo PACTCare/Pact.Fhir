@@ -7,7 +7,6 @@
   using Hl7.Fhir.Model;
 
   using Pact.Fhir.Core.Repository;
-  using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Services;
 
@@ -18,7 +17,7 @@
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
-  using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
+  using ResourceEntry = Entity.ResourceEntry;
 
   /// <summary>
   /// Inject repository for now. Core Factory needs to be adjusted or injection has to be done another way, later
@@ -35,9 +34,9 @@
 
     private MamChannelFactory ChannelFactory { get; }
 
-    private IFhirTryteSerializer Serializer { get; }
-
     private IResourceTracker ResourceTracker { get; }
+
+    private IFhirTryteSerializer Serializer { get; }
 
     private MamChannelSubscriptionFactory SubscriptionFactory { get; }
 
@@ -74,9 +73,15 @@
 
     /// <summary>
     /// "The server SHALL populate the id, meta.versionId and meta.lastUpdated"
+    /// Id Pattern: [A-Za-z0-9\-\.]{1,64} (see Id.PATTERN)
+    /// https://www.hl7.org/fhir/datatypes.html#id
     /// </summary>
     private static void PopulateMetadata(Resource resource, string id, string versionId)
     {
+      // adjust length of ids to FHIR specified length
+      id = id.Substring(0, 64);
+      versionId = versionId.Substring(0, 64);
+
       resource.Id = id;
 
       // TODO: This might be redundant, since meta holds the versionId too

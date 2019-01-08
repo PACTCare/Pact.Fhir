@@ -1,7 +1,9 @@
 ﻿namespace Pact.Fhir.Iota.Tests.Repository
 {
   using System;
-  using System.Threading.Tasks;
+  using System.Text.RegularExpressions;
+
+  using Hl7.Fhir.Model;
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,6 +15,8 @@
 
   using Tangle.Net.Utils;
 
+  using Task = System.Threading.Tasks.Task;
+
   [TestClass]
   public class IotaFhirRepositoryTest
   {
@@ -23,6 +27,7 @@
       var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
+      Assert.AreEqual(1, Regex.Matches(resource.Id, Id.PATTERN).Count);
       Assert.AreEqual(resource.Id, resource.VersionId);
       Assert.AreEqual(resource.VersionId, resource.Meta.VersionId);
 
