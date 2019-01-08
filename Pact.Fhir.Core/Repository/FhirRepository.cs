@@ -1,7 +1,6 @@
 ﻿namespace Pact.Fhir.Core.Repository
 {
   using System;
-  using System.Diagnostics;
   using System.Text.RegularExpressions;
   using System.Threading.Tasks;
 
@@ -23,6 +22,16 @@
     /// </returns>
     public abstract Task<DomainResource> CreateResourceAsync(DomainResource resource);
 
+    /// <summary>
+    /// see https://www.hl7.org/fhir/http.html#read
+    /// The returned resource SHALL have an id element with a value that is the [id]
+    /// </summary>
+    /// <param name="id">
+    /// Id of the requested resource
+    /// </param>
+    /// <returns>
+    /// The requested resource
+    /// </returns>
     public abstract Task<DomainResource> ReadResourceAsync(string id);
 
     /// <summary>
