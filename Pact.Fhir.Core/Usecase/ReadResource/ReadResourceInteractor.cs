@@ -1,7 +1,9 @@
 ﻿namespace Pact.Fhir.Core.Usecase.ReadResource
 {
+  using System;
   using System.Threading.Tasks;
 
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   /// <summary>
@@ -16,9 +18,20 @@
     }
 
     /// <inheritdoc />
-    public override Task<ReadResourceResponse> ExecuteAsync(ReadResourceRequest request)
+    public override async Task<ReadResourceResponse> ExecuteAsync(ReadResourceRequest request)
     {
-      return null;
+      try
+      {
+        return new ReadResourceResponse { Code = ResponseCode.Success, Resource = await this.Repository.ReadResourceAsync(request.ResourceId) };
+      }
+      catch (ResourceNotFoundException)
+      {
+        return new ReadResourceResponse { Code = ResponseCode.ResourceNotFound };
+      }
+      catch (Exception)
+      {
+        return new ReadResourceResponse { Code = ResponseCode.Failure };
+      }
     }
   }
 }

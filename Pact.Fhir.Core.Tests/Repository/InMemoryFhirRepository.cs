@@ -2,10 +2,12 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.Linq;
   using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
 
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   public class InMemoryFhirRepository : FhirRepository
@@ -41,9 +43,16 @@
     }
 
     /// <inheritdoc />
-    public override Task<DomainResource> ReadResourceAsync(string id)
+    public override async Task<DomainResource> ReadResourceAsync(string id)
     {
-      return null;
+      var resource = this.Resources.FirstOrDefault(r => r.Id == id);
+
+      if (resource == null)
+      {
+        throw new ResourceNotFoundException(id);
+      }
+
+      return resource;
     }
   }
 }

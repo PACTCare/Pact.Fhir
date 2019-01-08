@@ -4,6 +4,8 @@
   {
     Success = 1,
 
-    Failure = -1
+    Failure = -1,
+
+    ResourceNotFound = -2
   }
 }
