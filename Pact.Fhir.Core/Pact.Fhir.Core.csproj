@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -19,12 +23,12 @@
     <PackageProjectUrl>https://ecosystem.iota.org/projects/untangle-care</PackageProjectUrl>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Hl7.Fhir.STU3" Version="1.0.0" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entity\" />
+    <PackageReference Include="Hl7.Fhir.STU3" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

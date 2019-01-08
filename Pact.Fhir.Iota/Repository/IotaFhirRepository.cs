@@ -22,7 +22,7 @@
   /// <summary>
   /// Inject repository for now. Core Factory needs to be adjusted or injection has to be done another way, later
   /// </summary>
-  public class IotaFhirRepository : IFhirRepository
+  public class IotaFhirRepository : FhirRepository
   {
     public IotaFhirRepository(IIotaRepository repository, IFhirTryteSerializer serializer, IResourceTracker resourceTracker)
     {
@@ -41,7 +41,7 @@
     private MamChannelSubscriptionFactory SubscriptionFactory { get; }
 
     /// <inheritdoc />
-    public async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+    public override async Task<DomainResource> CreateResourceAsync(DomainResource resource)
     {
       // Setup for unlinked resources (not linked to a user seed)
       // User seed handling has to be implemented later (must conform FHIR specifications)
@@ -50,7 +50,7 @@
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
       var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Low).Root.Hash;
-      PopulateMetadata(resource, rootHash.Value, rootHash.Value);
+      this.PopulateMetadata(resource, rootHash.Value, rootHash.Value);
 
       // Working with low security level for the sake of speed
       // TODO: Must be changed later!
@@ -66,34 +66,9 @@
     }
 
     /// <inheritdoc />
-    public Task<DomainResource> ReadResourceAsync(string id)
+    public override async Task<DomainResource> ReadResourceAsync(string id)
     {
       return null;
-    }
-
-    /// <summary>
-    /// "The server SHALL populate the id, meta.versionId and meta.lastUpdated"
-    /// Id Pattern: [A-Za-z0-9\-\.]{1,64} (see Id.PATTERN)
-    /// https://www.hl7.org/fhir/datatypes.html#id
-    /// </summary>
-    private static void PopulateMetadata(Resource resource, string id, string versionId)
-    {
-      // adjust length of ids to FHIR specified length
-      id = id.Substring(0, 64);
-      versionId = versionId.Substring(0, 64);
-
-      resource.Id = id;
-
-      // TODO: This might be redundant, since meta holds the versionId too
-      resource.VersionId = versionId;
-
-      if (resource.Meta == null)
-      {
-        resource.Meta = new Meta();
-      }
-
-      resource.Meta.LastUpdated = DateTimeOffset.UtcNow;
-      resource.Meta.VersionId = versionId;
     }
   }
 }

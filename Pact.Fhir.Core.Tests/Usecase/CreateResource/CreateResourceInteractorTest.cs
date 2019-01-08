@@ -31,7 +31,7 @@
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
       Assert.AreEqual(response.LogicalId, response.VersionId);
-      Assert.IsTrue(Guid.TryParse(response.LogicalId, out _));
+      Assert.AreEqual("SOMEFHIRCONFORMID1234", response.LogicalId);
 
       Assert.AreEqual(1, fhirRepository.Resources.Count);
       Assert.IsTrue(resource.IsExactly(fhirRepository.Resources[0]));
@@ -40,7 +40,7 @@
     [TestMethod]
     public async Task TestRepositoryThrowsExceptionShouldReturnErrorCode()
     {
-      var repositoryMock = new Mock<IFhirRepository>();
+      var repositoryMock = new Mock<FhirRepository>();
       repositoryMock.Setup(r => r.CreateResourceAsync(It.IsAny<DomainResource>())).ThrowsAsync(new Exception("Catch me if you can"));
       var interactor = new CreateResourceInteractor(repositoryMock.Object);
 

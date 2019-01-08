@@ -9,6 +9,7 @@
   using Pact.Fhir.Core.Tests.Repository;
 
   [TestClass]
+  [Ignore("Deactivated until refactored with DI")]
   public class FhirRepositoryFactoryTest
   {
     [TestMethod]

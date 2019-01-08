@@ -9,12 +9,12 @@
   {
     private static readonly object LockObject = new object();
 
-    public static IFhirRepository Create(string assemblyName, string typeName)
+    public static FhirRepository Create(string assemblyName, string typeName)
     {
       lock (LockObject)
       {
         var assembly = Assembly.LoadFrom(assemblyName);
-        if (!(assembly.CreateInstance(typeName) is IFhirRepository repository))
+        if (!(assembly.CreateInstance(typeName) is FhirRepository repository))
         {
           throw new Exception($"Can not instantiate IFhirRepository: {assemblyName}/{typeName}");
         }

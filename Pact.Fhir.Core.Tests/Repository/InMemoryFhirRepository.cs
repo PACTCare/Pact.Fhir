@@ -8,29 +8,40 @@
 
   using Pact.Fhir.Core.Repository;
 
-  public class InMemoryFhirRepository : IFhirRepository
+  public class InMemoryFhirRepository : FhirRepository
   {
-    public InMemoryFhirRepository()
+    public InMemoryFhirRepository(string creationId = null)
     {
+      this.CreationId = creationId;
       this.Resources = new List<DomainResource>();
     }
 
     public List<DomainResource> Resources { get; }
 
+    private string CreationId { get; }
+
     /// <inheritdoc />
-    public async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+    public override async Task<DomainResource> CreateResourceAsync(DomainResource resource)
     {
       this.Resources.Add(resource);
 
-      var resourceId = Guid.NewGuid();
-      resource.Id = resourceId.ToString();
-      resource.VersionId = resourceId.ToString();
+      string resourceId;
+      if (this.CreationId != null)
+      {
+        resourceId = this.CreationId;
+      }
+      else
+      {
+        resourceId = "SOMEFHIRCONFORMID1234";
+      }
+
+      this.PopulateMetadata(resource, resourceId, resourceId);
 
       return resource;
     }
 
     /// <inheritdoc />
-    public Task<DomainResource> ReadResourceAsync(string id)
+    public override Task<DomainResource> ReadResourceAsync(string id)
     {
       return null;
     }
