@@ -1,6 +1,7 @@
 ﻿namespace Pact.Fhir.Iota.Tests.Services
 {
   using System.Collections.Generic;
+  using System.Linq;
 
   using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Services;
@@ -23,9 +24,9 @@
     }
 
     /// <inheritdoc />
-    public TryteString GetChannelKey(Hash versionId)
+    public ResourceEntry GetEntry(string versionId)
     {
-      return null;
+      return this.Entries.FirstOrDefault(e => e.MerkleRoots.Any(h => h.Value.Contains(versionId)));
     }
   }
 }

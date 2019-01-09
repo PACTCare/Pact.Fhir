@@ -11,6 +11,6 @@
   {
     public TryteString ChannelKey { get; set; }
 
-    public List<TryteString> MerkleRoots { get; set; }
+    public List<Hash> MerkleRoots { get; set; }
   }
 }

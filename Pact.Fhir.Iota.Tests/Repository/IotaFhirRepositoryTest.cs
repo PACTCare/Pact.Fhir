@@ -38,5 +38,15 @@
       Assert.IsTrue(InputValidator.IsTrytes(resource.Id));
       Assert.AreEqual(1, resourceTracker.Entries.Count);
     }
+
+    [TestMethod]
+    public async Task TestResourceCanBeReadFromTangle()
+    {
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
+      var readResource = await repository.ReadResourceAsync(createdResource.Id);
+
+      Assert.IsTrue(createdResource.IsExactly(readResource));
+    }
   }
 }

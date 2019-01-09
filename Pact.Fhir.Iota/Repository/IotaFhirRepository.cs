@@ -1,7 +1,7 @@
 ﻿namespace Pact.Fhir.Iota.Repository
 {
-  using System;
   using System.Collections.Generic;
+  using System.Linq;
   using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
@@ -10,14 +10,13 @@
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Services;
 
-  using Tangle.Net.Cryptography;
   using Tangle.Net.Entity;
   using Tangle.Net.Mam.Entity;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
-  using ResourceEntry = Entity.ResourceEntry;
+  using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
 
   /// <summary>
   /// Inject repository for now. Core Factory needs to be adjusted or injection has to be done another way, later
@@ -31,6 +30,9 @@
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
+
+    // Working with low security level for the sake of speed
+    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -49,18 +51,16 @@
       var channelKey = Seed.Random();
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
-      var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Low).Root.Hash;
+      var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel).Root.Hash;
       this.PopulateMetadata(resource, rootHash.Value, rootHash.Value);
 
-      // Working with low security level for the sake of speed
-      // TODO: Must be changed later!
-      var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel.Low, channelKey);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel, channelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message);
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
       // This will allow us to retrieve the channelKey for other usecases
-      this.ResourceTracker.AddEntry(new ResourceEntry { ChannelKey = channelKey, MerkleRoots = new List<TryteString> { rootHash } });
+      this.ResourceTracker.AddEntry(new ResourceEntry { ChannelKey = channelKey, MerkleRoots = new List<Hash> { rootHash } });
 
       return resource;
     }
@@ -68,7 +68,18 @@
     /// <inheritdoc />
     public override async Task<DomainResource> ReadResourceAsync(string id)
     {
-      return null;
+      // Get the tracked resource associated with the given id and filter the MAM root from that
+      var resourceEntry = this.ResourceTracker.GetEntry(id);
+      var resourceRoot = resourceEntry.MerkleRoots.First(r => r.Value.Contains(id));
+
+      // now we can read the FHIR resource from the MAM stream
+      var subscription = this.SubscriptionFactory.Create(
+        resourceRoot,
+        Mode.Restricted,
+        resourceEntry.ChannelKey);
+      var message = await subscription.FetchSingle(resourceRoot);
+
+      return this.Serializer.Deserialize<DomainResource>(message.Message);
     }
   }
 }
