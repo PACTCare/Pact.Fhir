@@ -32,7 +32,7 @@
     }
 
     // Working with low security level for the sake of speed
-    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
+    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Medium;
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -77,9 +77,13 @@
         resourceRoot,
         Mode.Restricted,
         resourceEntry.ChannelKey);
-      var message = await subscription.FetchSingle(resourceRoot);
 
-      return this.Serializer.Deserialize<DomainResource>(message.Message);
+      // Fetch all messages
+      var messages = await subscription.FetchAsync();
+
+      // Return the last message, since it contains the latest resource entry
+      // TODO: Caching is needed here, or it will take a lot of time
+      return this.Serializer.Deserialize<DomainResource>(messages.Last().Message);
     }
   }
 }

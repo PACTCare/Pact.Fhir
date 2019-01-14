@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core", "Pact.Fhir
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core.Tests", "Pact.Fhir.Core.Tests\Pact.Fhir.Core.Tests.csproj", "{9EE3D445-75E6-426D-8939-3330B2918C1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota", "Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{7B275AFC-1B94-4D40-952A-E8B48DA07C42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.Tests", "Pact.Fhir.Iota.Tests\Pact.Fhir.Iota.Tests.csproj", "{598E35B4-0A8D-4EC5-8128-C5998AC177E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.Tests", "Pact.Fhir.Iota.Tests\Pact.Fhir.Iota.Tests.csproj", "{598E35B4-0A8D-4EC5-8128-C5998AC177E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota", "Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +25,14 @@ Global
 		{9EE3D445-75E6-426D-8939-3330B2918C1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EE3D445-75E6-426D-8939-3330B2918C1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EE3D445-75E6-426D-8939-3330B2918C1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B275AFC-1B94-4D40-952A-E8B48DA07C42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B275AFC-1B94-4D40-952A-E8B48DA07C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B275AFC-1B94-4D40-952A-E8B48DA07C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B275AFC-1B94-4D40-952A-E8B48DA07C42}.Release|Any CPU.Build.0 = Release|Any CPU
 		{598E35B4-0A8D-4EC5-8128-C5998AC177E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{598E35B4-0A8D-4EC5-8128-C5998AC177E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{598E35B4-0A8D-4EC5-8128-C5998AC177E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{598E35B4-0A8D-4EC5-8128-C5998AC177E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
