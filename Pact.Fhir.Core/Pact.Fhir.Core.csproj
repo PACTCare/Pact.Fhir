@@ -1,24 +1,34 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>Full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>0.0.1.0</Version>
-    <Authors>Felandil</Authors>
-    <Company>Felandil</Company>
-    <Description>Fihr to IOTA Mam Connector</Description>
+    <Authors>Sebastian Fuhrhop</Authors>
+    <Company>Pact Care BV</Company>
+    <Description>Pact core for interaction with FHIR resources</Description>
     <PackageTags>iota fihr csharp</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://github.com/Felandil/tangle-.net/blob/develop/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/PACTCare/Pact.Fhir/blob/master/LICENSE</PackageLicenseUrl>
     <AssemblyVersion>0.0.1.0</AssemblyVersion>
     <FileVersion>0.0.1.0</FileVersion>
     <PackageId>Pact.Fhir.Core</PackageId>
     <AssemblyName>Pact.Fhir.Core</AssemblyName>
     <RootNamespace>Pact.Fhir.Core</RootNamespace>
+    <RepositoryUrl>https://github.com/PACTCare/Pact.Fhir</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageProjectUrl>https://ecosystem.iota.org/projects/untangle-care</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hl7.Fhir.STU3" Version="0.95.0" />
-    <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.1" />
+    <PackageReference Include="Hl7.Fhir.STU3" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
