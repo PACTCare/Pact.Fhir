@@ -13,50 +13,50 @@ For the sake of simplicity the documentation will use the in memory solution bel
 
 
 .. code-block:: python
-  public class InMemoryFhirRepository : FhirRepository
-  {
-    public InMemoryFhirRepository()
-    {
-      this.Resources = new List<DomainResource>();
-    }
-
-    public List<DomainResource> Resources { get; }
-
-    /// <inheritdoc />
-    public override async Task<DomainResource> CreateResourceAsync(DomainResource resource)
-    {
-      var resourceId = Guid.NewGuid().ToString("N");
-
-      this.PopulateMetadata(resource, resourceId, resourceId);
-      this.Resources.Add(resource);
-
-      return resource;
-    }
-
-    /// <inheritdoc />
-    public override async Task<DomainResource> ReadResourceAsync(string id)
-    {
-      var resource = this.Resources.FirstOrDefault(r => r.Id == id);
-
-      if (resource == null)
+   public class InMemoryFhirRepository : FhirRepository
+   {
+      public InMemoryFhirRepository()
       {
-        throw new ResourceNotFoundException(id);
+        this.Resources = new List<DomainResource>();
       }
 
-      return resource;
-    }
-  }
+      public List<DomainResource> Resources { get; }
+
+      /// <inheritdoc />
+      public override async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+      {
+        var resourceId = Guid.NewGuid().ToString("N");
+
+        this.PopulateMetadata(resource, resourceId, resourceId);
+        this.Resources.Add(resource);
+
+        return resource;
+      }
+
+      /// <inheritdoc />
+      public override async Task<DomainResource> ReadResourceAsync(string id)
+      {
+        var resource = this.Resources.FirstOrDefault(r => r.Id == id);
+
+        if (resource == null)
+        {
+          throw new ResourceNotFoundException(id);
+        }
+
+        return resource;
+      }
+   }
 
 Creating a resource
 ----------------------
 
 .. code-block:: python
-    var interactor = new CreateResourceInteractor(new InMemoryFhirRepository());
-    var response = await interactor.ExecuteAsync(new CreateResourceRequest { Resource = resource });
+   var interactor = new CreateResourceInteractor(new InMemoryFhirRepository());
+   var response = await interactor.ExecuteAsync(new CreateResourceRequest { Resource = resource });
 
 Reading a resource
 ----------------------
 
 .. code-block:: python
-    var interactor = new ReadResourceInteractor(new InMemoryFhirRepository());
-    var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "yourfhirresourcelogicalid" });
+   var interactor = new ReadResourceInteractor(new InMemoryFhirRepository());
+   var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "yourfhirresourcelogicalid" });
