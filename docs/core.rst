@@ -13,6 +13,7 @@ For the sake of simplicity the documentation will use the in memory solution bel
 
 
 .. code-block:: python
+
    public class InMemoryFhirRepository : FhirRepository
    {
       public InMemoryFhirRepository()
@@ -51,6 +52,7 @@ Creating a resource
 ----------------------
 
 .. code-block:: python
+
    var interactor = new CreateResourceInteractor(new InMemoryFhirRepository());
    var response = await interactor.ExecuteAsync(new CreateResourceRequest { Resource = resource });
 
@@ -58,5 +60,6 @@ Reading a resource
 ----------------------
 
 .. code-block:: python
+
    var interactor = new ReadResourceInteractor(new InMemoryFhirRepository());
    var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "yourfhirresourcelogicalid" });
