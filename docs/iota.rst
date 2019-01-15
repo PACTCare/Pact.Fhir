@@ -25,7 +25,8 @@ The IOTA FHIR repository is coupled to the tangle.net IOTA REST implementation.
 See: https://github.com/PACTCare/Pact.Fhir/blob/develop/Pact.Fhir.Iota.Tests/Utils/IotaResourceProvider.cs
 
 
-.. code-block:: c
+.. code-block:: python
+
   var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
   var creationInteractor = new CreateResourceInteractor(repository);
   var response = await creationInteractor.ExecuteAsync(new CreateResourceRequest { Resource = resource });
