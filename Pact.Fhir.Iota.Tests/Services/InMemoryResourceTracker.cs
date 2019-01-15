@@ -6,8 +6,6 @@
   using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Services;
 
-  using Tangle.Net.Entity;
-
   internal class InMemoryResourceTracker : IResourceTracker
   {
     public InMemoryResourceTracker()
