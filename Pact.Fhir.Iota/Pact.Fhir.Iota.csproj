@@ -2,15 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1.0</Version>
+    <Authors>Pact Care BV</Authors>
+    <Company>Pact Care BVPact Care BV</Company>
+    <Description>IOTA implementation to work with the FHIR core</Description>
+    <Copyright>2019 PACT Care</Copyright>
+    <PackageLicenseUrl>https://github.com/PACTCare/Pact.Fhir/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://ecosystem.iota.org/projects/untangle-care</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PACTCare/Pact.Fhir</RepositoryUrl>
+    <PackageTags>iota fihr csharp</PackageTags>
+    <RepositoryType>github</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Hl7.Fhir.STU3" Version="1.0.0" />
+    <PackageReference Include="Pact.Fhir.Core" Version="0.0.1" />
     <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Pact.Fhir.Core\Pact.Fhir.Core.csproj" />
   </ItemGroup>
 
 </Project>

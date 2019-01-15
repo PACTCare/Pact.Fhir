@@ -1,9 +1,7 @@
 # PACT Fhir
 [![Build status](https://florencechat.visualstudio.com/PACT%20Fhir/_apis/build/status/PACT%20Fhir-CI)](https://florencechat.visualstudio.com/PACT%20Fhir/_build/latest?definitionId=13)
 
-> FHIR® – Fast Healthcare Interoperability Resources
-
-FHIR® – Fast Healthcare Interoperability Resources (hl7.org/fhir) – is a next generation standards framework created by HL7.
+> FHIR® – Fast Healthcare Interoperability Resources (hl7.org/fhir) – is a next generation standards framework created by HL7.
 
 FHIR solutions are built from a set of modular components called "Resources". These resources can easily be assembled into working systems that solve real world clinical and administrative problems at a fraction of the price of existing alternatives. FHIR is suitable for use in a wide variety of contexts – mobile phone apps, cloud communications, EHR-based data sharing, server communication in large institutional healthcare providers, and much more.
 
@@ -16,7 +14,6 @@ FHIR solutions are built from a set of modular components called "Resources". Th
 - [Security](#security)
 - [Background](#background)
 - [Install](#install)
-- [Usage](#usage)
 - [Contributing](#contributing)
   - [Donate](#donate)
   - [Code](#code)
@@ -36,13 +33,18 @@ For more information visit the [IOTA transparency](https://transparency.iota.org
 
 ## Install
 
-Coming soon™ on nuGet.
+> Developing with your own data source
 
-## Usage
+Grab the package from nuget (https://www.nuget.org/packages/Pact.Fhir.Core). To start developing you can either use the IOTA implementation or create your own, by implementing the FhirRepository.
 
-```csharp
-Coming soon™
-```
+
+> Developing with the IOTA implementation
+
+Grab the package from nuget (https://www.nuget.org/packages/Pact.Fhir.Iota). If you are familiar with IOTA you should cope with the code immediately.
+
+> Documentation
+
+https://pact-fhir.readthedocs.io/en/latest/
 
 ## Contributing
 
@@ -55,8 +57,6 @@ SSFQNEKDAMMAJSTMLRPIHSKZMHQTMYITPPLUWLOPYKS9K9YDGJZKTNQHJVD9YGZFOVZKAZHDIDMFWJGU
 If you want to help either join our **[discord server](https://discord.gg/VMj7PFN)** or you can open issues for bugs you've found or features you think are missing. You can also submit pull requests to this repository.
 
 If editing the README, please conform to the [standard-readme specification](https://github.com/RichardLitt/standard-readme).
-
-### Any optional sections
 
 ## License
 
