@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core.Tests", "Pac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.Tests", "Pact.Fhir.Iota.Tests\Pact.Fhir.Iota.Tests.csproj", "{598E35B4-0A8D-4EC5-8128-C5998AC177E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota", "Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota", "Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Api", "Pact.Fhir.Api\Pact.Fhir.Api.csproj", "{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
