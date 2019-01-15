@@ -4,7 +4,7 @@ If you are not familiar with tangle.net (https://github.com/Felandil/tangle-.net
 
 Working with resources
 --------------
-In the IOTA context, all resources are stored on as restricted MAM streams where each resource has its own stream.
+In the IOTA context, all resources are stored as restricted MAM streams where each resource has its own stream.
 Resources are assigned the first 64 chars of the corresponding MAM root as a logical/version id upon creation or alteration.
 
 Keys and Channels
