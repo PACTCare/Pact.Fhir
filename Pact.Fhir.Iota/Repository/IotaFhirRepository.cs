@@ -6,6 +6,7 @@
 
   using Hl7.Fhir.Model;
 
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Services;
@@ -70,6 +71,11 @@
     {
       // Get the tracked resource associated with the given id and filter the MAM root from that
       var resourceEntry = this.ResourceTracker.GetEntry(id);
+      if (resourceEntry == null)
+      {
+        throw new ResourceNotFoundException(id);
+      }
+
       var resourceRoot = resourceEntry.MerkleRoots.First(r => r.Value.Contains(id));
 
       // now we can read the FHIR resource from the MAM stream
@@ -80,6 +86,10 @@
 
       // Fetch all messages
       var messages = await subscription.FetchAsync();
+      if (messages.Count == 0)
+      {
+        throw new ResourceNotFoundException(id);
+      }
 
       // Return the last message, since it contains the latest resource entry
       // TODO: Caching is needed here, or it will take a lot of time

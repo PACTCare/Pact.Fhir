@@ -1,20 +1,25 @@
 ﻿namespace Pact.Fhir.Iota.Tests.Repository
 {
   using System;
+  using System.Collections.Generic;
   using System.Text.RegularExpressions;
 
   using Hl7.Fhir.Model;
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Tests.Utils;
+  using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Tests.Services;
   using Pact.Fhir.Iota.Tests.Utils;
 
+  using Tangle.Net.Entity;
   using Tangle.Net.Utils;
 
+  using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
   using Task = System.Threading.Tasks.Task;
 
   [TestClass]
@@ -47,6 +52,24 @@
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
 
       Assert.IsTrue(createdResource.IsExactly(readResource));
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ResourceNotFoundException))]
+    public async Task TestResourceIsNotRegisteredInTrackerShouldThrowException()
+    {
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      await repository.ReadResourceAsync("SOMEID");
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ResourceNotFoundException))]
+    public async Task TestNoMessagesAreOnMamStreamShouldThrowException()
+    {
+      var resourceTracker = new InMemoryResourceTracker();
+      resourceTracker.AddEntry(new ResourceEntry { ChannelKey = Seed.Random(), MerkleRoots = new List<Hash> { new Hash("SOMEID") }});
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      await repository.ReadResourceAsync("SOMEID");
     }
   }
 }
