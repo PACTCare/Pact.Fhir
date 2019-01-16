@@ -3,14 +3,22 @@
   using System.Collections.Generic;
 
   using Tangle.Net.Entity;
+  using Tangle.Net.Mam.Entity;
 
   /// <summary>
-  /// Since the restricted MAM mode is used, we need to keep track of the channel keys belonging to certain roots
+  /// Since the restricted MAM mode is used, we need to keep track of the channel belonging and the subscription
   /// </summary>
   public class ResourceEntry
   {
-    public TryteString ChannelKey { get; set; }
+    public ResourceEntry()
+    {
+      this.StreamHashes = new List<Hash>();
+    }
 
-    public List<Hash> MerkleRoots { get; set; }
+    public MamChannel Channel { get; set; }
+
+    public List<Hash> StreamHashes { get; set; }
+
+    public MamChannelSubscription Subscription { get; set; }
   }
 }

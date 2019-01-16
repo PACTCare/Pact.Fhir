@@ -16,7 +16,11 @@
   using Pact.Fhir.Iota.Tests.Services;
   using Pact.Fhir.Iota.Tests.Utils;
 
+  using Tangle.Net.Cryptography;
   using Tangle.Net.Entity;
+  using Tangle.Net.Mam.Entity;
+  using Tangle.Net.Mam.Merkle;
+  using Tangle.Net.Mam.Services;
   using Tangle.Net.Utils;
 
   using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
@@ -66,9 +70,20 @@
     [ExpectedException(typeof(ResourceNotFoundException))]
     public async Task TestNoMessagesAreOnMamStreamShouldThrowException()
     {
+      var iotaRepository = IotaResourceProvider.Repository;
+      var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
+      var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
+
       var resourceTracker = new InMemoryResourceTracker();
-      resourceTracker.AddEntry(new ResourceEntry { ChannelKey = Seed.Random(), MerkleRoots = new List<Hash> { new Hash("SOMEID") }});
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      resourceTracker.AddEntry(
+        new ResourceEntry
+          {
+            Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),
+            Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random()),
+            StreamHashes = new List<Hash> { new Hash("SOMEID") }
+          });
+
+      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker);
       await repository.ReadResourceAsync("SOMEID");
     }
   }

@@ -24,7 +24,7 @@
     /// <inheritdoc />
     public ResourceEntry GetEntry(string versionId)
     {
-      return this.Entries.FirstOrDefault(e => e.MerkleRoots.Any(h => h.Value.Contains(versionId)));
+      return this.Entries.FirstOrDefault(e => e.StreamHashes.Any(h => h.Value.Contains(versionId)));
     }
   }
 }

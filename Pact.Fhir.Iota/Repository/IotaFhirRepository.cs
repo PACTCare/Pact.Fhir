@@ -60,8 +60,14 @@
       await channel.PublishAsync(message);
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
-      // This will allow us to retrieve the channelKey for other usecases
-      this.ResourceTracker.AddEntry(new ResourceEntry { ChannelKey = channelKey, MerkleRoots = new List<Hash> { rootHash } });
+      // This will allow us to retrieve the channel and subscription for other usecases
+      this.ResourceTracker.AddEntry(
+        new ResourceEntry
+          {
+            StreamHashes = new List<Hash> { rootHash },
+            Channel = channel,
+            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
+          });
 
       return resource;
     }
@@ -76,23 +82,16 @@
         throw new ResourceNotFoundException(id);
       }
 
-      var resourceRoot = resourceEntry.MerkleRoots.First(r => r.Value.Contains(id));
-
-      // now we can read the FHIR resource from the MAM stream
-      var subscription = this.SubscriptionFactory.Create(
-        resourceRoot,
-        Mode.Restricted,
-        resourceEntry.ChannelKey);
-
       // Fetch all messages
-      var messages = await subscription.FetchAsync();
+      var messages = await resourceEntry.Subscription.FetchAsync();
       if (messages.Count == 0)
       {
         throw new ResourceNotFoundException(id);
       }
 
+      // TODO: update resourceEntry with newest subscription information
+
       // Return the last message, since it contains the latest resource entry
-      // TODO: Caching is needed here, or it will take a lot of time
       return this.Serializer.Deserialize<DomainResource>(messages.Last().Message);
     }
   }
