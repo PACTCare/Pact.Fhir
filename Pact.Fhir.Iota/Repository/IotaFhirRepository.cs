@@ -65,8 +65,8 @@
         new ResourceEntry
           {
             StreamHashes = new List<Hash> { rootHash },
-            Channel = channel,
-            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
+            Channel = channel.ToJson(),
+            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey).ToJson()
           });
 
       return resource;
@@ -83,7 +83,7 @@
       }
 
       // Fetch all messages
-      var messages = await resourceEntry.Subscription.FetchAsync();
+      var messages = await resourceEntry.GetSubscription(this.SubscriptionFactory).FetchAsync();
       if (messages.Count == 0)
       {
         throw new ResourceNotFoundException(id);
