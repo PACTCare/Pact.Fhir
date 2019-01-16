@@ -75,7 +75,7 @@
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
 
       var resourceTracker = new InMemoryResourceTracker();
-      resourceTracker.AddEntry(
+      await resourceTracker.AddEntryAsync(
         new ResourceEntry
           {
             Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),

@@ -11,9 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.Tests", "Pac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota", "Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Api", "Pact.Fhir.Api\Pact.Fhir.Api.csproj", "{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Api", "Pact.Fhir.Api\Pact.Fhir.Api.csproj", "{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Api.Tests", "Pact.Fhir.Api.Tests\Pact.Fhir.Api.Tests.csproj", "{1F030E42-409F-4E98-82FF-D3D3ECDFA707}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Api.Tests", "Pact.Fhir.Api.Tests\Pact.Fhir.Api.Tests.csproj", "{1F030E42-409F-4E98-82FF-D3D3ECDFA707}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.SqlLite", "Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj", "{FA563255-F30D-4B84-91B9-4541E8651FD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.SqlLite.Tests", "Pact.Fhir.Iota.SqlLite.Tests\Pact.Fhir.Iota.SqlLite.Tests.csproj", "{56EDFF42-FA31-41EC-AED1-8EA619366B33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{1F030E42-409F-4E98-82FF-D3D3ECDFA707}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F030E42-409F-4E98-82FF-D3D3ECDFA707}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F030E42-409F-4E98-82FF-D3D3ECDFA707}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA563255-F30D-4B84-91B9-4541E8651FD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA563255-F30D-4B84-91B9-4541E8651FD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA563255-F30D-4B84-91B9-4541E8651FD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA563255-F30D-4B84-91B9-4541E8651FD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

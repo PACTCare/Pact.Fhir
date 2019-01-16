@@ -61,12 +61,12 @@
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
       // This will allow us to retrieve the channel and subscription for other usecases
-      this.ResourceTracker.AddEntry(
+      await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry
           {
             StreamHashes = new List<Hash> { rootHash },
-            Channel = channel.ToJson(),
-            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey).ToJson()
+            Channel = channel,
+            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
           });
 
       return resource;
@@ -76,14 +76,14 @@
     public override async Task<DomainResource> ReadResourceAsync(string id)
     {
       // Get the tracked resource associated with the given id and filter the MAM root from that
-      var resourceEntry = this.ResourceTracker.GetEntry(id);
+      var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
       if (resourceEntry == null)
       {
         throw new ResourceNotFoundException(id);
       }
 
       // Fetch all messages
-      var messages = await resourceEntry.GetSubscription(this.SubscriptionFactory).FetchAsync();
+      var messages = await resourceEntry.Subscription.FetchAsync();
       if (messages.Count == 0)
       {
         throw new ResourceNotFoundException(id);

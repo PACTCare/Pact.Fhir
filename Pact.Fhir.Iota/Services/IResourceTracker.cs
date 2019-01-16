@@ -1,5 +1,7 @@
 ﻿namespace Pact.Fhir.Iota.Services
 {
+  using System.Threading.Tasks;
+
   using Pact.Fhir.Iota.Entity;
 
   /// <summary>
@@ -7,8 +9,8 @@
   /// </summary>
   public interface IResourceTracker
   {
-    void AddEntry(ResourceEntry entry);
+    Task AddEntryAsync(ResourceEntry entry);
 
-    ResourceEntry GetEntry(string versionId);
+    Task<ResourceEntry> GetEntryAsync(string versionId);
   }
 }
