@@ -7,6 +7,7 @@
 
   using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Services;
+  using Pact.Fhir.Iota.SqlLite.Encryption;
 
   using Tangle.Net.Entity;
   using Tangle.Net.Mam.Services;
@@ -20,10 +21,12 @@
     public SqlLiteResourceTracker(
       MamChannelFactory channelFactory,
       MamChannelSubscriptionFactory subscriptionFactory,
+      IEncryption encryption,
       string databaseFilename = "resourcetracker.sqlite")
     {
       this.ChannelFactory = channelFactory;
       this.SubscriptionFactory = subscriptionFactory;
+      this.Encryption = encryption;
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
       if (!File.Exists(databaseFilename))
@@ -31,6 +34,8 @@
         this.InitDatabase(databaseFilename);
       }
     }
+
+    public IEncryption Encryption { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -46,8 +51,11 @@
         await connection.OpenAsync();
         long resourceId;
 
+        var encryptedChannel = this.Encryption.Encrypt(entry.Channel.ToJson());
+        var encryptedSubscription = this.Encryption.Encrypt(entry.Subscription.ToJson());
+
         using (var command = new SQLiteCommand(
-          $"INSERT INTO Resource (Channel, Subscription) VALUES ('{entry.Channel.ToJson()}', '{entry.Subscription.ToJson()}'); SELECT last_insert_rowid();",
+          $"INSERT INTO Resource (Channel, Subscription) VALUES ('{encryptedChannel}', '{encryptedSubscription}'); SELECT last_insert_rowid();",
           connection))
         {
           resourceId = (long)await command.ExecuteScalarAsync();
@@ -55,9 +63,11 @@
 
         foreach (var hash in entry.StreamHashes)
         {
-          using (var command = new SQLiteCommand($"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{hash.Value}', '{resourceId}')", connection))
+          using (var command = new SQLiteCommand(
+            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{this.Encryption.Encrypt(hash.Value)}', '{resourceId}')",
+            connection))
           {
-            await command.ExecuteScalarAsync();
+            await command.ExecuteNonQueryAsync();
           }
         }
       }
@@ -72,7 +82,7 @@
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash = '{versionId}'", connection))
+        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash = '{this.Encryption.Encrypt(versionId)}'", connection))
         {
           var result = await command.ExecuteReaderAsync();
           if (result.Read())
@@ -91,7 +101,9 @@
           var result = await command.ExecuteReaderAsync();
           while (result.Read())
           {
-            streamHashes.Add(new Hash(result["Hash"].ToString()));
+            var decryptedHash = this.Encryption.Decrypt(result["Hash"].ToString());
+
+            streamHashes.Add(new Hash(decryptedHash));
           }
         }
 
@@ -100,12 +112,15 @@
           var result = await command.ExecuteReaderAsync();
           if (result.Read())
           {
+            var decryptedChannel = this.Encryption.Decrypt(result["Channel"].ToString());
+            var decryptedSubscription = this.Encryption.Decrypt(result["Subscription"].ToString());
+
             entry = new ResourceEntry
-                     {
-                       StreamHashes = streamHashes,
-                       Channel = this.ChannelFactory.CreateFromJson(result["Channel"].ToString()),
-                       Subscription = this.SubscriptionFactory.CreateFromJson(result["Subscription"].ToString())
-                     };
+                      {
+                        StreamHashes = streamHashes,
+                        Channel = this.ChannelFactory.CreateFromJson(decryptedChannel),
+                        Subscription = this.SubscriptionFactory.CreateFromJson(decryptedSubscription)
+                      };
           }
         }
       }

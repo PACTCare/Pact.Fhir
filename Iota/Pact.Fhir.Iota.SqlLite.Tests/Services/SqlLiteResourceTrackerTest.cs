@@ -8,6 +8,7 @@ namespace Pact.Fhir.Iota.SqlLite.Tests.Services
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
   using Pact.Fhir.Iota.Entity;
+  using Pact.Fhir.Iota.SqlLite.Encryption;
   using Pact.Fhir.Iota.SqlLite.Services;
   using Pact.Fhir.Iota.Tests.Utils;
 
@@ -27,7 +28,7 @@ namespace Pact.Fhir.Iota.SqlLite.Tests.Services
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
 
-      var tracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory);
+      var tracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption(Seed.Random().Value, Seed.Random().Value));
       var streamHash = new Hash(Seed.Random().Value);
       await tracker.AddEntryAsync(
         new ResourceEntry
