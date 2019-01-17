@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pact.Fhir.Core\Pact.Fhir.Core.csproj" />
+    <ProjectReference Include="..\..\Pact.Fhir.Core\Pact.Fhir.Core.csproj" />
   </ItemGroup>
 
 </Project>

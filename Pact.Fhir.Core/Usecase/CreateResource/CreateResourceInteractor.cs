@@ -11,7 +11,7 @@
   public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, CreateResourceResponse>
   {
     /// <inheritdoc />
-    public CreateResourceInteractor(FhirRepository repository)
+    public CreateResourceInteractor(IFhirRepository repository)
       : base(repository)
     {
     }

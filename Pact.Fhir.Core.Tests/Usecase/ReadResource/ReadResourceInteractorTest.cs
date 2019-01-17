@@ -28,7 +28,7 @@
     [TestMethod]
     public async Task TestRepositoryThrowsExceptionShouldReturnErrorCode()
     {
-      var repository = new Mock<FhirRepository>();
+      var repository = new Mock<IFhirRepository>();
       repository.Setup(r => r.ReadResourceAsync(It.IsAny<string>())).ThrowsAsync(new Exception());
 
       var interactor = new ReadResourceInteractor(repository.Object);

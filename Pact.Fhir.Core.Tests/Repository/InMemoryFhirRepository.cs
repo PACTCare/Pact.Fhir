@@ -7,10 +7,11 @@
 
   using Hl7.Fhir.Model;
 
+  using Pact.Fhir.Core.Entity;
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
-  public class InMemoryFhirRepository : FhirRepository
+  public class InMemoryFhirRepository : IFhirRepository
   {
     public InMemoryFhirRepository(string creationId = null)
     {
@@ -23,7 +24,7 @@
     private string CreationId { get; }
 
     /// <inheritdoc />
-    public override async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+    public async Task<DomainResource> CreateResourceAsync(DomainResource resource)
     {
       this.Resources.Add(resource);
 
@@ -37,13 +38,13 @@
         resourceId = "SOMEFHIRCONFORMID1234";
       }
 
-      this.PopulateMetadata(resource, resourceId, resourceId);
+      resource.PopulateMetadata(resourceId, resourceId);
 
       return resource;
     }
 
     /// <inheritdoc />
-    public override async Task<DomainResource> ReadResourceAsync(string id)
+    public async Task<DomainResource> ReadResourceAsync(string id)
     {
       var resource = this.Resources.FirstOrDefault(r => r.Id == id);
 

@@ -7,17 +7,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core", "Pact.Fhir
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Core.Tests", "Pact.Fhir.Core.Tests\Pact.Fhir.Core.Tests.csproj", "{9EE3D445-75E6-426D-8939-3330B2918C1A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.Tests", "Pact.Fhir.Iota.Tests\Pact.Fhir.Iota.Tests.csproj", "{598E35B4-0A8D-4EC5-8128-C5998AC177E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.Tests", "Iota\Pact.Fhir.Iota.Tests\Pact.Fhir.Iota.Tests.csproj", "{598E35B4-0A8D-4EC5-8128-C5998AC177E7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota", "Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota", "Iota\Pact.Fhir.Iota\Pact.Fhir.Iota.csproj", "{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Api", "Pact.Fhir.Api\Pact.Fhir.Api.csproj", "{1B2CF8BD-713C-493F-BC1F-581CA94B89A4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Api.Tests", "Pact.Fhir.Api.Tests\Pact.Fhir.Api.Tests.csproj", "{1F030E42-409F-4E98-82FF-D3D3ECDFA707}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.SqlLite", "Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj", "{FA563255-F30D-4B84-91B9-4541E8651FD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.SqlLite", "Iota\Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj", "{FA563255-F30D-4B84-91B9-4541E8651FD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.SqlLite.Tests", "Pact.Fhir.Iota.SqlLite.Tests\Pact.Fhir.Iota.SqlLite.Tests.csproj", "{56EDFF42-FA31-41EC-AED1-8EA619366B33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.SqlLite.Tests", "Iota\Pact.Fhir.Iota.SqlLite.Tests\Pact.Fhir.Iota.SqlLite.Tests.csproj", "{56EDFF42-FA31-41EC-AED1-8EA619366B33}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Iota", "Iota", "{CD7611C3-C878-47C0-A542-AFD6CA0046CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{598E35B4-0A8D-4EC5-8128-C5998AC177E7} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
+		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
+		{FA563255-F30D-4B84-91B9-4541E8651FD9} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
+		{56EDFF42-FA31-41EC-AED1-8EA619366B33} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61B556C5-BC64-482E-90D6-F042F3BC66BC}

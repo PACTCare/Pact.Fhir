@@ -40,7 +40,7 @@
     [TestMethod]
     public async Task TestRepositoryThrowsExceptionShouldReturnErrorCode()
     {
-      var repositoryMock = new Mock<FhirRepository>();
+      var repositoryMock = new Mock<IFhirRepository>();
       repositoryMock.Setup(r => r.CreateResourceAsync(It.IsAny<DomainResource>())).ThrowsAsync(new Exception("Catch me if you can"));
       var interactor = new CreateResourceInteractor(repositoryMock.Object);
 

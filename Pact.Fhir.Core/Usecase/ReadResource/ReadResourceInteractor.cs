@@ -12,7 +12,7 @@
   public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, ReadResourceResponse>
   {
     /// <inheritdoc />
-    public ReadResourceInteractor(FhirRepository repository)
+    public ReadResourceInteractor(IFhirRepository repository)
       : base(repository)
     {
     }
