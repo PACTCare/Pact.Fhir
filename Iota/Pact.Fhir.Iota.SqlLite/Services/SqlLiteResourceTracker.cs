@@ -61,10 +61,10 @@
           resourceId = (long)await command.ExecuteScalarAsync();
         }
 
-        foreach (var hash in entry.StreamHashes)
+        foreach (var id in entry.ResourceIds)
         {
           using (var command = new SQLiteCommand(
-            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{this.Encryption.Encrypt(hash.Value)}', '{resourceId}')",
+            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{this.Encryption.Encrypt(id)}', '{resourceId}')",
             connection))
           {
             await command.ExecuteNonQueryAsync();
@@ -95,7 +95,7 @@
           }
         }
 
-        var streamHashes = new List<Hash>();
+        var resourceIds = new List<string>();
         using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE ResourceId = '{resourceId}'", connection))
         {
           var result = await command.ExecuteReaderAsync();
@@ -103,7 +103,7 @@
           {
             var decryptedHash = this.Encryption.Decrypt(result["Hash"].ToString());
 
-            streamHashes.Add(new Hash(decryptedHash));
+            resourceIds.Add(decryptedHash);
           }
         }
 
@@ -117,7 +117,7 @@
 
             entry = new ResourceEntry
                       {
-                        StreamHashes = streamHashes,
+                        ResourceIds = resourceIds,
                         Channel = this.ChannelFactory.CreateFromJson(decryptedChannel),
                         Subscription = this.SubscriptionFactory.CreateFromJson(decryptedSubscription)
                       };

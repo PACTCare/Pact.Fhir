@@ -25,7 +25,7 @@
     /// <inheritdoc />
     public async Task<ResourceEntry> GetEntryAsync(string versionId)
     {
-      return this.Entries.FirstOrDefault(e => e.StreamHashes.Any(h => h.Value.Contains(versionId)));
+      return this.Entries.FirstOrDefault(e => e.ResourceIds.Any(h => h.Contains(versionId)));
     }
   }
 }

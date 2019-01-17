@@ -12,12 +12,12 @@
   {
     public ResourceEntry()
     {
-      this.StreamHashes = new List<Hash>();
+      this.ResourceIds = new List<string>();
     }
 
     public MamChannel Channel { get; set; }
 
-    public List<Hash> StreamHashes { get; set; }
+    public List<string> ResourceIds { get; set; }
 
     public MamChannelSubscription Subscription { get; set; }
   }

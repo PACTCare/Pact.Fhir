@@ -29,18 +29,19 @@ namespace Pact.Fhir.Iota.SqlLite.Tests.Services
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
 
       var tracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption(Seed.Random().Value, Seed.Random().Value));
-      var streamHash = new Hash(Seed.Random().Value);
+
+      // fhir id will only be 64 chars long
+      var resourceId = Seed.Random().Value.Substring(0, 64);
       await tracker.AddEntryAsync(
         new ResourceEntry
           {
             Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),
             Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random()),
-            StreamHashes = new List<Hash> { streamHash }
+            ResourceIds = new List<string> { resourceId }
           });
 
-      var resource = await tracker.GetEntryAsync(streamHash.Value);
-
-      Assert.IsTrue(resource.StreamHashes.FirstOrDefault(h => h.Value == streamHash.Value) != null);
+      var resource = await tracker.GetEntryAsync(resourceId);
+      Assert.IsTrue(resource.ResourceIds.FirstOrDefault(h => h == resourceId) != null);
     }
   }
 }

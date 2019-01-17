@@ -65,7 +65,7 @@
       await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry
           {
-            StreamHashes = new List<Hash> { rootHash },
+            ResourceIds = new List<string> { resource.Id },
             Channel = channel,
             Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
           });

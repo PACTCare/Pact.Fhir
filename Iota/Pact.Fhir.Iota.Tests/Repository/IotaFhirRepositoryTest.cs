@@ -80,7 +80,7 @@
           {
             Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),
             Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random()),
-            StreamHashes = new List<Hash> { new Hash("SOMEID") }
+            ResourceIds = new List<string> { "SOMEID" }
           });
 
       var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker);
