@@ -76,7 +76,7 @@
     /// <inheritdoc />
     public async Task<DomainResource> ReadResourceAsync(string id)
     {
-      // Get the tracked resource associated with the given id and filter the MAM root from that
+      // Get the tracked resource associated with the given id and get subscription from that
       var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
       if (resourceEntry == null)
       {

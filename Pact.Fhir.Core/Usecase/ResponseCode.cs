@@ -6,6 +6,10 @@
 
     Failure = -1,
 
-    ResourceNotFound = -2
+    ResourceNotFound = -2,
+
+    UnsupportedResource = -3,
+
+    UnprocessableEntity = -4
   }
 }

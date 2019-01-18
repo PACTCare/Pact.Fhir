@@ -3,7 +3,12 @@
   using System;
   using System.Threading.Tasks;
 
+  using Hl7.Fhir.Model;
+  using Hl7.Fhir.Serialization;
+
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
+  using Pact.Fhir.Core.Services;
 
   /// <summary>
   /// see http://hl7.org/fhir/http.html#create
@@ -11,17 +16,33 @@
   public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, CreateResourceResponse>
   {
     /// <inheritdoc />
-    public CreateResourceInteractor(IFhirRepository repository)
+    public CreateResourceInteractor(IFhirRepository repository, FhirResourceParser fhirParser)
       : base(repository)
     {
+      this.FhirParser = fhirParser;
     }
+
+    public FhirResourceParser FhirParser { get; }
 
     public override async Task<CreateResourceResponse> ExecuteAsync(CreateResourceRequest request)
     {
       try
       {
-        var resource = await this.Repository.CreateResourceAsync(request.Resource);
-        return new CreateResourceResponse { Code = ResponseCode.Success, LogicalId = resource.Id, VersionId = resource.VersionId };
+        var requestResource = this.FhirParser.Parse(request.ResourceType, request.ResourceJson);
+        var resource = await this.Repository.CreateResourceAsync(requestResource);
+
+        return new CreateResourceResponse
+                 {
+                   Code = ResponseCode.Success, LogicalId = resource.Id, VersionId = resource.VersionId, LastModified = resource.Meta.LastUpdated
+                 };
+      }
+      catch (UnsupportedResourceException)
+      {
+        return new CreateResourceResponse { Code = ResponseCode.UnsupportedResource };
+      }
+      catch (FormatException)
+      {
+        return new CreateResourceResponse { Code = ResponseCode.UnprocessableEntity };
       }
       catch (Exception)
       {

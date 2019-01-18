@@ -2,9 +2,11 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.Diagnostics;
   using System.Text.RegularExpressions;
 
   using Hl7.Fhir.Model;
+  using Hl7.Fhir.Serialization;
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
