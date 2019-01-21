@@ -20,6 +20,8 @@
       {
         case "Patient":
           return this.JsonParser.Parse<Patient>(resourceJson);
+        case "Observation":
+          return this.JsonParser.Parse<Observation>(resourceJson);
       }
 
       throw new UnsupportedResourceException(resourceType);

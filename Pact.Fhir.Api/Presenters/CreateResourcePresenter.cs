@@ -79,7 +79,7 @@
             new OperationOutcome.IssueComponent
               {
                 Code = OperationOutcome.IssueType.Structure,
-                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Severity = OperationOutcome.IssueSeverity.Error,
                 Details = new CodeableConcept { Text = response.ExceptionMessage }
               });
           break;
@@ -89,7 +89,7 @@
             new OperationOutcome.IssueComponent
               {
                 Code = OperationOutcome.IssueType.NotSupported,
-                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Severity = OperationOutcome.IssueSeverity.Error,
                 Details = new CodeableConcept { Text = response.ExceptionMessage }
               });
           break;
