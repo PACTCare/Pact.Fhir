@@ -23,14 +23,14 @@
     [HttpPost]
     public async Task<IActionResult> CreateResource(string resourceType)
     {
-      string resourceJson;
+      string resource;
       using (var reader = new StreamReader(this.Request.Body, Encoding.UTF8))
       {
-        resourceJson = await reader.ReadToEndAsync();
+        resource = await reader.ReadToEndAsync();
       }
 
-      var response = await this.CreateResourceInteractor.ExecuteAsync(new CreateResourceRequest { ResourceJson = resourceJson, ResourceType = resourceType });
-      return CreateResourcePresenter.Present(response, this.Response);
+      var response = await this.CreateResourceInteractor.ExecuteAsync(new CreateResourceRequest { ResourceJson = resource, ResourceType = resourceType });
+      return CreateResourcePresenter.Present(response, this.Request, this.Response);
     }
   }
 }

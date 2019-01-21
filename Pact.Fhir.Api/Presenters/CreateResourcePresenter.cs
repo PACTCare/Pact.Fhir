@@ -10,21 +10,23 @@
 
   public static class CreateResourcePresenter
   {
-    public static IActionResult Present(CreateResourceResponse response, HttpResponse httpResponse)
+    public static IActionResult Present(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse)
     {
       switch (response.Code)
       {
         case ResponseCode.Success:
           httpResponse.StatusCode = (int)HttpStatusCode.Created;
 
-          // TODO: Change location header to absolute path
-          httpResponse.Headers.Add("Location", $"/api/fhir/Patient/{response.LogicalId}/_history/{response.VersionId}");
-          httpResponse.Headers.Add("ETag", response.VersionId);
+          httpResponse.Headers.Add(
+            "Location",
+            $"{httpRequest.Scheme}://{httpRequest.Host.Value}/api/fhir/Patient/{response.Resource.Id}/_history/{response.Resource.VersionId}");
+          httpResponse.Headers.Add("ETag", response.Resource.VersionId);
 
-          if (response.LastModified.HasValue)
+          if (response.Resource.Meta.LastUpdated.HasValue)
           {
-            httpResponse.Headers.Add("Last-Modified", response.LastModified.Value.ToString("O"));
+            httpResponse.Headers.Add("Last-Modified", response.Resource.Meta.LastUpdated.Value.ToString("O"));
           }
+
           break;
         case ResponseCode.UnprocessableEntity:
           httpResponse.StatusCode = (int)HttpStatusCode.UnprocessableEntity;

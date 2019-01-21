@@ -1,13 +1,9 @@
 ﻿namespace Pact.Fhir.Core.Usecase.CreateResource
 {
-  using System;
+  using Hl7.Fhir.Model;
 
   public class CreateResourceResponse : UsecaseResponse
   {
-    public DateTimeOffset? LastModified { get; set; }
-
-    public string LogicalId { get; set; }
-
-    public string VersionId { get; set; }
+    public DomainResource Resource { get; set; }
   }
 }

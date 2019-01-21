@@ -31,10 +31,7 @@
         var requestResource = this.FhirParser.Parse(request.ResourceType, request.ResourceJson);
         var resource = await this.Repository.CreateResourceAsync(requestResource);
 
-        return new CreateResourceResponse
-                 {
-                   Code = ResponseCode.Success, LogicalId = resource.Id, VersionId = resource.VersionId, LastModified = resource.Meta.LastUpdated
-                 };
+        return new CreateResourceResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (UnsupportedResourceException)
       {

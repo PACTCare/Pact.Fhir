@@ -33,8 +33,9 @@
                        new CreateResourceRequest { ResourceJson = new FhirJsonSerializer().SerializeToString(resource), ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
-      Assert.AreEqual(response.LogicalId, response.VersionId);
-      Assert.AreEqual("SOMEFHIRCONFORMID1234", response.LogicalId);
+      Assert.AreEqual(response.Resource.Id, response.Resource.VersionId);
+      Assert.AreEqual("SOMEFHIRCONFORMID1234", response.Resource.Id);
+      Assert.IsInstanceOfType(response.Resource, typeof(Patient));
 
       Assert.AreEqual(1, fhirRepository.Resources.Count);
     }
