@@ -34,7 +34,7 @@
     }
 
     // Working with low security level for the sake of speed
-    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Medium;
+    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -58,7 +58,7 @@
 
       var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel, channelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
-      await channel.PublishAsync(message);
+      await channel.PublishAsync(message, 14, 1);
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
       // This will allow us to retrieve the channel and subscription for other usecases

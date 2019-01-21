@@ -9,6 +9,7 @@
   using Microsoft.AspNetCore.Http;
   using Microsoft.AspNetCore.Mvc;
 
+  using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
   using Pact.Fhir.Core.Usecase.CreateResource;
 
@@ -41,27 +42,29 @@
       var prefer = httpRequest.Headers.FirstOrDefault(h => h.Key == "Prefer");
       if (string.IsNullOrEmpty(prefer.Key))
       {
-        return new EmptyResult();
+        return new EmptyJsonFhirResult();
       }
 
       switch (prefer.Value.First())
       {
         case "representation":
-          return new JsonResult(response.Resource);
+          return new JsonFhirResult(response.Resource);
         case "OperationOutcome":
-          return new JsonResult(
+          return new JsonFhirResult(
             new OperationOutcome
               {
                 Issue = new List<OperationOutcome.IssueComponent>
                           {
                             new OperationOutcome.IssueComponent
                               {
-                                Code = OperationOutcome.IssueType.Informational, Severity = OperationOutcome.IssueSeverity.Information
+                                Code = OperationOutcome.IssueType.Informational,
+                                Severity = OperationOutcome.IssueSeverity.Information,
+                                Details = new CodeableConcept { Text = "All OK" }
                               }
-                          },
+                          }
               });
         default:
-          return new EmptyResult();
+          return new EmptyJsonFhirResult();
       }
     }
 
@@ -73,22 +76,36 @@
         case ResponseCode.UnprocessableEntity:
           httpResponse.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
           outcome.Issue.Add(
-            new OperationOutcome.IssueComponent { Code = OperationOutcome.IssueType.Structure, Severity = OperationOutcome.IssueSeverity.Fatal });
+            new OperationOutcome.IssueComponent
+              {
+                Code = OperationOutcome.IssueType.Structure,
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Details = new CodeableConcept { Text = "Given resource is not processable" }
+              });
           break;
-        case ResponseCode.ResourceNotFound:
         case ResponseCode.UnsupportedResource:
           httpResponse.StatusCode = (int)HttpStatusCode.BadRequest;
           outcome.Issue.Add(
-            new OperationOutcome.IssueComponent { Code = OperationOutcome.IssueType.NotSupported, Severity = OperationOutcome.IssueSeverity.Fatal });
+            new OperationOutcome.IssueComponent
+              {
+                Code = OperationOutcome.IssueType.NotSupported,
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Details = new CodeableConcept { Text = "Given resource is not supported by the server" }
+              });
           break;
         default:
           httpResponse.StatusCode = (int)HttpStatusCode.BadRequest;
           outcome.Issue.Add(
-            new OperationOutcome.IssueComponent { Code = OperationOutcome.IssueType.Exception, Severity = OperationOutcome.IssueSeverity.Fatal });
+            new OperationOutcome.IssueComponent
+              {
+                Code = OperationOutcome.IssueType.Exception,
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Details = new CodeableConcept { Text = "Given resource was not processed. Please take a look at internal logs." }
+              });
           break;
       }
 
-      return new JsonResult(outcome);
+      return new JsonFhirResult(outcome);
     }
   }
 }
