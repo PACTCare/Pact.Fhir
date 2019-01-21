@@ -98,7 +98,7 @@ namespace Pact.Fhir.Api.Cucumber.Features
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 7
- testRunner.Given("I have the patient \"Max\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("I have the patient \"John\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 8
  testRunner.When("I create his FHIR record with Prefer \"representation\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 9
