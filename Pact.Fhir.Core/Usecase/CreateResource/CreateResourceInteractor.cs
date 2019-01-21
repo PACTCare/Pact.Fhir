@@ -3,9 +3,6 @@
   using System;
   using System.Threading.Tasks;
 
-  using Hl7.Fhir.Model;
-  using Hl7.Fhir.Serialization;
-
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
   using Pact.Fhir.Core.Services;
@@ -33,17 +30,20 @@
 
         return new CreateResourceResponse { Code = ResponseCode.Success, Resource = resource };
       }
-      catch (UnsupportedResourceException)
+      catch (UnsupportedResourceException exception)
       {
-        return new CreateResourceResponse { Code = ResponseCode.UnsupportedResource };
+        return new CreateResourceResponse { Code = ResponseCode.UnsupportedResource, ExceptionMessage = exception.Message };
       }
-      catch (FormatException)
+      catch (FormatException exception)
       {
-        return new CreateResourceResponse { Code = ResponseCode.UnprocessableEntity };
+        return new CreateResourceResponse { Code = ResponseCode.UnprocessableEntity, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new CreateResourceResponse { Code = ResponseCode.Failure };
+        return new CreateResourceResponse
+                 {
+                   Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
+                 };
       }
     }
   }

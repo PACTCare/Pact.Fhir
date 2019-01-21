@@ -22,7 +22,7 @@
           return this.JsonParser.Parse<Patient>(resourceJson);
       }
 
-      throw new UnsupportedResourceException($"Resource of type {resourceType} is not supported.");
+      throw new UnsupportedResourceException(resourceType);
     }
   }
 }

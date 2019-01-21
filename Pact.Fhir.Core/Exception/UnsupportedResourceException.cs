@@ -4,8 +4,8 @@
 
   public class UnsupportedResourceException : Exception
   {
-    public UnsupportedResourceException(string message)
-      : base(message)
+    public UnsupportedResourceException(string resourceType)
+      : base($"Resource of type {resourceType} is not supported.")
     {
     }
   }

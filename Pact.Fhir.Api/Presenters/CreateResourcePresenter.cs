@@ -80,7 +80,7 @@
               {
                 Code = OperationOutcome.IssueType.Structure,
                 Severity = OperationOutcome.IssueSeverity.Fatal,
-                Details = new CodeableConcept { Text = "Given resource is not processable" }
+                Details = new CodeableConcept { Text = response.ExceptionMessage }
               });
           break;
         case ResponseCode.UnsupportedResource:
@@ -90,7 +90,7 @@
               {
                 Code = OperationOutcome.IssueType.NotSupported,
                 Severity = OperationOutcome.IssueSeverity.Fatal,
-                Details = new CodeableConcept { Text = "Given resource is not supported by the server" }
+                Details = new CodeableConcept { Text = response.ExceptionMessage }
               });
           break;
         default:
@@ -100,7 +100,7 @@
               {
                 Code = OperationOutcome.IssueType.Exception,
                 Severity = OperationOutcome.IssueSeverity.Fatal,
-                Details = new CodeableConcept { Text = "Given resource was not processed. Please take a look at internal logs." }
+                Details = new CodeableConcept { Text = response.ExceptionMessage }
               });
           break;
       }
