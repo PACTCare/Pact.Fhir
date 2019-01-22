@@ -17,6 +17,8 @@
   [Binding]
   public class CreateResourceSteps : FeatureContext
   {
+    private string Prefer { get; set; }
+
     private Patient Resource { get; set; }
 
     [Given(@"I have the patient ""(.*)""")]
@@ -26,13 +28,22 @@
       this.Resource.Name.First().Given = new[] { patientName };
     }
 
-    [Then(@"I should see a valid patient JSON representation")]
-    public void ThenIShouldSeeAValidPatientJsonRepresentation()
+    [Then(@"I should see a valid response")]
+    public void ThenIShouldSeeAValidResponse()
     {
-      Assert.AreEqual(HttpStatusCode.Created, this.LastResponseCode);
-      Assert.IsTrue(this.LastResponseHeaders.Get("ETag") != null);
-      Assert.IsTrue(this.LastResponseHeaders.Get("Last-Modified") != null);
-      Assert.IsTrue(this.IsValidJson(this.LastResponseBody));
+      switch (this.Prefer)
+      {
+        case "representation":
+          var patient = new FhirJsonParser().Parse<Patient>(this.LastResponseBody);
+          Assert.AreEqual(this.Resource.Name.First().Given.First(), patient.Name.First().Given.First());
+          break;
+        case "OperationOutcome":
+          var outcome = new FhirJsonParser().Parse<OperationOutcome>(this.LastResponseBody);
+          Assert.AreEqual("All OK", outcome.Issue.First().Details.Text);
+          break;
+      }
+
+      this.AssertMetadata();
     }
 
     [When(@"I create his FHIR record with Prefer ""(.*)""")]
@@ -43,6 +54,18 @@
         new FhirJsonSerializer().SerializeToString(this.Resource),
         "POST",
         new WebHeaderCollection { { "Prefer", prefer } });
+
+      this.Prefer = prefer;
+    }
+
+    private void AssertMetadata()
+    {
+      Assert.AreEqual(HttpStatusCode.Created, this.LastResponseCode);
+
+      Assert.IsTrue(this.LastResponseHeaders.Get("Content-Type").Contains("application/fhir+json"));
+      Assert.IsTrue(this.LastResponseHeaders.Get("ETag") != null);
+      Assert.IsTrue(this.LastResponseHeaders.Get("Last-Modified") != null);
+      Assert.IsTrue(this.LastResponseHeaders.Get("Location") != null);
     }
   }
 }

@@ -36,7 +36,7 @@
                             {
                               StartInfo =
                                 {
-                                  FileName = programFiles + @"\IIS Express\iisexpress.exe", Arguments = $"/path:{applicationPath} /port:44383"
+                                  FileName = programFiles + @"\IIS Express\iisexpress.exe", Arguments = $"/path:{applicationPath} /port:64264"
                                 }
                             };
 
@@ -59,10 +59,10 @@
 
     protected void CallApi(string uri, string requestBody = "", string httpMethod = "POST", WebHeaderCollection headers = null)
     {
-      var request = (HttpWebRequest)WebRequest.Create($"https://localhost:44383/{uri}");
+      var request = (HttpWebRequest)WebRequest.Create($"http://localhost:64264/{uri}");
 
       request.Method = httpMethod;
-      request.ContentType = "application/fhir+json; charset=utf-8";
+      request.ContentType = "application/fhir+json";
       request.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
       if (headers != null)
