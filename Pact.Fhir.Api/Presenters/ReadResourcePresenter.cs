@@ -16,18 +16,11 @@ namespace Pact.Fhir.Api.Presenters
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(ReadResourceResponse response, HttpResponse httpResponse)
+    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse)
     {
       if (response.Code == ResponseCode.Success)
       {
-        httpResponse.StatusCode = (int)HttpStatusCode.OK;
-        httpResponse.Headers.Add("ETag", $"W/\"{response.Resource.VersionId}\"");
-
-        if (response.Resource.Meta.LastUpdated.HasValue)
-        {
-          httpResponse.Headers.Add("Last-Modified", response.Resource.Meta.LastUpdated.Value.ToString("O"));
-        }
-
+        PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.OK);
         return new JsonFhirResult(response.Resource);
       }
 

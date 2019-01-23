@@ -9,7 +9,7 @@
   /// <summary>
   /// see https://www.hl7.org/fhir/http.html#read
   /// </summary>
-  public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, ReadResourceResponse>
+  public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, UsecaseResponse>
   {
     /// <inheritdoc />
     public ReadResourceInteractor(IFhirRepository repository)
@@ -18,7 +18,7 @@
     }
 
     /// <inheritdoc />
-    public override async Task<ReadResourceResponse> ExecuteAsync(ReadResourceRequest request)
+    public override async Task<UsecaseResponse> ExecuteAsync(ReadResourceRequest request)
     {
       try
       {
@@ -28,16 +28,16 @@
           throw new ResourceNotFoundException(request.ResourceId);
         }
 
-        return new ReadResourceResponse { Code = ResponseCode.Success, Resource = resource };
+        return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (ResourceNotFoundException exception)
       {
-        return new ReadResourceResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
+        return new UsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new ReadResourceResponse
-                 {
+        return new UsecaseResponse
+        {
                    Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
                  };
       }

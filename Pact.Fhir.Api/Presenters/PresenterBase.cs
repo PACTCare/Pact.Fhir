@@ -10,6 +10,7 @@
 
   using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
+  using Pact.Fhir.Core.Usecase.CreateResource;
 
   public static class PresenterBase
   {
@@ -61,6 +62,17 @@
       }
 
       return new JsonFhirResult(outcome);
+    }
+
+    internal static void SetBasicResponseAttributes(UsecaseResponse response, HttpResponse httpResponse, HttpStatusCode statusCode)
+    {
+      httpResponse.StatusCode = (int)statusCode;
+      httpResponse.Headers.Add("ETag", $"W/\"{response.Resource.VersionId}\"");
+
+      if (response.Resource.Meta.LastUpdated.HasValue)
+      {
+        httpResponse.Headers.Add("Last-Modified", response.Resource.Meta.LastUpdated.Value.ToString("O"));
+      }
     }
   }
 }

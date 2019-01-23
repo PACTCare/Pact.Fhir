@@ -11,11 +11,10 @@
 
   using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
-  using Pact.Fhir.Core.Usecase.CreateResource;
 
   public static class CreateResourcePresenter
   {
-    public static IActionResult Present(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
+    public static IActionResult Present(UsecaseResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
       if (response.Code == ResponseCode.Success)
       {
@@ -25,19 +24,13 @@
       return PresenterBase.PrepareRequestFailure(response, httpResponse);
     }
 
-    private static IActionResult PrepareRequestSuccess(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
+    private static IActionResult PrepareRequestSuccess(UsecaseResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
-      httpResponse.StatusCode = (int)HttpStatusCode.Created;
+      PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.Created);
 
       httpResponse.Headers.Add(
         "Location",
         $"{httpRequest.Scheme}://{httpRequest.Host.Value}/api/fhir/{type}/{response.Resource.Id}/_history/{response.Resource.VersionId}");
-      httpResponse.Headers.Add("ETag", $"W/\"{response.Resource.VersionId}\"");
-
-      if (response.Resource.Meta.LastUpdated.HasValue)
-      {
-        httpResponse.Headers.Add("Last-Modified", response.Resource.Meta.LastUpdated.Value.ToString("O"));
-      }
 
       var prefer = httpRequest.Headers.FirstOrDefault(h => h.Key == "Prefer");
       if (string.IsNullOrEmpty(prefer.Key))

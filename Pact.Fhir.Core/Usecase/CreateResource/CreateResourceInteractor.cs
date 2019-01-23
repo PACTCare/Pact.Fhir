@@ -11,7 +11,7 @@
   /// <summary>
   /// see http://hl7.org/fhir/http.html#create
   /// </summary>
-  public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, CreateResourceResponse>
+  public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, UsecaseResponse>
   {
     /// <inheritdoc />
     public CreateResourceInteractor(IFhirRepository repository, FhirJsonParser fhirParser)
@@ -22,23 +22,23 @@
 
     public FhirJsonParser FhirParser { get; }
 
-    public override async Task<CreateResourceResponse> ExecuteAsync(CreateResourceRequest request)
+    public override async Task<UsecaseResponse> ExecuteAsync(CreateResourceRequest request)
     {
       try
       {
         var requestResource = this.FhirParser.Parse<DomainResource>(request.ResourceJson);
         var resource = await this.Repository.CreateResourceAsync(requestResource);
 
-        return new CreateResourceResponse { Code = ResponseCode.Success, Resource = resource };
+        return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (FormatException exception)
       {
-        return new CreateResourceResponse { Code = ResponseCode.UnprocessableEntity, ExceptionMessage = exception.Message };
+        return new UsecaseResponse { Code = ResponseCode.UnprocessableEntity, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new CreateResourceResponse
-                 {
+        return new UsecaseResponse
+        {
                    Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
                  };
       }
