@@ -22,15 +22,24 @@
     {
       try
       {
-        return new ReadResourceResponse { Code = ResponseCode.Success, Resource = await this.Repository.ReadResourceAsync(request.ResourceId) };
+        var resource = await this.Repository.ReadResourceAsync(request.ResourceId);
+        if (resource.ResourceType.ToString() != request.ResourceType)
+        {
+          throw new ResourceNotFoundException(request.ResourceId);
+        }
+
+        return new ReadResourceResponse { Code = ResponseCode.Success, Resource = resource };
       }
-      catch (ResourceNotFoundException)
+      catch (ResourceNotFoundException exception)
       {
-        return new ReadResourceResponse { Code = ResponseCode.ResourceNotFound };
+        return new ReadResourceResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new ReadResourceResponse { Code = ResponseCode.Failure };
+        return new ReadResourceResponse
+                 {
+                   Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
+                 };
       }
     }
   }

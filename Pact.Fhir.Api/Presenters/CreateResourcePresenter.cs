@@ -15,24 +15,24 @@
 
   public static class CreateResourcePresenter
   {
-    public static IActionResult Present(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse)
+    public static IActionResult Present(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
       if (response.Code == ResponseCode.Success)
       {
-        return PrepareRequestSuccess(response, httpRequest, httpResponse);
+        return PrepareRequestSuccess(response, httpRequest, httpResponse, type);
       }
 
-      return PrepareRequestFailure(response, httpResponse);
+      return PresenterBase.PrepareRequestFailure(response, httpResponse);
     }
 
-    private static IActionResult PrepareRequestSuccess(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse)
+    private static IActionResult PrepareRequestSuccess(CreateResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
       httpResponse.StatusCode = (int)HttpStatusCode.Created;
 
       httpResponse.Headers.Add(
         "Location",
-        $"{httpRequest.Scheme}://{httpRequest.Host.Value}/api/fhir/Patient/{response.Resource.Id}/_history/{response.Resource.VersionId}");
-      httpResponse.Headers.Add("ETag", response.Resource.VersionId);
+        $"{httpRequest.Scheme}://{httpRequest.Host.Value}/api/fhir/{type}/{response.Resource.Id}/_history/{response.Resource.VersionId}");
+      httpResponse.Headers.Add("ETag", $"W/\"{response.Resource.VersionId}\"");
 
       if (response.Resource.Meta.LastUpdated.HasValue)
       {
@@ -66,46 +66,6 @@
         default:
           return new EmptyJsonFhirResult();
       }
-    }
-
-    private static IActionResult PrepareRequestFailure(UsecaseResponse response, HttpResponse httpResponse)
-    {
-      var outcome = new OperationOutcome { Issue = new List<OperationOutcome.IssueComponent>() };
-      switch (response.Code)
-      {
-        case ResponseCode.UnprocessableEntity:
-          httpResponse.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
-          outcome.Issue.Add(
-            new OperationOutcome.IssueComponent
-              {
-                Code = OperationOutcome.IssueType.Structure,
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
-              });
-          break;
-        case ResponseCode.UnsupportedResource:
-          httpResponse.StatusCode = (int)HttpStatusCode.BadRequest;
-          outcome.Issue.Add(
-            new OperationOutcome.IssueComponent
-              {
-                Code = OperationOutcome.IssueType.NotSupported,
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
-              });
-          break;
-        default:
-          httpResponse.StatusCode = (int)HttpStatusCode.BadRequest;
-          outcome.Issue.Add(
-            new OperationOutcome.IssueComponent
-              {
-                Code = OperationOutcome.IssueType.Exception,
-                Severity = OperationOutcome.IssueSeverity.Fatal,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
-              });
-          break;
-      }
-
-      return new JsonFhirResult(outcome);
     }
   }
 }

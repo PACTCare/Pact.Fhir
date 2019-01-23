@@ -8,26 +8,12 @@
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-  using Pact.Fhir.Core.Tests.Utils;
-
   using TechTalk.SpecFlow;
 
-  using FeatureContext = Pact.Fhir.Api.Cucumber.Context.FeatureContext;
-
   [Binding]
-  public class CreateResourceSteps : FeatureContext
+  [Scope(Feature = "CreateResourceSuccess")]
+  public class CreateResourceSteps : StepBase
   {
-    private string Prefer { get; set; }
-
-    private Patient Resource { get; set; }
-
-    [Given(@"I have the patient ""(.*)""")]
-    public void GivenIHaveThePatient(string patientName)
-    {
-      this.Resource = FhirResourceProvider.Patient;
-      this.Resource.Name.First().Given = new[] { patientName };
-    }
-
     [Then(@"I should see a valid response")]
     public void ThenIShouldSeeAValidResponse()
     {
@@ -44,18 +30,6 @@
       }
 
       this.AssertMetadata();
-    }
-
-    [When(@"I create his FHIR record with Prefer ""(.*)""")]
-    public void WhenICreateHisFhirRecordWithPrefer(string prefer)
-    {
-      this.CallApi(
-        "api/fhir/create/Patient",
-        new FhirJsonSerializer().SerializeToString(this.Resource),
-        "POST",
-        new WebHeaderCollection { { "Prefer", prefer } });
-
-      this.Prefer = prefer;
     }
 
     private void AssertMetadata()

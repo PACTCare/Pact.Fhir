@@ -80,10 +80,17 @@
     </Compile>
     <Compile Include="Context\FeatureContext.cs" />
     <Compile Include="Definitions\CreateResourceSteps.cs" />
+    <Compile Include="Definitions\ReadResourceSteps.cs" />
+    <Compile Include="Definitions\StepBase.cs" />
     <Compile Include="Features\CreateResourceSuccess.feature.cs">
       <DependentUpon>CreateResourceSuccess.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Features\ReadResourceSuccess.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReadResourceSuccess.feature</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -92,6 +99,10 @@
     <None Include="Features\CreateResourceSuccess.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>CreateResourceSuccess.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\ReadResourceSuccess.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ReadResourceSuccess.feature.cs</LastGenOutput>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>

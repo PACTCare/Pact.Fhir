@@ -10,8 +10,8 @@
   using Microsoft.Extensions.Configuration;
   using Microsoft.Extensions.DependencyInjection;
 
-  using Pact.Fhir.Core.Services;
   using Pact.Fhir.Core.Usecase.CreateResource;
+  using Pact.Fhir.Core.Usecase.ReadResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.SqlLite.Encryption;
@@ -87,15 +87,16 @@
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
+      var fhirRepository = new IotaFhirRepository(
+        iotaRepository,
+        new FhirJsonTryteSerializer(),
+        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")));
 
-      var createInteractor = new CreateResourceInteractor(
-        new IotaFhirRepository(
-          iotaRepository,
-          new FhirJsonTryteSerializer(),
-          new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt"))),
-        new FhirResourceParser(new FhirJsonParser()));
+      var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
+      var readInteractor = new ReadResourceInteractor(fhirRepository);
 
       services.AddSingleton(createInteractor);
+      services.AddSingleton(readInteractor);
     }
   }
 }

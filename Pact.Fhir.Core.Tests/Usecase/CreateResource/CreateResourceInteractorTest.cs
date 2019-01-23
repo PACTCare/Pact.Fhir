@@ -10,7 +10,6 @@
   using Moq;
 
   using Pact.Fhir.Core.Repository;
-  using Pact.Fhir.Core.Services;
   using Pact.Fhir.Core.Tests.Repository;
   using Pact.Fhir.Core.Tests.Utils;
   using Pact.Fhir.Core.Usecase;
@@ -28,9 +27,9 @@
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SomeValueThatShouldBeIgnored";
 
-      var interactor = new CreateResourceInteractor(fhirRepository, new FhirResourceParser(new FhirJsonParser()));
+      var interactor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
       var response = await interactor.ExecuteAsync(
-                       new CreateResourceRequest { ResourceJson = new FhirJsonSerializer().SerializeToString(resource), ResourceType = "Patient" });
+                       new CreateResourceRequest { ResourceJson = new FhirJsonSerializer().SerializeToString(resource) });
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
       Assert.AreEqual(response.Resource.Id, response.Resource.VersionId);
@@ -45,26 +44,25 @@
     {
       var repositoryMock = new Mock<IFhirRepository>();
       repositoryMock.Setup(r => r.CreateResourceAsync(It.IsAny<DomainResource>())).ThrowsAsync(new Exception("Catch me if you can"));
-      var interactor = new CreateResourceInteractor(repositoryMock.Object, new FhirResourceParser(new FhirJsonParser()));
+      var interactor = new CreateResourceInteractor(repositoryMock.Object, new FhirJsonParser());
 
       var response = await interactor.ExecuteAsync(
                        new CreateResourceRequest
                          {
-                           ResourceJson = new FhirJsonSerializer().SerializeToString(FhirResourceProvider.Patient), ResourceType = "Patient"
+                           ResourceJson = new FhirJsonSerializer().SerializeToString(FhirResourceProvider.Patient)
                          });
 
       Assert.AreEqual(ResponseCode.Failure, response.Code);
     }
 
-    [DataRow("", "SomeUnsupportedResource", ResponseCode.UnsupportedResource)]
     [DataRow("Patient", "{\"resourceType\":\"afafasf\"}", ResponseCode.UnprocessableEntity)]
     [DataTestMethod]
     public async Task TestFhirResourceCanNotBeDeserializedShouldReturnErrorCode(string type, string data, ResponseCode expectedCode)
     {
 
-      var interactor = new CreateResourceInteractor(new InMemoryFhirRepository(), new FhirResourceParser(new FhirJsonParser()));
+      var interactor = new CreateResourceInteractor(new InMemoryFhirRepository(), new FhirJsonParser());
       var response = await interactor.ExecuteAsync(
-                       new CreateResourceRequest { ResourceJson = data, ResourceType = type});
+                       new CreateResourceRequest { ResourceJson = data });
 
       Assert.AreEqual(expectedCode, response.Code);
     }
