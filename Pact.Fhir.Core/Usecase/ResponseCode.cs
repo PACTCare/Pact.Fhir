@@ -10,6 +10,8 @@
 
     UnsupportedResource = -3,
 
-    UnprocessableEntity = -4
+    UnprocessableEntity = -4,
+
+    IdMismatch = -5
   }
 }

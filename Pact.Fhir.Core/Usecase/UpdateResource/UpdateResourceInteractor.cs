@@ -25,6 +25,11 @@
       try
       {
         var requestResource = this.FhirParser.Parse<DomainResource>(request.ResourceJson);
+        if (requestResource.Id != request.ResourceId)
+        {
+          return new UsecaseResponse { Code = ResponseCode.IdMismatch };
+        }
+
         var resource = await this.Repository.UpdateResourceAsync(requestResource);
 
         return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };

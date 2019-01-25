@@ -46,7 +46,7 @@
     /// <inheritdoc />
     public async Task<DomainResource> ReadResourceAsync(string id)
     {
-      var resource = this.Resources.FirstOrDefault(r => r.Id == id);
+      var resource = this.Resources.Last(r => r.Id == id);
 
       if (resource == null)
       {
@@ -57,9 +57,14 @@
     }
 
     /// <inheritdoc />
-    public Task<DomainResource> UpdateResourceAsync(DomainResource resource)
+    public async Task<DomainResource> UpdateResourceAsync(DomainResource resource)
     {
-      return null;
+      var versionId = "SOMENEWVERSIONID";
+      resource.PopulateMetadata(resource.Id, versionId);
+
+      this.Resources.Add(resource);
+
+      return resource;
     }
   }
 }
