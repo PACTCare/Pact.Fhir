@@ -61,6 +61,18 @@
     }
 
     [TestMethod]
+    public async Task TestResourceIsUpdatedShouldReturnNewVersionOnRead()
+    {
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
+      var initialVersion = createdResource.Meta.VersionId;
+      var updatedResource = await repository.UpdateResourceAsync(createdResource);
+      var readResource = await repository.ReadResourceAsync(updatedResource.Id);
+
+      Assert.AreNotEqual(initialVersion, readResource.Meta.VersionId);
+    }
+
+    [TestMethod]
     [ExpectedException(typeof(ResourceNotFoundException))]
     public async Task TestResourceIsNotRegisteredInTrackerShouldThrowException()
     {

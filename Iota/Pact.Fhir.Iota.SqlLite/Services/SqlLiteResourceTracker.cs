@@ -9,7 +9,6 @@
   using Pact.Fhir.Iota.Services;
   using Pact.Fhir.Iota.SqlLite.Encryption;
 
-  using Tangle.Net.Entity;
   using Tangle.Net.Mam.Services;
 
   /// <summary>
@@ -74,7 +73,7 @@
     }
 
     /// <inheritdoc />
-    public async Task<ResourceEntry> GetEntryAsync(string versionId)
+    public async Task<ResourceEntry> GetEntryAsync(string id)
     {
       ResourceEntry entry = null;
       using (var connection = new SQLiteConnection(this.ConnectionString))
@@ -82,7 +81,7 @@
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash = '{this.Encryption.Encrypt(versionId)}'", connection))
+        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash = '{this.Encryption.Encrypt(id)}'", connection))
         {
           var result = await command.ExecuteReaderAsync();
           if (result.Read())
@@ -126,6 +125,12 @@
       }
 
       return entry;
+    }
+
+    /// <inheritdoc />
+    public Task UpdateEntryAsync(ResourceEntry entry)
+    {
+      return null;
     }
 
     private void InitDatabase(string databaseFilename)

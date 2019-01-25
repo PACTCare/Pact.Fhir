@@ -11,6 +11,8 @@
   {
     Task AddEntryAsync(ResourceEntry entry);
 
-    Task<ResourceEntry> GetEntryAsync(string versionId);
+    Task<ResourceEntry> GetEntryAsync(string id);
+
+    Task UpdateEntryAsync(ResourceEntry entry);
   }
 }

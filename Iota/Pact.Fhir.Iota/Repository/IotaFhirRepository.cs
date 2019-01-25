@@ -90,16 +90,34 @@
         throw new ResourceNotFoundException(id);
       }
 
-      // TODO: update resourceEntry with newest subscription information
+      // Update the tracked subscription with the latest information
+      await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
 
       // Return the last message, since it contains the latest resource entry
       return this.Serializer.Deserialize<DomainResource>(messages.Last().Message);
     }
 
     /// <inheritdoc />
-    public Task<DomainResource> UpdateResourceAsync(DomainResource resource)
+    public async Task<DomainResource> UpdateResourceAsync(DomainResource resource)
     {
-      return null;
+      // get the MAM channel information for the given resource and check if it exists
+      var resourceEntry = await this.ResourceTracker.GetEntryAsync(resource.Id);
+      if (resourceEntry == null)
+      {
+        throw new ResourceNotFoundException(resource.Id);
+      }
+
+      // populate the metadata with the new version id
+      resource.PopulateMetadata(resource.Id, resourceEntry.Channel.NextRoot.Value);
+
+      // upload data to tangle
+      var message = resourceEntry.Channel.CreateMessage(this.Serializer.Serialize(resource));
+      await resourceEntry.Channel.PublishAsync(message, 14, 1);
+
+      // after everything is done, update the state of our channel
+      await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
+
+      return resource;
     }
   }
 }

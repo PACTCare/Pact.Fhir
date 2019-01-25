@@ -23,9 +23,21 @@
     }
 
     /// <inheritdoc />
-    public async Task<ResourceEntry> GetEntryAsync(string versionId)
+    public async Task<ResourceEntry> GetEntryAsync(string id)
     {
-      return this.Entries.FirstOrDefault(e => e.ResourceIds.Any(h => h.Contains(versionId)));
+      return this.Entries.FirstOrDefault(e => e.ResourceIds.Any(h => h.Contains(id)));
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateEntryAsync(ResourceEntry entry)
+    {
+      var existingEntry = this.Entries.FirstOrDefault(e => e.ResourceIds.Any(h => h.Contains(entry.ResourceIds.First())));
+      if (existingEntry != null)
+      {
+        existingEntry.ResourceIds = entry.ResourceIds;
+        existingEntry.Channel = entry.Channel;
+        existingEntry.Subscription = entry.Subscription;
+      }
     }
   }
 }
