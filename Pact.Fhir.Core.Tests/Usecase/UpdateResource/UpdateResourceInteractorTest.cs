@@ -5,5 +5,6 @@
   [TestClass]
   public class UpdateResourceInteractorTest
   {
+
   }
 }

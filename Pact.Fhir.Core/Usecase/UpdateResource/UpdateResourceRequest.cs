@@ -4,6 +4,6 @@
 
   public class UpdateResourceRequest
   {
-    public DomainResource Resource { get; set; }
+    public string ResourceJson { get; set; }
   }
 }

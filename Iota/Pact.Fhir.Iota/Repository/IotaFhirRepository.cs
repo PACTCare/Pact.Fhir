@@ -95,5 +95,11 @@
       // Return the last message, since it contains the latest resource entry
       return this.Serializer.Deserialize<DomainResource>(messages.Last().Message);
     }
+
+    /// <inheritdoc />
+    public Task<DomainResource> UpdateResourceAsync(DomainResource resource)
+    {
+      return null;
+    }
   }
 }

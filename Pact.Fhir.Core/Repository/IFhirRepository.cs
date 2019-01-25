@@ -31,5 +31,19 @@
     /// The requested resource
     /// </returns>
     Task<DomainResource> ReadResourceAsync(string id);
+
+    /// <summary>
+    /// see https://www.hl7.org/fhir/http.html#update
+    /// implementations MUST set VersionId and LastUpdated
+    /// see https://www.hl7.org/fhir/datatypes.html#id
+    /// Id format: [A-Za-z0-9\-\.]{1,64} (see Id.PATTERN)
+    /// </summary>
+    /// <param name="resource">
+    /// The resource to update
+    /// </param>
+    /// <returns>
+    /// Resource with adjusted values (VersionId, LastUpdated)
+    /// </returns>
+    Task<DomainResource> UpdateResourceAsync(DomainResource resource);
   }
 }

@@ -55,5 +55,11 @@
 
       return resource;
     }
+
+    /// <inheritdoc />
+    public Task<DomainResource> UpdateResourceAsync(DomainResource resource)
+    {
+      return null;
+    }
   }
 }
