@@ -107,8 +107,9 @@
         throw new ResourceNotFoundException(resource.Id);
       }
 
-      // populate the metadata with the new version id
+      // populate the metadata with the new version id and add it to the resource tracker entry
       resource.PopulateMetadata(resource.Id, resourceEntry.Channel.NextRoot.Value);
+      resourceEntry.ResourceIds.Add(resource.Meta.VersionId);
 
       // upload data to tangle
       var message = resourceEntry.Channel.CreateMessage(this.Serializer.Serialize(resource));

@@ -46,8 +46,7 @@
     /// <inheritdoc />
     public async Task<DomainResource> ReadResourceAsync(string id)
     {
-      var resource = this.Resources.Last(r => r.Id == id);
-
+      var resource = this.Resources.LastOrDefault(r => r.Id == id);
       if (resource == null)
       {
         throw new ResourceNotFoundException(id);

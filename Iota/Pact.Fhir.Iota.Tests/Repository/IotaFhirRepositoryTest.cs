@@ -3,6 +3,7 @@
   using System;
   using System.Collections.Generic;
   using System.Diagnostics;
+  using System.Linq;
   using System.Text.RegularExpressions;
 
   using Hl7.Fhir.Model;
@@ -63,18 +64,28 @@
     [TestMethod]
     public async Task TestResourceIsUpdatedShouldReturnNewVersionOnRead()
     {
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var resourceTracker = new InMemoryResourceTracker();
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
       var updatedResource = await repository.UpdateResourceAsync(createdResource);
       var readResource = await repository.ReadResourceAsync(updatedResource.Id);
 
       Assert.AreNotEqual(initialVersion, readResource.Meta.VersionId);
+      Assert.AreEqual(2, resourceTracker.Entries.First().ResourceIds.Count);
     }
 
     [TestMethod]
     [ExpectedException(typeof(ResourceNotFoundException))]
-    public async Task TestResourceIsNotRegisteredInTrackerShouldThrowException()
+    public async Task TestResourceIsNotRegisteredInTrackerOnUpdateShouldThrowException()
+    {
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      await repository.UpdateResourceAsync(FhirResourceProvider.Patient);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ResourceNotFoundException))]
+    public async Task TestResourceIsNotRegisteredInTrackerOnReadShouldThrowException()
     {
       var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
       await repository.ReadResourceAsync("SOMEID");
