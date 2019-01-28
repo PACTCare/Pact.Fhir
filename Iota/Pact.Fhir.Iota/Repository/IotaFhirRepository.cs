@@ -98,6 +98,12 @@
     }
 
     /// <inheritdoc />
+    public Task<DomainResource> ReadResourceVersionAsync(string versionId)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
     public async Task<DomainResource> UpdateResourceAsync(DomainResource resource)
     {
       // get the MAM channel information for the given resource and check if it exists

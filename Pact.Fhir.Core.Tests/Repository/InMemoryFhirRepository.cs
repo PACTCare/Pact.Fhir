@@ -56,6 +56,18 @@
     }
 
     /// <inheritdoc />
+    public async Task<DomainResource> ReadResourceVersionAsync(string versionId)
+    {
+      var resource = this.Resources.LastOrDefault(r => r.VersionId == versionId);
+      if (resource == null)
+      {
+        throw new ResourceNotFoundException(versionId);
+      }
+
+      return resource;
+    }
+
+    /// <inheritdoc />
     public async Task<DomainResource> UpdateResourceAsync(DomainResource resource)
     {
       var versionId = "SOMENEWVERSIONID";

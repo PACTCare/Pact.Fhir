@@ -33,6 +33,19 @@
     Task<DomainResource> ReadResourceAsync(string id);
 
     /// <summary>
+    /// see https://www.hl7.org/fhir/http.html#vread
+    /// The returned resource SHALL have an id element with a value that is the [id],
+    /// and a meta.versionId element with a value of [vid]
+    /// </summary>
+    /// <param name="versionId">
+    /// Version id of the requested resource
+    /// </param>
+    /// <returns>
+    /// The requested resource
+    /// </returns>
+    Task<DomainResource> ReadResourceVersionAsync(string versionId);
+
+    /// <summary>
     /// see https://www.hl7.org/fhir/http.html#update
     /// implementations MUST set VersionId and LastUpdated
     /// see https://www.hl7.org/fhir/datatypes.html#id
