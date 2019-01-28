@@ -25,16 +25,16 @@
     /// <inheritdoc />
     public async Task<ResourceEntry> GetEntryAsync(string id)
     {
-      return this.Entries.FirstOrDefault(e => e.ResourceIds.Any(h => h.Contains(id)));
+      return this.Entries.FirstOrDefault(e => e.ResourceRoots.Any(h => h.Contains(id)));
     }
 
     /// <inheritdoc />
     public async Task UpdateEntryAsync(ResourceEntry entry)
     {
-      var existingEntry = this.Entries.FirstOrDefault(e => e.ResourceIds.Any(h => h.Contains(entry.ResourceIds.First())));
+      var existingEntry = this.Entries.FirstOrDefault(e => e.ResourceRoots.Any(h => h.Contains(entry.ResourceRoots.First())));
       if (existingEntry != null)
       {
-        existingEntry.ResourceIds = entry.ResourceIds;
+        existingEntry.ResourceRoots = entry.ResourceRoots;
         existingEntry.Channel = entry.Channel;
         existingEntry.Subscription = entry.Subscription;
       }

@@ -37,11 +37,11 @@ namespace Pact.Fhir.Iota.SqlLite.Tests.Services
           {
             Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),
             Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random()),
-            ResourceIds = new List<string> { resourceId }
+            ResourceRoots = new List<string> { resourceId }
           });
 
       var resource = await tracker.GetEntryAsync(resourceId);
-      Assert.IsTrue(resource.ResourceIds.FirstOrDefault(h => h == resourceId) != null);
+      Assert.IsTrue(resource.ResourceRoots.FirstOrDefault(h => h == resourceId) != null);
     }
 
     [TestMethod]
@@ -60,15 +60,15 @@ namespace Pact.Fhir.Iota.SqlLite.Tests.Services
           {
             Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),
             Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random()),
-            ResourceIds = new List<string> { resourceId }
+            ResourceRoots = new List<string> { resourceId }
           });
 
       var resource = await tracker.GetEntryAsync(resourceId);
-      resource.ResourceIds.Add(Seed.Random().Value.Substring(0, 64));
+      resource.ResourceRoots.Add(Seed.Random().Value.Substring(0, 64));
 
       await tracker.UpdateEntryAsync(resource);
 
-      Assert.AreEqual(2, (await tracker.GetEntryAsync(resourceId)).ResourceIds.Count);
+      Assert.AreEqual(2, (await tracker.GetEntryAsync(resourceId)).ResourceRoots.Count);
     }
   }
 }

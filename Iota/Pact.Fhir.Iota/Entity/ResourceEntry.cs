@@ -12,12 +12,12 @@
   {
     public ResourceEntry()
     {
-      this.ResourceIds = new List<string>();
+      this.ResourceRoots = new List<string>();
     }
 
     public MamChannel Channel { get; set; }
 
-    public List<string> ResourceIds { get; set; }
+    public List<string> ResourceRoots { get; set; }
 
     public MamChannelSubscription Subscription { get; set; }
   }

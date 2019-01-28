@@ -9,6 +9,8 @@
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+  using Moq;
+
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Tests.Utils;
   using Pact.Fhir.Iota.Repository;
@@ -43,7 +45,7 @@
           {
             Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random()),
             Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random()),
-            ResourceIds = new List<string> { "SOMEID" }
+            ResourceRoots = new List<string> { "SOMEID" }
           });
 
       var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker);
@@ -100,7 +102,7 @@
     public async Task TestResourceIsReadOnlyShouldThrowException()
     {
       var resourceTracker = new InMemoryResourceTracker();
-      await resourceTracker.AddEntryAsync(new ResourceEntry { ResourceIds = new List<string> { "SOMEID" } });
+      await resourceTracker.AddEntryAsync(new ResourceEntry { ResourceRoots = new List<string> { "SOMEID" } });
 
       var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
 
@@ -115,13 +117,35 @@
     {
       var resourceTracker = new InMemoryResourceTracker();
       var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
+
       var updatedResource = await repository.UpdateResourceAsync(createdResource);
       var readResource = await repository.ReadResourceAsync(updatedResource.Id);
 
       Assert.AreNotEqual(initialVersion, readResource.Meta.VersionId);
-      Assert.AreEqual(2, resourceTracker.Entries.First().ResourceIds.Count);
+      Assert.AreEqual(2, resourceTracker.Entries.First().ResourceRoots.Count);
+    }
+
+    [TestMethod]
+    public async Task TestResourceIsUpdatedShouldReturnAskedVersionOnVRead()
+    {
+      var resourceTracker = new InMemoryResourceTracker();
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+
+      var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
+      var initialVersion = createdResource.VersionId;
+
+      var updatedResource = await repository.UpdateResourceAsync(createdResource);
+      var updatedVersionId = updatedResource.VersionId;
+
+      await repository.UpdateResourceAsync(updatedResource);
+      var readResource = await repository.ReadResourceVersionAsync(updatedVersionId);
+
+      Assert.AreNotEqual(initialVersion, readResource.Meta.VersionId);
+      Assert.AreEqual(updatedVersionId, readResource.Meta.VersionId);
+      Assert.AreEqual(3, resourceTracker.Entries.First().ResourceRoots.Count);
     }
   }
 }

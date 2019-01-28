@@ -65,7 +65,7 @@
       await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry
           {
-            ResourceIds = new List<string> { resource.Id },
+            ResourceRoots = new List<string> { rootHash.Value },
             Channel = channel,
             Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
           });
@@ -84,11 +84,7 @@
       }
 
       // Fetch all messages
-      var messages = await resourceEntry.Subscription.FetchAsync();
-      if (messages.Count == 0)
-      {
-        throw new ResourceNotFoundException(id);
-      }
+      var messages = await FetchStreamMessagesAsync(id, resourceEntry);
 
       // Update the tracked subscription with the latest information
       await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
@@ -98,9 +94,41 @@
     }
 
     /// <inheritdoc />
-    public Task<DomainResource> ReadResourceVersionAsync(string versionId)
+    public async Task<DomainResource> ReadResourceVersionAsync(string versionId)
     {
-      return null;
+      // Get the tracked resource associated with the given id and get subscription from that
+      var resourceEntry = await this.ResourceTracker.GetEntryAsync(versionId);
+      if (resourceEntry == null)
+      {
+        throw new ResourceNotFoundException(versionId);
+      }
+
+      // Get root that corresponds to the desired version id
+      var resourceHash = resourceEntry.ResourceRoots.FirstOrDefault(r => r.Contains(versionId));
+
+      UnmaskedAuthenticatedMessage message;
+      if (string.IsNullOrEmpty(resourceHash))
+      {
+        // Root has not been fetched yet. Fetch stream and select desired version
+        var messages = await FetchStreamMessagesAsync(versionId, resourceEntry);
+        message = messages.FirstOrDefault(m => m.Root.Value.Contains(versionId));
+      }
+      else
+      {
+        // Root has been fetched before. Fetch single message
+        message = await resourceEntry.Subscription.FetchSingle(new Hash(resourceHash));
+      }
+
+      if (message == null)
+      {
+        throw new ResourceNotFoundException(versionId);
+      }
+
+      // Update the tracked subscription with the latest information
+      await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
+
+      // Return the last message, since it contains the latest resource entry
+      return this.Serializer.Deserialize<DomainResource>(message.Message);
     }
 
     /// <inheritdoc />
@@ -121,7 +149,7 @@
 
       // populate the metadata with the new version id and add it to the resource tracker entry
       resource.PopulateMetadata(resource.Id, resourceEntry.Channel.NextRoot.Value);
-      resourceEntry.ResourceIds.Add(resource.Meta.VersionId);
+      resourceEntry.ResourceRoots.Add(resourceEntry.Channel.NextRoot.Value);
 
       // upload data to tangle
       var message = resourceEntry.Channel.CreateMessage(this.Serializer.Serialize(resource));
@@ -131,6 +159,25 @@
       await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
 
       return resource;
+    }
+
+    private static async Task<List<UnmaskedAuthenticatedMessage>> FetchStreamMessagesAsync(string id, ResourceEntry resourceEntry)
+    {
+      var messages = await resourceEntry.Subscription.FetchAsync();
+      if (messages.Count == 0)
+      {
+        throw new ResourceNotFoundException(id);
+      }
+
+      foreach (var message in messages)
+      {
+        if (!resourceEntry.ResourceRoots.Any(r => r.Contains(message.Root.Value)))
+        {
+          resourceEntry.ResourceRoots.Add(message.Root.Value);
+        }
+      }
+
+      return messages;
     }
   }
 }
