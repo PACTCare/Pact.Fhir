@@ -10,6 +10,7 @@
 
   using Moq;
 
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
   using Pact.Fhir.Core.Tests.Repository;
   using Pact.Fhir.Core.Tests.Utils;
@@ -21,16 +22,14 @@
   [TestClass]
   public class UpdateResourceInteractorTest
   {
-    [DataRow("Patient", "{\"resourceType\":\"afafasf\"}", ResponseCode.UnprocessableEntity)]
-    [DataTestMethod]
-    public async Task TestFhirResourceCanNotBeDeserializedShouldReturnErrorCode(string type, string data, ResponseCode expectedCode)
+    [TestMethod]
+    public async Task TestFhirResourceCanNotBeDeserializedShouldReturnErrorCode()
     {
-
       var interactor = new UpdateResourceInteractor(new InMemoryFhirRepository(), new FhirJsonParser());
       var response = await interactor.ExecuteAsync(
-                       new UpdateResourceRequest { ResourceJson = data });
+                       new UpdateResourceRequest { ResourceJson = "{\"resourceType\":\"afafasf\"}" });
 
-      Assert.AreEqual(expectedCode, response.Code);
+      Assert.AreEqual(ResponseCode.UnprocessableEntity, response.Code);
     }
 
     [TestMethod]
@@ -74,6 +73,40 @@
 
       Assert.AreEqual(2, inMemoryFhirRepository.Resources.Count);
       Assert.AreEqual("SOMENEWVERSIONID", inMemoryFhirRepository.Resources.Last().Meta.VersionId);
+    }
+
+    [TestMethod]
+    public async Task TestExistingResourceDoesNotExistShouldReturnErrorCode()
+    {
+      var repositoryMock = new Mock<IFhirRepository>();
+      repositoryMock.Setup(r => r.UpdateResourceAsync(It.IsAny<DomainResource>())).ThrowsAsync(new ResourceNotFoundException("SOMEID"));
+      var interactor = new UpdateResourceInteractor(repositoryMock.Object, new FhirJsonParser());
+
+      var response = await interactor.ExecuteAsync(
+                       new UpdateResourceRequest
+                         {
+                           ResourceJson = new FhirJsonSerializer().SerializeToString(FhirResourceProvider.Patient),
+                           ResourceId = FhirResourceProvider.Patient.Id
+                         });
+
+      Assert.AreEqual(ResponseCode.MethodNotAllowed, response.Code);
+    }
+
+    [TestMethod]
+    public async Task TestExistingResourceIsReadOnlyShouldReturnErrorCode()
+    {
+      var repositoryMock = new Mock<IFhirRepository>();
+      repositoryMock.Setup(r => r.UpdateResourceAsync(It.IsAny<DomainResource>())).ThrowsAsync(new AuthorizationRequiredException("SOMEID"));
+      var interactor = new UpdateResourceInteractor(repositoryMock.Object, new FhirJsonParser());
+
+      var response = await interactor.ExecuteAsync(
+                       new UpdateResourceRequest
+                         {
+                           ResourceJson = new FhirJsonSerializer().SerializeToString(FhirResourceProvider.Patient),
+                           ResourceId = FhirResourceProvider.Patient.Id
+                         });
+
+      Assert.AreEqual(ResponseCode.AuthorizationRequired, response.Code);
     }
   }
 }

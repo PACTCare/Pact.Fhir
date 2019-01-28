@@ -12,6 +12,10 @@
 
     UnprocessableEntity = -4,
 
-    IdMismatch = -5
+    IdMismatch = -5,
+
+    MethodNotAllowed = -6,
+
+    AuthorizationRequired = -7
   }
 }

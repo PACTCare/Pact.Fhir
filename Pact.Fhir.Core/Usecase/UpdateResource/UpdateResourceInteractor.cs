@@ -6,6 +6,7 @@
   using Hl7.Fhir.Model;
   using Hl7.Fhir.Serialization;
 
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   public class UpdateResourceInteractor : UsecaseInteractor<UpdateResourceRequest, UsecaseResponse>
@@ -37,6 +38,14 @@
       catch (FormatException exception)
       {
         return new UsecaseResponse { Code = ResponseCode.UnprocessableEntity, ExceptionMessage = exception.Message };
+      }
+      catch (ResourceNotFoundException exception)
+      {
+        return new UsecaseResponse { Code = ResponseCode.MethodNotAllowed, ExceptionMessage = exception.Message };
+      }
+      catch (AuthorizationRequiredException exception)
+      {
+        return new UsecaseResponse { Code = ResponseCode.AuthorizationRequired, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {

@@ -107,6 +107,12 @@
         throw new ResourceNotFoundException(resource.Id);
       }
 
+      if (resourceEntry.Channel == null)
+      {
+        // System does not have write access to the stream. Therefore no update can be made
+        throw new AuthorizationRequiredException(resource.Id);
+      }
+
       // populate the metadata with the new version id and add it to the resource tracker entry
       resource.PopulateMetadata(resource.Id, resourceEntry.Channel.NextRoot.Value);
       resourceEntry.ResourceIds.Add(resource.Meta.VersionId);
