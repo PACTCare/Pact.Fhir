@@ -129,6 +129,19 @@
     }
 
     [TestMethod]
+    public async Task TestUpdatedResourceShouldReturnAllEntriesInHistory()
+    {
+      var resourceTracker = new InMemoryResourceTracker();
+      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+
+      var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
+      var updatedResource = await repository.UpdateResourceAsync(createdResource);
+
+      var resources = await repository.ReadResourceHistoryAsync(updatedResource.Id);
+      Assert.AreEqual(2, resources.Count);
+    }
+
+    [TestMethod]
     public async Task TestResourceIsUpdatedShouldReturnAskedVersionOnVRead()
     {
       var resourceTracker = new InMemoryResourceTracker();

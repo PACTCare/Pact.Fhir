@@ -90,13 +90,26 @@
       await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
 
       // Return the last message, since it contains the latest resource entry
-      return this.Serializer.Deserialize<DomainResource>(messages.Last().Message);
+      return this.Serializer.Deserialize<Resource>(messages.Last().Message);
     }
 
     /// <inheritdoc />
-    public Task<List<Resource>> ReadResourceHistoryAsync(string id)
+    public async Task<List<Resource>> ReadResourceHistoryAsync(string id)
     {
-      return null;
+      // Get the tracked resource associated with the given id and get subscription from that
+      var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
+      if (resourceEntry == null)
+      {
+        throw new ResourceNotFoundException(id);
+      }
+
+      // Fetch all messages
+      var messages = await FetchStreamMessagesAsync(id, resourceEntry);
+
+      // Update the tracked subscription with the latest information
+      await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
+
+      return messages.Select(m => this.Serializer.Deserialize<Resource>(m.Message)).ToList();
     }
 
     /// <inheritdoc />
