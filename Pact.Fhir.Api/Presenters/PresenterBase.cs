@@ -14,7 +14,7 @@
 
   public static class PresenterBase
   {
-    internal static IActionResult PrepareRequestFailure(ResourceUsecaseResponse response, HttpResponse httpResponse)
+    internal static IActionResult PrepareRequestFailure(UsecaseResponse response, HttpResponse httpResponse)
     {
       var outcome = new OperationOutcome { Issue = new List<OperationOutcome.IssueComponent>() };
       switch (response.Code)
@@ -64,7 +64,7 @@
       return new JsonFhirResult(outcome);
     }
 
-    internal static void SetBasicResponseAttributes(ResourceUsecaseResponse response, HttpResponse httpResponse, HttpStatusCode statusCode)
+    internal static void SetBasicResponseAttributes(UsecaseResponse response, HttpResponse httpResponse, HttpStatusCode statusCode)
     {
       httpResponse.StatusCode = (int)statusCode;
       httpResponse.Headers.Add("ETag", $"W/\"{response.Resource.VersionId}\"");

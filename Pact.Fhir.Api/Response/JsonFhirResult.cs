@@ -10,13 +10,13 @@
 
   public class JsonFhirResult : IActionResult
   {
-    public JsonFhirResult(DomainResource resource)
+    public JsonFhirResult(Resource resource)
     {
       this.Resource = resource;
       this.Serializer = new FhirJsonSerializer();
     }
 
-    private DomainResource Resource { get; }
+    private Resource Resource { get; }
 
     private FhirJsonSerializer Serializer { get; }
 

@@ -1,14 +1,17 @@
 ﻿namespace Pact.Fhir.Core.Usecase.ReadResourceHistory
 {
+  using System.Collections.Generic;
   using System.Linq;
   using System.Threading.Tasks;
+
+  using Hl7.Fhir.Model;
 
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   using Exception = System.Exception;
 
-  public class ReadResourceHistoryInteractor : UsecaseInteractor<ReadResourceHistoryRequest, ReadResourceHistoryResponse>
+  public class ReadResourceHistoryInteractor : UsecaseInteractor<ReadResourceHistoryRequest, UsecaseResponse>
   {
     /// <inheritdoc />
     public ReadResourceHistoryInteractor(IFhirRepository repository)
@@ -17,7 +20,7 @@
     }
 
     /// <inheritdoc />
-    public override async Task<ReadResourceHistoryResponse> ExecuteAsync(ReadResourceHistoryRequest request)
+    public override async Task<UsecaseResponse> ExecuteAsync(ReadResourceHistoryRequest request)
     {
       try
       {
@@ -27,15 +30,23 @@
           throw new ResourceNotFoundException(request.ResourceId);
         }
 
-        return new ReadResourceHistoryResponse { Code = ResponseCode.Success, Resources = resources };
+        return new UsecaseResponse
+                 {
+                   Code = ResponseCode.Success,
+                   Resource = new Bundle
+                                {
+                                  Entry = new List<Bundle.EntryComponent>(resources.Select(r => new Bundle.EntryComponent { Resource = r })),
+                                  Type = Bundle.BundleType.History
+                                }
+                 };
       }
       catch (ResourceNotFoundException exception)
       {
-        return new ReadResourceHistoryResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
+        return new UsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new ReadResourceHistoryResponse
+        return new UsecaseResponse
         {
                    Code = ResponseCode.Failure,
                    ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
