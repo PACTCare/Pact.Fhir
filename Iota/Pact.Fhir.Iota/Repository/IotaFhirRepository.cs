@@ -45,7 +45,7 @@
     private MamChannelSubscriptionFactory SubscriptionFactory { get; }
 
     /// <inheritdoc />
-    public async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+    public async Task<Resource> CreateResourceAsync(Resource resource)
     {
       // Setup for unlinked resources (not linked to a user seed)
       // User seed handling has to be implemented later (must conform FHIR specifications)
@@ -74,7 +74,7 @@
     }
 
     /// <inheritdoc />
-    public async Task<DomainResource> ReadResourceAsync(string id)
+    public async Task<Resource> ReadResourceAsync(string id)
     {
       // Get the tracked resource associated with the given id and get subscription from that
       var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
@@ -94,13 +94,13 @@
     }
 
     /// <inheritdoc />
-    public Task<List<DomainResource>> ReadResourceHistoryAsync(string id)
+    public Task<List<Resource>> ReadResourceHistoryAsync(string id)
     {
       return null;
     }
 
     /// <inheritdoc />
-    public async Task<DomainResource> ReadResourceVersionAsync(string versionId)
+    public async Task<Resource> ReadResourceVersionAsync(string versionId)
     {
       // Get the tracked resource associated with the given id and get subscription from that
       var resourceEntry = await this.ResourceTracker.GetEntryAsync(versionId);
@@ -134,11 +134,11 @@
       await this.ResourceTracker.UpdateEntryAsync(resourceEntry);
 
       // Return the last message, since it contains the latest resource entry
-      return this.Serializer.Deserialize<DomainResource>(message.Message);
+      return this.Serializer.Deserialize<Resource>(message.Message);
     }
 
     /// <inheritdoc />
-    public async Task<DomainResource> UpdateResourceAsync(DomainResource resource)
+    public async Task<Resource> UpdateResourceAsync(Resource resource)
     {
       // get the MAM channel information for the given resource and check if it exists
       var resourceEntry = await this.ResourceTracker.GetEntryAsync(resource.Id);

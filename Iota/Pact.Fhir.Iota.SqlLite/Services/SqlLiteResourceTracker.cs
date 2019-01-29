@@ -62,10 +62,10 @@
           resourceId = (long)await command.ExecuteScalarAsync();
         }
 
-        foreach (var id in entry.ResourceRoots)
+        foreach (var hash in entry.ResourceRoots)
         {
           using (var command = new SQLiteCommand(
-            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{this.Encryption.Encrypt(id)}', '{resourceId}')",
+            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{hash}', '{resourceId}')",
             connection))
           {
             await command.ExecuteNonQueryAsync();
@@ -83,7 +83,7 @@
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash = '{this.Encryption.Encrypt(id)}'", connection))
+        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash LIKE '{id}%'", connection))
         {
           using (var result = await command.ExecuteReaderAsync())
           {
@@ -105,9 +105,7 @@
           {
             while (result.Read())
             {
-              var decryptedHash = this.Encryption.Decrypt(result["Hash"].ToString());
-
-              resourceIds.Add(decryptedHash);
+              resourceIds.Add(result["Hash"].ToString());
             }
           }
         }
@@ -143,7 +141,7 @@
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand($"SELECT ResourceId FROM StreamHash WHERE Hash = '{this.Encryption.Encrypt(entry.ResourceRoots.First())}'", connection))
+        using (var command = new SQLiteCommand($"SELECT ResourceId FROM StreamHash WHERE Hash LIKE '{entry.ResourceRoots.First()}%'", connection))
         {
           using (var result = await command.ExecuteReaderAsync())
           {
@@ -158,10 +156,10 @@
           }
         }
 
-        foreach (var id in entry.ResourceRoots)
+        foreach (var hash in entry.ResourceRoots)
         {
           using (var command = new SQLiteCommand(
-            $"INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES ('{this.Encryption.Encrypt(id)}', '{resourceId}')",
+            $"INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES ('{hash}', '{resourceId}')",
             connection))
           {
             await command.ExecuteNonQueryAsync();

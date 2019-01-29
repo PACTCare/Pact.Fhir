@@ -16,15 +16,15 @@
     public InMemoryFhirRepository(string creationId = null)
     {
       this.CreationId = creationId;
-      this.Resources = new List<DomainResource>();
+      this.Resources = new List<Resource>();
     }
 
-    public List<DomainResource> Resources { get; }
+    public List<Resource> Resources { get; }
 
     private string CreationId { get; }
 
     /// <inheritdoc />
-    public async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+    public async Task<Resource> CreateResourceAsync(Resource resource)
     {
       this.Resources.Add(resource);
 
@@ -44,7 +44,7 @@
     }
 
     /// <inheritdoc />
-    public async Task<DomainResource> ReadResourceAsync(string id)
+    public async Task<Resource> ReadResourceAsync(string id)
     {
       var resource = this.Resources.LastOrDefault(r => r.Id == id);
       if (resource == null)
@@ -56,13 +56,13 @@
     }
 
     /// <inheritdoc />
-    public async Task<List<DomainResource>> ReadResourceHistoryAsync(string id)
+    public async Task<List<Resource>> ReadResourceHistoryAsync(string id)
     {
       return this.Resources.Where(r => r.Id == id).ToList();
     }
 
     /// <inheritdoc />
-    public async Task<DomainResource> ReadResourceVersionAsync(string versionId)
+    public async Task<Resource> ReadResourceVersionAsync(string versionId)
     {
       var resource = this.Resources.LastOrDefault(r => r.VersionId == versionId);
       if (resource == null)
@@ -74,7 +74,7 @@
     }
 
     /// <inheritdoc />
-    public async Task<DomainResource> UpdateResourceAsync(DomainResource resource)
+    public async Task<Resource> UpdateResourceAsync(Resource resource)
     {
       var versionId = "SOMENEWVERSIONID";
       resource.PopulateMetadata(resource.Id, versionId);

@@ -19,7 +19,7 @@
     /// <returns>
     /// Resource with adjusted values (LogicalId, VersionId, LastUpdated)
     /// </returns>
-    Task<DomainResource> CreateResourceAsync(DomainResource resource);
+    Task<Resource> CreateResourceAsync(Resource resource);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/http.html#read
@@ -31,7 +31,7 @@
     /// <returns>
     /// The requested resource
     /// </returns>
-    Task<DomainResource> ReadResourceAsync(string id);
+    Task<Resource> ReadResourceAsync(string id);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/search.html#summary
@@ -42,7 +42,7 @@
     /// <returns>
     /// The requested resources
     /// </returns>
-    Task<List<DomainResource>> ReadResourceHistoryAsync(string id);
+    Task<List<Resource>> ReadResourceHistoryAsync(string id);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/http.html#vread
@@ -55,7 +55,7 @@
     /// <returns>
     /// The requested resource
     /// </returns>
-    Task<DomainResource> ReadResourceVersionAsync(string versionId);
+    Task<Resource> ReadResourceVersionAsync(string versionId);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/http.html#update
@@ -69,6 +69,6 @@
     /// <returns>
     /// Resource with adjusted values (VersionId, LastUpdated)
     /// </returns>
-    Task<DomainResource> UpdateResourceAsync(DomainResource resource);
+    Task<Resource> UpdateResourceAsync(Resource resource);
   }
 }

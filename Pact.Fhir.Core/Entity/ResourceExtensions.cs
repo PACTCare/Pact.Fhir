@@ -12,7 +12,7 @@
     /// Id Pattern: [A-Za-z0-9\-\.]{1,64} (see Id.PATTERN)
     /// https://www.hl7.org/fhir/datatypes.html#id
     /// </summary>
-    public static void PopulateMetadata(this DomainResource resource, string id, string versionId)
+    public static void PopulateMetadata(this Resource resource, string id, string versionId)
     {
       var idMatches = Regex.Matches(id, Id.PATTERN);
       var versionIdMatches = Regex.Matches(versionId, Id.PATTERN);
