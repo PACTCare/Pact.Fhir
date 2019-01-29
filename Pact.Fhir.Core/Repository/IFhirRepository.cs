@@ -42,7 +42,7 @@
     /// <returns>
     /// The requested resources
     /// </returns>
-    Task<List<DomainResource>> ReadResourceSummaryAsync(string id);
+    Task<List<DomainResource>> ReadResourceHistoryAsync(string id);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/http.html#vread

@@ -94,7 +94,7 @@
     }
 
     /// <inheritdoc />
-    public Task<List<DomainResource>> ReadResourceSummaryAsync(string id)
+    public Task<List<DomainResource>> ReadResourceHistoryAsync(string id)
     {
       return null;
     }

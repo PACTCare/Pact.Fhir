@@ -56,7 +56,7 @@
     }
 
     /// <inheritdoc />
-    public async Task<List<DomainResource>> ReadResourceSummaryAsync(string id)
+    public async Task<List<DomainResource>> ReadResourceHistoryAsync(string id)
     {
       return this.Resources.Where(r => r.Id == id).ToList();
     }
