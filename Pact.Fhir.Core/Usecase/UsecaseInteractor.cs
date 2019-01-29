@@ -5,7 +5,7 @@
   using Pact.Fhir.Core.Repository;
 
   public abstract class UsecaseInteractor<TRequest, TResponse>
-    where TResponse : UsecaseResponse
+    where TResponse : BaseResponse
   {
     public UsecaseInteractor(IFhirRepository repository)
     {

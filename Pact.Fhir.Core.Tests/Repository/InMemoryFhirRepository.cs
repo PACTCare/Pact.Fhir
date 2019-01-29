@@ -56,6 +56,12 @@
     }
 
     /// <inheritdoc />
+    public async Task<List<DomainResource>> ReadResourceSummaryAsync(string id)
+    {
+      return this.Resources.Where(r => r.Id == id).ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<DomainResource> ReadResourceVersionAsync(string versionId)
     {
       var resource = this.Resources.LastOrDefault(r => r.VersionId == versionId);

@@ -1,5 +1,6 @@
 ﻿namespace Pact.Fhir.Core.Repository
 {
+  using System.Collections.Generic;
   using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
@@ -31,6 +32,17 @@
     /// The requested resource
     /// </returns>
     Task<DomainResource> ReadResourceAsync(string id);
+
+    /// <summary>
+    /// see https://www.hl7.org/fhir/search.html#summary
+    /// </summary>
+    /// <param name="id">
+    /// Id of the requested resource
+    /// </param>
+    /// <returns>
+    /// The requested resources
+    /// </returns>
+    Task<List<DomainResource>> ReadResourceSummaryAsync(string id);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/http.html#vread

@@ -16,7 +16,7 @@ namespace Pact.Fhir.Api.Presenters
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse)
+    public static IActionResult Present(ResourceUsecaseResponse response, HttpResponse httpResponse)
     {
       if (response.Code == ResponseCode.Success)
       {

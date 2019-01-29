@@ -94,6 +94,12 @@
     }
 
     /// <inheritdoc />
+    public Task<List<DomainResource>> ReadResourceSummaryAsync(string id)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
     public async Task<DomainResource> ReadResourceVersionAsync(string versionId)
     {
       // Get the tracked resource associated with the given id and get subscription from that

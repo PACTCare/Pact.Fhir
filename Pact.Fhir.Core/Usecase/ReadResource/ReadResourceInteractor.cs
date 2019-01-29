@@ -3,13 +3,15 @@
   using System;
   using System.Threading.Tasks;
 
+  using Hl7.Fhir.Model;
+
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   /// <summary>
   /// see https://www.hl7.org/fhir/http.html#read
   /// </summary>
-  public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, UsecaseResponse>
+  public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, ResourceUsecaseResponse>
   {
     /// <inheritdoc />
     public ReadResourceInteractor(IFhirRepository repository)
@@ -18,7 +20,7 @@
     }
 
     /// <inheritdoc />
-    public override async Task<UsecaseResponse> ExecuteAsync(ReadResourceRequest request)
+    public override async Task<ResourceUsecaseResponse> ExecuteAsync(ReadResourceRequest request)
     {
       try
       {
@@ -28,15 +30,15 @@
           throw new ResourceNotFoundException(request.ResourceId);
         }
 
-        return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };
+        return new ResourceUsecaseResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (ResourceNotFoundException exception)
       {
-        return new UsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
+        return new ResourceUsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new UsecaseResponse
+        return new ResourceUsecaseResponse
         {
                    Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
                  };
