@@ -3,34 +3,45 @@
   using System;
   using System.Threading.Tasks;
 
+  using Hl7.Fhir.Model;
+
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   /// <summary>
   /// see https://www.hl7.org/fhir/http.html#read
   /// </summary>
-  public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, ReadResourceResponse>
+  public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, UsecaseResponse>
   {
     /// <inheritdoc />
-    public ReadResourceInteractor(FhirRepository repository)
+    public ReadResourceInteractor(IFhirRepository repository)
       : base(repository)
     {
     }
 
     /// <inheritdoc />
-    public override async Task<ReadResourceResponse> ExecuteAsync(ReadResourceRequest request)
+    public override async Task<UsecaseResponse> ExecuteAsync(ReadResourceRequest request)
     {
       try
       {
-        return new ReadResourceResponse { Code = ResponseCode.Success, Resource = await this.Repository.ReadResourceAsync(request.ResourceId) };
+        var resource = await this.Repository.ReadResourceAsync(request.ResourceId);
+        if (resource.ResourceType.ToString() != request.ResourceType)
+        {
+          throw new ResourceNotFoundException(request.ResourceId);
+        }
+
+        return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };
       }
-      catch (ResourceNotFoundException)
+      catch (ResourceNotFoundException exception)
       {
-        return new ReadResourceResponse { Code = ResponseCode.ResourceNotFound };
+        return new UsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new ReadResourceResponse { Code = ResponseCode.Failure };
+        return new UsecaseResponse
+        {
+                   Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
+                 };
       }
     }
   }

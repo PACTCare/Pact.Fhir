@@ -4,6 +4,9 @@
 # connection strings ignore
 connections.config
 
+# database
+*.sqlite
+
 *.nupkg
 
 # react ignore patterns

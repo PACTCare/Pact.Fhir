@@ -3,29 +3,44 @@
   using System;
   using System.Threading.Tasks;
 
+  using Hl7.Fhir.Model;
+  using Hl7.Fhir.Serialization;
+
   using Pact.Fhir.Core.Repository;
 
   /// <summary>
   /// see http://hl7.org/fhir/http.html#create
   /// </summary>
-  public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, CreateResourceResponse>
+  public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, UsecaseResponse>
   {
     /// <inheritdoc />
-    public CreateResourceInteractor(FhirRepository repository)
+    public CreateResourceInteractor(IFhirRepository repository, FhirJsonParser fhirParser)
       : base(repository)
     {
+      this.FhirParser = fhirParser;
     }
 
-    public override async Task<CreateResourceResponse> ExecuteAsync(CreateResourceRequest request)
+    public FhirJsonParser FhirParser { get; }
+
+    public override async Task<UsecaseResponse> ExecuteAsync(CreateResourceRequest request)
     {
       try
       {
-        var resource = await this.Repository.CreateResourceAsync(request.Resource);
-        return new CreateResourceResponse { Code = ResponseCode.Success, LogicalId = resource.Id, VersionId = resource.VersionId };
+        var requestResource = this.FhirParser.Parse<DomainResource>(request.ResourceJson);
+        var resource = await this.Repository.CreateResourceAsync(requestResource);
+
+        return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };
+      }
+      catch (FormatException exception)
+      {
+        return new UsecaseResponse { Code = ResponseCode.UnprocessableEntity, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new CreateResourceResponse { Code = ResponseCode.Failure };
+        return new UsecaseResponse
+        {
+                   Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
+                 };
       }
     }
   }

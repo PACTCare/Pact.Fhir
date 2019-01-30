@@ -6,6 +6,16 @@
 
     Failure = -1,
 
-    ResourceNotFound = -2
+    ResourceNotFound = -2,
+
+    UnsupportedResource = -3,
+
+    UnprocessableEntity = -4,
+
+    IdMismatch = -5,
+
+    MethodNotAllowed = -6,
+
+    AuthorizationRequired = -7
   }
 }

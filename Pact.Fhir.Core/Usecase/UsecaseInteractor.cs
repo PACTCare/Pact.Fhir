@@ -7,12 +7,12 @@
   public abstract class UsecaseInteractor<TRequest, TResponse>
     where TResponse : UsecaseResponse
   {
-    public UsecaseInteractor(FhirRepository repository)
+    public UsecaseInteractor(IFhirRepository repository)
     {
       this.Repository = repository;
     }
 
-    protected FhirRepository Repository { get; }
+    protected IFhirRepository Repository { get; }
 
     public abstract Task<TResponse> ExecuteAsync(TRequest request);
   }

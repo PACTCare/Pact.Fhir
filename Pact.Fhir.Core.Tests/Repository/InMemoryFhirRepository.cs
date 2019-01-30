@@ -7,23 +7,24 @@
 
   using Hl7.Fhir.Model;
 
+  using Pact.Fhir.Core.Entity;
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
-  public class InMemoryFhirRepository : FhirRepository
+  public class InMemoryFhirRepository : IFhirRepository
   {
     public InMemoryFhirRepository(string creationId = null)
     {
       this.CreationId = creationId;
-      this.Resources = new List<DomainResource>();
+      this.Resources = new List<Resource>();
     }
 
-    public List<DomainResource> Resources { get; }
+    public List<Resource> Resources { get; }
 
     private string CreationId { get; }
 
     /// <inheritdoc />
-    public override async Task<DomainResource> CreateResourceAsync(DomainResource resource)
+    public async Task<Resource> CreateResourceAsync(Resource resource)
     {
       this.Resources.Add(resource);
 
@@ -37,20 +38,48 @@
         resourceId = "SOMEFHIRCONFORMID1234";
       }
 
-      this.PopulateMetadata(resource, resourceId, resourceId);
+      resource.PopulateMetadata(resourceId, resourceId);
 
       return resource;
     }
 
     /// <inheritdoc />
-    public override async Task<DomainResource> ReadResourceAsync(string id)
+    public async Task<Resource> ReadResourceAsync(string id)
     {
-      var resource = this.Resources.FirstOrDefault(r => r.Id == id);
-
+      var resource = this.Resources.LastOrDefault(r => r.Id == id);
       if (resource == null)
       {
         throw new ResourceNotFoundException(id);
       }
+
+      return resource;
+    }
+
+    /// <inheritdoc />
+    public async Task<List<Resource>> ReadResourceHistoryAsync(string id)
+    {
+      return this.Resources.Where(r => r.Id == id).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<Resource> ReadResourceVersionAsync(string versionId)
+    {
+      var resource = this.Resources.LastOrDefault(r => r.VersionId == versionId);
+      if (resource == null)
+      {
+        throw new ResourceNotFoundException(versionId);
+      }
+
+      return resource;
+    }
+
+    /// <inheritdoc />
+    public async Task<Resource> UpdateResourceAsync(Resource resource)
+    {
+      var versionId = "SOMENEWVERSIONID";
+      resource.PopulateMetadata(resource.Id, versionId);
+
+      this.Resources.Add(resource);
 
       return resource;
     }
