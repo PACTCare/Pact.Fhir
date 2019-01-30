@@ -34,7 +34,7 @@
     public TryteString Serialize<T>(T value)
       where T : Base
     {
-      return TryteString.FromUtf8String(this.Serializer.SerializeToString(value));
+      return TryteString.FromAsciiString(this.Serializer.SerializeToString(value));
     }
   }
 }

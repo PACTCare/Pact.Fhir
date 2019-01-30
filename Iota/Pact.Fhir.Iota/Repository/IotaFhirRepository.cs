@@ -56,7 +56,7 @@
       var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel).Root.Hash;
       resource.PopulateMetadata(rootHash.Value, rootHash.Value);
 
-      var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel, channelKey);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel, channelKey.Value);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message, 14, 1);
 
@@ -67,7 +67,7 @@
           {
             ResourceRoots = new List<string> { rootHash.Value },
             Channel = channel,
-            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
+            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey.Value)
           });
 
       return resource;
