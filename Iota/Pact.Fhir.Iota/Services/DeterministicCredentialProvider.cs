@@ -1,14 +1,16 @@
 ﻿namespace Pact.Fhir.Iota.Services
 {
+  using System.Threading.Tasks;
+
   using Pact.Fhir.Iota.Entity;
 
   using Tangle.Net.Cryptography;
   using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Entity;
 
-  public class DeterministicCredentialProvider : IChannelCredentialProvider
+  public abstract class DeterministicCredentialProvider : IChannelCredentialProvider
   {
-    public DeterministicCredentialProvider(
+    protected DeterministicCredentialProvider(
       Seed masterSeed,
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
@@ -29,20 +31,30 @@
     private ISigningHelper SigningHelper { get; }
 
     /// <inheritdoc />
-    public ChannelCredentials Create()
+    public async Task<ChannelCredentials> CreateAsync()
     {
-      var subSeed = new Seed(Converter.TritsToTrytes(this.SigningHelper.GetSubseed(this.MasterSeed, this.GetNextSubSeedIndex())));
+      var subSeed = new Seed(Converter.TritsToTrytes(this.SigningHelper.GetSubseed(this.MasterSeed, await this.GetNextSubSeedIndexAsync())));
 
       return new ChannelCredentials
                {
-                 Seed = new Seed(this.AddressGenerator.GetAddress(subSeed, SecurityLevel.Low, 0).Value),
-                 ChannelKey = this.AddressGenerator.GetAddress(subSeed, SecurityLevel.Low, 1).Value
+                 Seed = new Seed((await this.AddressGenerator.GetAddressAsync(subSeed, SecurityLevel.Low, 0)).Value),
+                 ChannelKey = (await this.AddressGenerator.GetAddressAsync(subSeed, SecurityLevel.Low, 1)).Value
                };
     }
 
-    private int GetNextSubSeedIndex()
+    protected abstract Task<int> GetCurrentSubSeedIndexAsync();
+
+    protected abstract Task SetCurrentSubSeedIndexAsync(int index);
+
+    private async Task<int> GetNextSubSeedIndexAsync()
     {
-      return 0;
+      var index = await this.GetCurrentSubSeedIndexAsync() + 1;
+
+      // TODO: check if index was used from an other application
+
+      await this.SetCurrentSubSeedIndexAsync(index);
+
+      return index;
     }
   }
 }

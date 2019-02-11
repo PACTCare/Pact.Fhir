@@ -54,7 +54,7 @@
     /// <inheritdoc />
     public async Task<Resource> CreateResourceAsync(Resource resource)
     {
-      var channelCredentials = this.ChannelCredentialProvider.Create();
+      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync();
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
       var rootHash = CurlMerkleTreeFactory.Default.Create(channelCredentials.Seed, 0, 1, SecurityLevel).Root.Hash;
