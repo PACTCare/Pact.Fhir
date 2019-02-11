@@ -25,16 +25,23 @@
   /// </summary>
   public class IotaFhirRepository : IFhirRepository
   {
-    public IotaFhirRepository(IIotaRepository repository, IFhirTryteSerializer serializer, IResourceTracker resourceTracker)
+    public IotaFhirRepository(
+      IIotaRepository repository,
+      IFhirTryteSerializer serializer,
+      IResourceTracker resourceTracker,
+      IChannelCredentialProvider channelCredentialProvider)
     {
       this.Serializer = serializer;
       this.ResourceTracker = resourceTracker;
+      this.ChannelCredentialProvider = channelCredentialProvider;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
 
     // Working with low security level for the sake of speed
     private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
+
+    private IChannelCredentialProvider ChannelCredentialProvider { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -47,16 +54,13 @@
     /// <inheritdoc />
     public async Task<Resource> CreateResourceAsync(Resource resource)
     {
-      // Setup for unlinked resources (not linked to a user seed)
-      // User seed handling has to be implemented later (must conform FHIR specifications)
-      var seed = Seed.Random();
-      var channelKey = Seed.Random();
+      var channelCredentials = this.ChannelCredentialProvider.Create();
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
-      var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel).Root.Hash;
+      var rootHash = CurlMerkleTreeFactory.Default.Create(channelCredentials.Seed, 0, 1, SecurityLevel).Root.Hash;
       resource.PopulateMetadata(rootHash.Value, rootHash.Value);
 
-      var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel, channelKey.Value);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message, 14, 1);
 
@@ -67,7 +71,7 @@
           {
             ResourceRoots = new List<string> { rootHash.Value },
             Channel = channel,
-            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey.Value)
+            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelCredentials.ChannelKey)
           });
 
       return resource;

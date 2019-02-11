@@ -13,6 +13,7 @@
   using Pact.Fhir.Core.Tests.Utils;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
+  using Pact.Fhir.Iota.Services;
   using Pact.Fhir.Iota.Tests.Services;
   using Pact.Fhir.Iota.Tests.Utils;
 
@@ -46,14 +47,18 @@
             ResourceRoots = new List<string> { "SOMEID" }
           });
 
-      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker);
+      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, new RandomChannelCredentialProvider());
       await repository.ReadResourceAsync("SOMEID");
     }
 
     [TestMethod]
     public async Task TestResourceCanBeReadFromTangle()
     {
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        new InMemoryResourceTracker(),
+        new RandomChannelCredentialProvider());
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
 
@@ -64,7 +69,11 @@
     public async Task TestResourceCreationOnTangleShouldAssignHashesAsIds()
     {
       var resourceTracker = new InMemoryResourceTracker();
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider());
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
       Assert.AreEqual(1, Regex.Matches(resource.Id, Id.PATTERN).Count);
@@ -83,7 +92,11 @@
     [ExpectedException(typeof(ResourceNotFoundException))]
     public async Task TestResourceIsNotRegisteredInTrackerOnReadShouldThrowException()
     {
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        new InMemoryResourceTracker(),
+        new RandomChannelCredentialProvider());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -91,7 +104,11 @@
     [ExpectedException(typeof(ResourceNotFoundException))]
     public async Task TestResourceIsNotRegisteredInTrackerOnUpdateShouldThrowException()
     {
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        new InMemoryResourceTracker(),
+        new RandomChannelCredentialProvider());
       await repository.UpdateResourceAsync(FhirResourceProvider.Patient);
     }
 
@@ -102,7 +119,11 @@
       var resourceTracker = new InMemoryResourceTracker();
       await resourceTracker.AddEntryAsync(new ResourceEntry { ResourceRoots = new List<string> { "SOMEID" } });
 
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider());
 
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SOMEID";
@@ -114,7 +135,11 @@
     public async Task TestResourceIsUpdatedShouldReturnAskedVersionOnVRead()
     {
       var resourceTracker = new InMemoryResourceTracker();
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.VersionId;
@@ -134,7 +159,11 @@
     public async Task TestResourceIsUpdatedShouldReturnNewVersionOnRead()
     {
       var resourceTracker = new InMemoryResourceTracker();
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
@@ -150,7 +179,11 @@
     public async Task TestUpdatedResourceShouldReturnAllEntriesInHistory()
     {
       var resourceTracker = new InMemoryResourceTracker();
-      var repository = new IotaFhirRepository(IotaResourceProvider.Repository, new FhirJsonTryteSerializer(), resourceTracker);
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var updatedResource = await repository.UpdateResourceAsync(createdResource);

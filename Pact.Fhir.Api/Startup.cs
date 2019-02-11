@@ -14,6 +14,7 @@
   using Pact.Fhir.Core.Usecase.ReadResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
+  using Pact.Fhir.Iota.Services;
   using Pact.Fhir.Iota.SqlLite.Encryption;
   using Pact.Fhir.Iota.SqlLite.Services;
 
@@ -90,7 +91,8 @@
       var fhirRepository = new IotaFhirRepository(
         iotaRepository,
         new FhirJsonTryteSerializer(),
-        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")));
+        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")),
+        new RandomChannelCredentialProvider());
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
       var readInteractor = new ReadResourceInteractor(fhirRepository);

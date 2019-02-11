@@ -12,6 +12,7 @@
   using Pact.Fhir.Core.Usecase.UpdateResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
+  using Pact.Fhir.Iota.Services;
 
   using Tangle.Net.ProofOfWork.Service;
   using Tangle.Net.Repository;
@@ -48,7 +49,11 @@
           5000),
         new PoWSrvService());
 
-      var fhirRepository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), new InMemoryResourceTracker());
+      var fhirRepository = new IotaFhirRepository(
+        iotaRepository,
+        new FhirJsonTryteSerializer(),
+        new InMemoryResourceTracker(),
+        new RandomChannelCredentialProvider());
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
       var updateInteractor = new UpdateResourceInteractor(fhirRepository, new FhirJsonParser());
