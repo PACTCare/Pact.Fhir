@@ -6,6 +6,8 @@
   {
     public string ChannelKey { get; set; }
 
+    public Hash RootHash { get; set; }
+
     public Seed Seed { get; set; }
   }
 }

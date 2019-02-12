@@ -18,6 +18,8 @@
   using Pact.Fhir.Iota.Tests.Utils;
 
   using Tangle.Net.Cryptography;
+  using Tangle.Net.Cryptography.Curl;
+  using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Entity;
   using Tangle.Net.Mam.Entity;
   using Tangle.Net.Mam.Merkle;
@@ -54,11 +56,19 @@
     [TestMethod]
     public async Task TestResourceCanBeReadFromTangle()
     {
+      var resourceTracker = new InMemoryResourceTracker();
+      var iotaRepository = IotaResourceProvider.Repository;
       var repository = new IotaFhirRepository(
-        IotaResourceProvider.Repository,
+        iotaRepository,
         new FhirJsonTryteSerializer(),
-        new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider());
+        resourceTracker,
+        new InMemoryDeterministicCredentialProvider(
+          Seed.Random(),
+          resourceTracker,
+          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+          new AddressGenerator(),
+          iotaRepository));
+
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
 
@@ -159,11 +169,17 @@
     public async Task TestResourceIsUpdatedShouldReturnNewVersionOnRead()
     {
       var resourceTracker = new InMemoryResourceTracker();
+      var iotaRepository = IotaResourceProvider.Repository;
       var repository = new IotaFhirRepository(
-        IotaResourceProvider.Repository,
+        iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new InMemoryDeterministicCredentialProvider(
+          Seed.Random(),
+          resourceTracker,
+          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+          new AddressGenerator(),
+          iotaRepository));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
@@ -179,11 +195,17 @@
     public async Task TestUpdatedResourceShouldReturnAllEntriesInHistory()
     {
       var resourceTracker = new InMemoryResourceTracker();
+      var iotaRepository = IotaResourceProvider.Repository;
       var repository = new IotaFhirRepository(
-        IotaResourceProvider.Repository,
+        iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new InMemoryDeterministicCredentialProvider(
+          Seed.Random(),
+          resourceTracker,
+          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+          new AddressGenerator(),
+          iotaRepository));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var updatedResource = await repository.UpdateResourceAsync(createdResource);

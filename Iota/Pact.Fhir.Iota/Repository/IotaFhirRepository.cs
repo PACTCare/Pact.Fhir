@@ -39,7 +39,7 @@
     }
 
     // Working with low security level for the sake of speed
-    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
+    public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
     private IChannelCredentialProvider ChannelCredentialProvider { get; }
 
@@ -56,9 +56,8 @@
     {
       var channelCredentials = await this.ChannelCredentialProvider.CreateAsync();
 
-      // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
-      var rootHash = CurlMerkleTreeFactory.Default.Create(channelCredentials.Seed, 0, 1, SecurityLevel).Root.Hash;
-      resource.PopulateMetadata(rootHash.Value, rootHash.Value);
+      // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
+      resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);
 
       var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
@@ -69,9 +68,9 @@
       await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry
           {
-            ResourceRoots = new List<string> { rootHash.Value },
+            ResourceRoots = new List<string> { channelCredentials.RootHash.Value },
             Channel = channel,
-            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelCredentials.ChannelKey)
+            Subscription = this.SubscriptionFactory.Create(channelCredentials.RootHash, Mode.Restricted, channelCredentials.ChannelKey)
           });
 
       return resource;
@@ -127,10 +126,10 @@
       }
 
       // Get root that corresponds to the desired version id
-      var resourceHash = resourceEntry.ResourceRoots.FirstOrDefault(r => r.Contains(versionId));
+      var resourceRoot = resourceEntry.ResourceRoots.FirstOrDefault(r => r.Contains(versionId));
 
       UnmaskedAuthenticatedMessage message;
-      if (string.IsNullOrEmpty(resourceHash))
+      if (string.IsNullOrEmpty(resourceRoot))
       {
         // Root has not been fetched yet. Fetch stream and select desired version
         var messages = await FetchStreamMessagesAsync(versionId, resourceEntry);
@@ -139,7 +138,7 @@
       else
       {
         // Root has been fetched before. Fetch single message
-        message = await resourceEntry.Subscription.FetchSingle(new Hash(resourceHash));
+        message = await resourceEntry.Subscription.FetchSingle(new Hash(resourceRoot));
       }
 
       if (message == null)

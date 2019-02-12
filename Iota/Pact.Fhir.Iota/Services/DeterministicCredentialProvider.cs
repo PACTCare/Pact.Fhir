@@ -3,6 +3,7 @@
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Entity;
+  using Pact.Fhir.Iota.Repository;
 
   using Tangle.Net.Cryptography;
   using Tangle.Net.Cryptography.Signing;
@@ -53,14 +54,13 @@
         var seed = new Seed((await this.AddressGenerator.GetAddressAsync(subSeed, SecurityLevel.Low, ChannelSeedIndex)).Value);
         var channelKey = (await this.AddressGenerator.GetAddressAsync(subSeed, SecurityLevel.Low, ChannelKeyIndex)).Value;
 
-        var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Medium).Root.Hash;
+        var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, IotaFhirRepository.SecurityLevel).Root.Hash;
 
         var message = await this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey).FetchSingle(rootHash);
         if (message == null)
         {
           await this.SetCurrentSubSeedIndexAsync(index);
-
-          return new ChannelCredentials { Seed = seed, ChannelKey = channelKey };
+          return new ChannelCredentials { Seed = seed, ChannelKey = channelKey, RootHash = rootHash };
         }
 
         index++;

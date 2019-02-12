@@ -8,6 +8,7 @@ namespace Pact.Fhir.Iota.Tests.Services
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+  using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Tests.Utils;
 
   using Tangle.Net.Cryptography;
@@ -68,7 +69,7 @@ namespace Pact.Fhir.Iota.Tests.Services
       var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials.Seed,
-        SecurityLevel.Medium,
+        IotaFhirRepository.SecurityLevel,
         credentials.ChannelKey);
 
       var message = channel.CreateMessage(TryteString.FromAsciiString("Test"));
