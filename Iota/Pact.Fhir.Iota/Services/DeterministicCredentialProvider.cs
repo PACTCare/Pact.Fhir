@@ -46,8 +46,23 @@
     /// <inheritdoc />
     public async Task<ChannelCredentials> CreateAsync()
     {
-      var index = await this.GetCurrentSubSeedIndexAsync() + 1;
+      // Create new channel credentials with the current index incremented by one
+      return await this.FindAndUpdateCurrentIndexAsync(await this.GetCurrentSubSeedIndexAsync() + 1);
+    }
 
+    /// <inheritdoc />
+    public async Task SyncAsync()
+    {
+      // Start sync with seed at index 0 (lowest index possible)
+      await this.FindAndUpdateCurrentIndexAsync(0);
+    }
+
+    protected abstract Task<int> GetCurrentSubSeedIndexAsync();
+
+    protected abstract Task SetCurrentSubSeedIndexAsync(int index);
+
+    private async Task<ChannelCredentials> FindAndUpdateCurrentIndexAsync(int index)
+    {
       while (true)
       {
         var subSeed = new Seed(Converter.TritsToTrytes(this.SigningHelper.GetSubseed(this.MasterSeed, index)));
@@ -56,6 +71,7 @@
 
         var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, IotaFhirRepository.SecurityLevel).Root.Hash;
 
+        // Check if the index was used by another application. If not, return the corresponding channel credentials
         var message = await this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey).FetchSingle(rootHash);
         if (message == null)
         {
@@ -63,12 +79,9 @@
           return new ChannelCredentials { Seed = seed, ChannelKey = channelKey, RootHash = rootHash };
         }
 
+        // The index is already in use. Increment by one and check that in the next round of the loop
         index++;
       }
     }
-
-    protected abstract Task<int> GetCurrentSubSeedIndexAsync();
-
-    protected abstract Task SetCurrentSubSeedIndexAsync(int index);
   }
 }

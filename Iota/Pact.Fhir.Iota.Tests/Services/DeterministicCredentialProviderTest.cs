@@ -87,5 +87,41 @@ namespace Pact.Fhir.Iota.Tests.Services
 
       Assert.AreEqual(1, provider.CurrentIndex);
     }
+
+    [TestMethod]
+    public async Task TestSeedImportSetsCurrentIndexCorrectly()
+    {
+      var seed = Seed.Random();
+
+      // Publish a message as if it was published from another app
+      var tempProvider = new InMemoryDeterministicCredentialProvider(
+        seed,
+        new InMemoryResourceTracker(),
+        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+        new AddressGenerator(),
+        IotaResourceProvider.Repository);
+
+      var credentials = await tempProvider.CreateAsync();
+      var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
+        Mode.Restricted,
+        credentials.Seed,
+        IotaFhirRepository.SecurityLevel,
+        credentials.ChannelKey);
+
+      var message = channel.CreateMessage(TryteString.FromAsciiString("Test"));
+      await channel.PublishAsync(message, 14, 1);
+
+      // Create credentials that should skip the first index
+      var provider = new InMemoryDeterministicCredentialProvider(
+        seed,
+        new InMemoryResourceTracker(),
+        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+        new AddressGenerator(),
+        IotaResourceProvider.Repository);
+
+      await provider.SyncAsync();
+
+      Assert.AreEqual(1, provider.CurrentIndex);
+    }
   }
 }

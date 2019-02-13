@@ -7,5 +7,7 @@
   public interface IChannelCredentialProvider
   {
     Task<ChannelCredentials> CreateAsync();
+
+    Task SyncAsync();
   }
 }

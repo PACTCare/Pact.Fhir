@@ -22,5 +22,10 @@
                  RootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Medium).Root.Hash
                };
     }
+
+    /// <inheritdoc />
+    public async Task SyncAsync()
+    {
+    }
   }
 }
