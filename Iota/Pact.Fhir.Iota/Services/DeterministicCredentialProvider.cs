@@ -1,8 +1,10 @@
 ﻿namespace Pact.Fhir.Iota.Services
 {
+  using System;
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Entity;
+  using Pact.Fhir.Iota.Events;
   using Pact.Fhir.Iota.Repository;
 
   using Tangle.Net.Cryptography;
@@ -32,6 +34,8 @@
       this.AddressGenerator = addressGenerator;
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
+
+    public event EventHandler<SubscriptionEventArgs> SubscriptionFound;
 
     private IAddressGenerator AddressGenerator { get; }
 
@@ -72,7 +76,8 @@
         var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, IotaFhirRepository.SecurityLevel).Root.Hash;
 
         // Check if the index was used by another application. If not, return the corresponding channel credentials
-        var message = await this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey).FetchSingle(rootHash);
+        var subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey);
+        var message = await subscription.FetchSingle(rootHash);
         if (message == null)
         {
           await this.SetCurrentSubSeedIndexAsync(index);
@@ -80,6 +85,8 @@
         }
 
         // The index is already in use. Increment by one and check that in the next round of the loop
+        // Fire event for new subscription consumers can subscribe to
+        this.SubscriptionFound?.Invoke(this, new SubscriptionEventArgs(subscription));
         index++;
       }
     }

@@ -89,7 +89,7 @@ namespace Pact.Fhir.Iota.Tests.Services
     }
 
     [TestMethod]
-    public async Task TestSeedImportSetsCurrentIndexCorrectly()
+    public async Task TestSeedImportSetsCurrentIndexCorrectlyAndFiresEventForFoundSubscription()
     {
       var seed = Seed.Random();
 
@@ -111,6 +111,16 @@ namespace Pact.Fhir.Iota.Tests.Services
       var message = channel.CreateMessage(TryteString.FromAsciiString("Test"));
       await channel.PublishAsync(message, 14, 1);
 
+      var credentials2 = await tempProvider.CreateAsync();
+      var channel2 = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
+        Mode.Restricted,
+        credentials2.Seed,
+        IotaFhirRepository.SecurityLevel,
+        credentials2.ChannelKey);
+
+      var message2 = channel2.CreateMessage(TryteString.FromAsciiString("Test"));
+      await channel2.PublishAsync(message2, 14, 1);
+
       // Create credentials that should skip the first index
       var provider = new InMemoryDeterministicCredentialProvider(
         seed,
@@ -119,9 +129,13 @@ namespace Pact.Fhir.Iota.Tests.Services
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
+      var subFoundEventCounter = 0;
+      provider.SubscriptionFound += (sender, args) => { subFoundEventCounter = subFoundEventCounter + 1; };
+
       await provider.SyncAsync();
 
-      Assert.AreEqual(1, provider.CurrentIndex);
+      Assert.AreEqual(2, subFoundEventCounter);
+      Assert.AreEqual(2, provider.CurrentIndex);
     }
   }
 }
