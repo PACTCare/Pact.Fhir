@@ -5,6 +5,8 @@
 
   using Hl7.Fhir.Model;
 
+  using Task = System.Threading.Tasks.Task;
+
   public interface IFhirRepository
   {
     /// <summary>
@@ -20,6 +22,18 @@
     /// Resource with adjusted values (LogicalId, VersionId, LastUpdated)
     /// </returns>
     Task<Resource> CreateResourceAsync(Resource resource);
+
+    /// <summary>
+    /// see https://www.hl7.org/fhir/http.html#delete
+    /// </summary>
+    /// <param name="id">
+    /// see https://www.hl7.org/fhir/datatypes.html#id
+    /// Id format: [A-Za-z0-9\-\.]{1,64} (see Id.PATTERN)
+    /// </param>
+    /// <returns>
+    /// The Task
+    /// </returns>
+    Task DeleteResourceAsync(string id);
 
     /// <summary>
     /// see https://www.hl7.org/fhir/http.html#read

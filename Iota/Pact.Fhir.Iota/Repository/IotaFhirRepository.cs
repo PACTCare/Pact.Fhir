@@ -19,6 +19,7 @@
   using Tangle.Net.Repository;
 
   using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
+  using Task = System.Threading.Tasks.Task;
 
   /// <summary>
   /// Inject repository for now. Core Factory needs to be adjusted or injection has to be done another way, later
@@ -74,6 +75,12 @@
           });
 
       return resource;
+    }
+
+    /// <inheritdoc />
+    public Task DeleteResourceAsync(string id)
+    {
+      throw new UnsupportedOperationException("Delete");
     }
 
     /// <inheritdoc />
