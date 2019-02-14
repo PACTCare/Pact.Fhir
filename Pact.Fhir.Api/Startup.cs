@@ -63,8 +63,7 @@
         new FallbackIotaClient(
           new List<string>
             {
-              "http://node04.iotatoken.nl:14265",
-              "http://node05.iotatoken.nl:16265",
+              "https://trinity.iota-tangle.io:14265",
               "https://nodes.thetangle.org:443",
               "http://iota1.heidger.eu:14265",
               "https://nodes.iota.cafe:443",
@@ -82,6 +81,8 @@
               "https://pow4.iota.community:443",
               "https://dyn.tangle-nodes.com:443",
               "https://pow5.iota.community:443",
+              "http://node04.iotatoken.nl:14265",
+              "http://node05.iotatoken.nl:16265",
             },
           5000),
         new PoWSrvService());

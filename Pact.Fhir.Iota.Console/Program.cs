@@ -14,6 +14,7 @@
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Services;
 
+  using Tangle.Net.Mam.Services;
   using Tangle.Net.ProofOfWork.Service;
   using Tangle.Net.Repository;
   using Tangle.Net.Repository.Client;
@@ -22,6 +23,7 @@
   {
     internal static void Main(string[] args)
     {
+
       var iotaRepository = new RestIotaRepository(
         new FallbackIotaClient(
           new List<string>

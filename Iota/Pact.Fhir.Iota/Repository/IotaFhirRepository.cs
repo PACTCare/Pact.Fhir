@@ -18,7 +18,7 @@
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
-  using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
+  using ResourceEntry = Entity.ResourceEntry;
   using Task = System.Threading.Tasks.Task;
 
   /// <summary>

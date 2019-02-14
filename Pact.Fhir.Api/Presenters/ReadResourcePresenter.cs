@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Pact.Fhir.Api.Presenters
+﻿namespace Pact.Fhir.Api.Presenters
 {
   using System.Net;
 
@@ -12,16 +7,24 @@ namespace Pact.Fhir.Api.Presenters
 
   using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
-  using Pact.Fhir.Core.Usecase.ReadResource;
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse)
+    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse, string summaryType)
     {
       if (response.Code == ResponseCode.Success)
       {
         PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.OK);
-        return new JsonFhirResult(response.Resource);
+
+        switch (summaryType)
+        {
+          case "true":
+          case "text":
+          case "data":
+          case "count":
+            default:
+              return new JsonFhirResult(response.Resource);
+        }
       }
 
       return PresenterBase.PrepareRequestFailure(response, httpResponse);

@@ -39,10 +39,15 @@
 
     [Route("api/fhir/{type}/{id}")]
     [HttpGet]
-    public async Task<IActionResult> ReadResource(string type, string id)
+    public async Task<IActionResult> ReadResource(string type, string id, [FromQuery(Name = "_summary")] string summary)
     {
+      if (string.IsNullOrEmpty(summary))
+      {
+        summary = "false";
+      }
+
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
-      return ReadResourcePresenter.Present(response, this.Response);
+      return ReadResourcePresenter.Present(response, this.Response, summary);
     }
   }
 }
