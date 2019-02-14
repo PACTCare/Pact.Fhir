@@ -11,6 +11,8 @@
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
+  using Task = System.Threading.Tasks.Task;
+
   public class InMemoryFhirRepository : IFhirRepository
   {
     public InMemoryFhirRepository(string creationId = null)
@@ -41,6 +43,12 @@
       resource.PopulateMetadata(resourceId, resourceId);
 
       return resource;
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteResourceAsync(string id)
+    {
+      this.Resources.RemoveAll(r => id.Contains(r.Id));
     }
 
     /// <inheritdoc />

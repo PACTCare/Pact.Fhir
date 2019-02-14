@@ -23,17 +23,14 @@
       MamChannelFactory channelFactory,
       MamChannelSubscriptionFactory subscriptionFactory,
       IEncryption encryption,
-      string databaseFilename = "resourcetracker.sqlite")
+      string databaseFilename = "iotafhir.sqlite")
     {
       this.ChannelFactory = channelFactory;
       this.SubscriptionFactory = subscriptionFactory;
       this.Encryption = encryption;
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
-      if (!File.Exists(databaseFilename))
-      {
-        this.InitDatabase(databaseFilename);
-      }
+      DatabaseInitializer.Init(databaseFilename);
     }
 
     public IEncryption Encryption { get; }
@@ -174,29 +171,6 @@
           connection))
         {
           await command.ExecuteNonQueryAsync();
-        }
-      }
-    }
-
-    private void InitDatabase(string databaseFilename)
-    {
-      SQLiteConnection.CreateFile(databaseFilename);
-      using (var connection = new SQLiteConnection(this.ConnectionString))
-      {
-        connection.Open();
-
-        using (var command = new SQLiteCommand(
-          "CREATE TABLE Resource (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, Channel TEXT NULL, Subscription TEXT NOT NULL)",
-          connection))
-        {
-          command.ExecuteNonQuery();
-        }
-
-        using (var command = new SQLiteCommand(
-          "CREATE TABLE StreamHash (Hash VARCHAR(81) NOT NULL PRIMARY KEY, ResourceId INTEGER NOT NULL, FOREIGN KEY (ResourceId) REFERENCES Resource(Id))",
-          connection))
-        {
-          command.ExecuteNonQuery();
         }
       }
     }

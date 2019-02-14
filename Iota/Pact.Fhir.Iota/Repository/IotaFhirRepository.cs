@@ -19,22 +19,30 @@
   using Tangle.Net.Repository;
 
   using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
+  using Task = System.Threading.Tasks.Task;
 
   /// <summary>
   /// Inject repository for now. Core Factory needs to be adjusted or injection has to be done another way, later
   /// </summary>
   public class IotaFhirRepository : IFhirRepository
   {
-    public IotaFhirRepository(IIotaRepository repository, IFhirTryteSerializer serializer, IResourceTracker resourceTracker)
+    public IotaFhirRepository(
+      IIotaRepository repository,
+      IFhirTryteSerializer serializer,
+      IResourceTracker resourceTracker,
+      IChannelCredentialProvider channelCredentialProvider)
     {
       this.Serializer = serializer;
       this.ResourceTracker = resourceTracker;
+      this.ChannelCredentialProvider = channelCredentialProvider;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
 
     // Working with low security level for the sake of speed
-    private static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
+    public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
+
+    private IChannelCredentialProvider ChannelCredentialProvider { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -47,16 +55,12 @@
     /// <inheritdoc />
     public async Task<Resource> CreateResourceAsync(Resource resource)
     {
-      // Setup for unlinked resources (not linked to a user seed)
-      // User seed handling has to be implemented later (must conform FHIR specifications)
-      var seed = Seed.Random();
-      var channelKey = Seed.Random();
+      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync();
 
-      // New FHIR resources SHALL be assigned a logical and a version id. Take hash of first message for that
-      var rootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel).Root.Hash;
-      resource.PopulateMetadata(rootHash.Value, rootHash.Value);
+      // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
+      resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);
 
-      var channel = this.ChannelFactory.Create(Mode.Restricted, seed, SecurityLevel, channelKey);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message, 14, 1);
 
@@ -65,12 +69,18 @@
       await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry
           {
-            ResourceRoots = new List<string> { rootHash.Value },
+            ResourceRoots = new List<string> { channelCredentials.RootHash.Value },
             Channel = channel,
-            Subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey)
+            Subscription = this.SubscriptionFactory.Create(channelCredentials.RootHash, Mode.Restricted, channelCredentials.ChannelKey)
           });
 
       return resource;
+    }
+
+    /// <inheritdoc />
+    public Task DeleteResourceAsync(string id)
+    {
+      throw new UnsupportedOperationException("Delete");
     }
 
     /// <inheritdoc />
@@ -123,10 +133,10 @@
       }
 
       // Get root that corresponds to the desired version id
-      var resourceHash = resourceEntry.ResourceRoots.FirstOrDefault(r => r.Contains(versionId));
+      var resourceRoot = resourceEntry.ResourceRoots.FirstOrDefault(r => r.Contains(versionId));
 
       UnmaskedAuthenticatedMessage message;
-      if (string.IsNullOrEmpty(resourceHash))
+      if (string.IsNullOrEmpty(resourceRoot))
       {
         // Root has not been fetched yet. Fetch stream and select desired version
         var messages = await FetchStreamMessagesAsync(versionId, resourceEntry);
@@ -135,7 +145,7 @@
       else
       {
         // Root has been fetched before. Fetch single message
-        message = await resourceEntry.Subscription.FetchSingle(new Hash(resourceHash));
+        message = await resourceEntry.Subscription.FetchSingle(new Hash(resourceRoot));
       }
 
       if (message == null)

@@ -2,7 +2,6 @@
 {
   using System.Collections.Generic;
 
-  using Tangle.Net.Entity;
   using Tangle.Net.Mam.Entity;
 
   /// <summary>

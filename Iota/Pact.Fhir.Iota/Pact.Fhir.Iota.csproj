@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Hl7.Fhir.STU3" Version="1.0.0" />
-    <PackageReference Include="Tangle.Net.Standard.Mam" Version="0.9.2" />
+    <PackageReference Include="Tangle.Net.Standard.Mam" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
