@@ -1,7 +1,5 @@
 ﻿namespace Pact.Fhir.Api.Controllers
 {
-  using System.IO;
-  using System.Text;
   using System.Threading.Tasks;
 
   using Microsoft.AspNetCore.Mvc;
@@ -21,9 +19,9 @@
       this.ReadResourceInteractor = readResourceInteractor;
     }
 
-    public CreateResourceInteractor CreateResourceInteractor { get; }
+    private CreateResourceInteractor CreateResourceInteractor { get; }
 
-    public ReadResourceInteractor ReadResourceInteractor { get; }
+    private ReadResourceInteractor ReadResourceInteractor { get; }
 
     [Route("api/fhir/create/{type}")]
     [HttpPost]

@@ -6,7 +6,7 @@
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
-  public class VersionReadResourceInteractor : UsecaseInteractor<VersionReadResourceRequest, UsecaseResponse>
+  public class VersionReadResourceInteractor : UsecaseInteractor<VersionReadResourceRequest, ResourceResponse>
   {
     /// <inheritdoc />
     public VersionReadResourceInteractor(IFhirRepository repository)
@@ -15,7 +15,7 @@
     }
 
     /// <inheritdoc />
-    public override async Task<UsecaseResponse> ExecuteAsync(VersionReadResourceRequest request)
+    public override async Task<ResourceResponse> ExecuteAsync(VersionReadResourceRequest request)
     {
       try
       {
@@ -25,16 +25,16 @@
           throw new ResourceNotFoundException(request.ResourceId);
         }
 
-        return new UsecaseResponse { Code = ResponseCode.Success, Resource = resource };
+        return new ResourceResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (ResourceNotFoundException exception)
       {
-        return new UsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
+        return new ResourceResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new UsecaseResponse
-                 {
+        return new ResourceResponse
+        {
                    Code = ResponseCode.Failure,
                    ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
                  };

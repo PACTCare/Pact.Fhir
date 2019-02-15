@@ -10,7 +10,6 @@
 
   using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
-  using Pact.Fhir.Core.Usecase.CreateResource;
 
   public static class PresenterBase
   {
