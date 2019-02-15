@@ -18,7 +18,7 @@
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
-  using ResourceEntry = Entity.ResourceEntry;
+  using ResourceEntry = Pact.Fhir.Iota.Entity.ResourceEntry;
   using Task = System.Threading.Tasks.Task;
 
   /// <summary>
@@ -87,11 +87,7 @@
     public async Task<Resource> ReadResourceAsync(string id)
     {
       // Get the tracked resource associated with the given id and get subscription from that
-      var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
-      if (resourceEntry == null)
-      {
-        throw new ResourceNotFoundException(id);
-      }
+      var resourceEntry = await this.LoadResourceEntry(id);
 
       // Fetch all messages
       var messages = await FetchStreamMessagesAsync(id, resourceEntry);
@@ -107,11 +103,7 @@
     public async Task<List<Resource>> ReadResourceHistoryAsync(string id)
     {
       // Get the tracked resource associated with the given id and get subscription from that
-      var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
-      if (resourceEntry == null)
-      {
-        throw new ResourceNotFoundException(id);
-      }
+      var resourceEntry = await this.LoadResourceEntry(id);
 
       // Fetch all messages
       var messages = await FetchStreamMessagesAsync(id, resourceEntry);
@@ -126,11 +118,7 @@
     public async Task<Resource> ReadResourceVersionAsync(string versionId)
     {
       // Get the tracked resource associated with the given id and get subscription from that
-      var resourceEntry = await this.ResourceTracker.GetEntryAsync(versionId);
-      if (resourceEntry == null)
-      {
-        throw new ResourceNotFoundException(versionId);
-      }
+      var resourceEntry = await this.LoadResourceEntry(versionId);
 
       // Get root that corresponds to the desired version id
       var resourceRoot = resourceEntry.ResourceRoots.FirstOrDefault(r => r.Contains(versionId));
@@ -164,12 +152,7 @@
     public async Task<Resource> UpdateResourceAsync(Resource resource)
     {
       // get the MAM channel information for the given resource and check if it exists
-      var resourceEntry = await this.ResourceTracker.GetEntryAsync(resource.Id);
-      if (resourceEntry == null)
-      {
-        throw new ResourceNotFoundException(resource.Id);
-      }
-
+      var resourceEntry = await this.LoadResourceEntry(resource.Id);
       if (resourceEntry.Channel == null)
       {
         // System does not have write access to the stream. Therefore no update can be made
@@ -207,6 +190,17 @@
       }
 
       return messages;
+    }
+
+    private async Task<ResourceEntry> LoadResourceEntry(string id)
+    {
+      var resourceEntry = await this.ResourceTracker.GetEntryAsync(id);
+      if (resourceEntry == null)
+      {
+        throw new ResourceNotFoundException(id);
+      }
+
+      return resourceEntry;
     }
   }
 }
