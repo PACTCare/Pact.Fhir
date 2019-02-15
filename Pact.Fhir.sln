@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Iota", "Iota", "{CD7611C3-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Api.Cucumber", "Pact.Fhir.Api.Cucumber\Pact.Fhir.Api.Cucumber.csproj", "{C258236A-F295-4A0E-A176-BE2FFB2A348D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.Console", "Pact.Fhir.Iota.Console\Pact.Fhir.Iota.Console.csproj", "{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.Console", "Iota\Pact.Fhir.Iota.Console\Pact.Fhir.Iota.Console.csproj", "{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
