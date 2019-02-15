@@ -6,6 +6,7 @@
 
   using Microsoft.AspNetCore.Mvc;
 
+  using Pact.Fhir.Api.Entity;
   using Pact.Fhir.Api.Presenters;
   using Pact.Fhir.Core.Services;
   using Pact.Fhir.Core.Usecase.CreateResource;
@@ -28,13 +29,9 @@
     [HttpPost]
     public async Task<IActionResult> CreateResource(string type)
     {
-      string resource;
-      using (var reader = new StreamReader(this.Request.Body, Encoding.UTF8))
-      {
-        resource = await reader.ReadToEndAsync();
-      }
+      var response = await this.CreateResourceInteractor.ExecuteAsync(
+                       new CreateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
 
-      var response = await this.CreateResourceInteractor.ExecuteAsync(new CreateResourceRequest { ResourceJson = resource });
       return CreateResourcePresenter.Present(response, this.Request, this.Response, type);
     }
 
