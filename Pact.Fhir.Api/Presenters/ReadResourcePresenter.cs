@@ -2,6 +2,8 @@
 {
   using System.Net;
 
+  using Hl7.Fhir.Rest;
+
   using Microsoft.AspNetCore.Http;
   using Microsoft.AspNetCore.Mvc;
 
@@ -10,21 +12,12 @@
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse, string summaryType)
+    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse, SummaryType summaryType)
     {
       if (response.Code == ResponseCode.Success)
       {
         PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.OK);
-
-        switch (summaryType)
-        {
-          case "true":
-          case "text":
-          case "data":
-          case "count":
-            default:
-              return new JsonFhirResult(response.Resource);
-        }
+        return new JsonFhirResult(response.Resource, summaryType);
       }
 
       return PresenterBase.PrepareRequestFailure(response, httpResponse);

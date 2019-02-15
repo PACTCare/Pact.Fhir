@@ -7,6 +7,7 @@
   using Microsoft.AspNetCore.Mvc;
 
   using Pact.Fhir.Api.Presenters;
+  using Pact.Fhir.Core.Services;
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.ReadResource;
 
@@ -39,15 +40,10 @@
 
     [Route("api/fhir/{type}/{id}")]
     [HttpGet]
-    public async Task<IActionResult> ReadResource(string type, string id, [FromQuery(Name = "_summary")] string summary)
+    public async Task<IActionResult> ReadResource(string type, string id, [FromQuery(Name = "_summary")] string summaryType)
     {
-      if (string.IsNullOrEmpty(summary))
-      {
-        summary = "false";
-      }
-
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
-      return ReadResourcePresenter.Present(response, this.Response, summary);
+      return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
     }
   }
 }
