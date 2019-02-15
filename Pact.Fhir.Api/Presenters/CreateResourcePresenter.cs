@@ -14,7 +14,7 @@
 
   public static class CreateResourcePresenter
   {
-    public static IActionResult Present(UsecaseResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
+    public static IActionResult Present(ResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
       if (response.Code == ResponseCode.Success)
       {
@@ -24,7 +24,7 @@
       return PresenterBase.PrepareRequestFailure(response, httpResponse);
     }
 
-    private static IActionResult PrepareRequestSuccess(UsecaseResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
+    private static IActionResult PrepareRequestSuccess(ResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
       PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.Created);
 

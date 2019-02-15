@@ -63,7 +63,7 @@
       return new JsonFhirResult(outcome);
     }
 
-    internal static void SetBasicResponseAttributes(UsecaseResponse response, HttpResponse httpResponse, HttpStatusCode statusCode)
+    internal static void SetBasicResponseAttributes(ResourceResponse response, HttpResponse httpResponse, HttpStatusCode statusCode)
     {
       httpResponse.StatusCode = (int)statusCode;
       httpResponse.Headers.Add("ETag", $"W/\"{response.Resource.VersionId}\"");

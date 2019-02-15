@@ -12,7 +12,7 @@
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse, SummaryType summaryType)
+    public static IActionResult Present(ResourceResponse response, HttpResponse httpResponse, SummaryType summaryType)
     {
       if (response.Code == ResponseCode.Success)
       {
