@@ -27,25 +27,44 @@
                  Version = "0.0.1",
                  Experimental = true,
                  Publisher = "PACT Care BV",
-                 Contact = new List<ContactDetail>
-                             {
-                               new ContactDetail
-                                 {
-                                   Name = "PACT Care BV",
-                                   Telecom = new List<ContactPoint>
-                                               {
-                                                 new ContactPoint(
-                                                   ContactPoint.ContactPointSystem.Email,
-                                                   ContactPoint.ContactPointUse.Work,
-                                                   "info@pact.care")
-                                               }
-                                 }
-                             },
+                 Contact =
+                   new List<ContactDetail>
+                     {
+                       new ContactDetail
+                         {
+                           Name = "PACT Care BV",
+                           Telecom = new List<ContactPoint>
+                                       {
+                                         new ContactPoint(
+                                           ContactPoint.ContactPointSystem.Email,
+                                           ContactPoint.ContactPointUse.Work,
+                                           "info@pact.care")
+                                       }
+                         }
+                     },
                  Kind = CapabilityStatement.CapabilityStatementKind.Instance,
                  Software = new CapabilityStatement.SoftwareComponent { Name = "PACT Fhir", Version = "0.0.1" },
                  FhirVersion = "3.0",
                  AcceptUnknown = CapabilityStatement.UnknownContentCode.Extensions,
-                 Format = new List<string> { "json" }
+                 Format = new List<string> { "json" },
+                 Rest = new List<CapabilityStatement.RestComponent>
+                          {
+                            new CapabilityStatement.RestComponent
+                              {
+                                Mode = CapabilityStatement.RestfulCapabilityMode.Server,
+                                Interaction = new List<CapabilityStatement.SystemInteractionComponent>
+                                                {
+                                                  new CapabilityStatement.SystemInteractionComponent
+                                                    {
+                                                      Code = CapabilityStatement.SystemRestfulInteraction.Batch
+                                                    },
+                                                  new CapabilityStatement.SystemInteractionComponent
+                                                    {
+                                                      Code = CapabilityStatement.SystemRestfulInteraction.Transaction
+                                                    },
+                                                }
+                              }
+                          }
                };
     }
   }
