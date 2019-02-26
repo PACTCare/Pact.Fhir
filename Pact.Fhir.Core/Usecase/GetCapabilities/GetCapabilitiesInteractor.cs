@@ -52,6 +52,7 @@
                             new CapabilityStatement.RestComponent
                               {
                                 Mode = CapabilityStatement.RestfulCapabilityMode.Server,
+                                Resource = this.Repository.GetCapabilities(),
                                 Interaction = new List<CapabilityStatement.SystemInteractionComponent>
                                                 {
                                                   new CapabilityStatement.SystemInteractionComponent
@@ -62,8 +63,7 @@
                                                     {
                                                       Code = CapabilityStatement.SystemRestfulInteraction.Transaction
                                                     },
-                                                },
-                                Resource = this.Repository.GetCapabilities()
+                                                }
                               }
                           }
                };

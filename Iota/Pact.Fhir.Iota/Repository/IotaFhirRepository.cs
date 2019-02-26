@@ -1,5 +1,6 @@
 ﻿namespace Pact.Fhir.Iota.Repository
 {
+  using System;
   using System.Collections.Generic;
   using System.Linq;
   using System.Threading.Tasks;
@@ -86,7 +87,28 @@
     /// <inheritdoc />
     public List<CapabilityStatement.ResourceComponent> GetCapabilities()
     {
-      return new List<CapabilityStatement.ResourceComponent>();
+      var components = new List<CapabilityStatement.ResourceComponent>();
+      foreach (var resource in Enum.GetValues(typeof(ResourceType)))
+      {
+        components.Add(
+          new CapabilityStatement.ResourceComponent
+            {
+              Type = (ResourceType)resource,
+              Interaction = new List<CapabilityStatement.ResourceInteractionComponent>
+                              {
+                                new CapabilityStatement.ResourceInteractionComponent { Code = CapabilityStatement.TypeRestfulInteraction.Create },
+                                new CapabilityStatement.ResourceInteractionComponent { Code = CapabilityStatement.TypeRestfulInteraction.Read },
+                                new CapabilityStatement.ResourceInteractionComponent { Code = CapabilityStatement.TypeRestfulInteraction.Vread },
+                                new CapabilityStatement.ResourceInteractionComponent { Code = CapabilityStatement.TypeRestfulInteraction.Update },
+                                new CapabilityStatement.ResourceInteractionComponent { Code = CapabilityStatement.TypeRestfulInteraction.HistoryInstance },
+                                new CapabilityStatement.ResourceInteractionComponent { Code = CapabilityStatement.TypeRestfulInteraction.Patch },
+                              },
+              Versioning = CapabilityStatement.ResourceVersionPolicy.Versioned,
+              ReadHistory = true,
+            });
+      }
+
+      return components;
     }
 
     /// <inheritdoc />
