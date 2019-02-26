@@ -84,6 +84,12 @@
     }
 
     /// <inheritdoc />
+    public List<CapabilityStatement.ResourceComponent> GetCapabilities()
+    {
+      return new List<CapabilityStatement.ResourceComponent>();
+    }
+
+    /// <inheritdoc />
     public async Task<Resource> ReadResourceAsync(string id)
     {
       // Get the tracked resource associated with the given id and get subscription from that

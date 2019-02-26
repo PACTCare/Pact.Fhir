@@ -36,6 +36,14 @@
     Task DeleteResourceAsync(string id);
 
     /// <summary>
+    /// see https://www.hl7.org/fhir/capabilitystatement.html
+    /// </summary>
+    /// <returns>
+    /// The resource capabilities the implementation has
+    /// </returns>
+    List<CapabilityStatement.ResourceComponent> GetCapabilities();
+
+    /// <summary>
     /// see https://www.hl7.org/fhir/http.html#read
     /// The returned resource SHALL have an id element with a value that is the [id]
     /// </summary>

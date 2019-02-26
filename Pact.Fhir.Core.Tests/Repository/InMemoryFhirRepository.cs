@@ -52,6 +52,12 @@
     }
 
     /// <inheritdoc />
+    public List<CapabilityStatement.ResourceComponent> GetCapabilities()
+    {
+      return new List<CapabilityStatement.ResourceComponent>();
+    }
+
+    /// <inheritdoc />
     public async Task<Resource> ReadResourceAsync(string id)
     {
       var resource = this.Resources.LastOrDefault(r => r.Id == id);

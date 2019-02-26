@@ -2,6 +2,8 @@
 {
   using System.Threading.Tasks;
 
+  using Hl7.Fhir.Model;
+
   using Microsoft.AspNetCore.Mvc;
 
   using Pact.Fhir.Api.Entity;
@@ -48,10 +50,9 @@
 
     [Route("api/fhir/metadata")]
     [HttpGet]
-    public async Task<IActionResult> GetCapabilities()
+    public IActionResult GetCapabilities()
     {
-      var capabilities = await this.CapabilitiesInteractor.ExecuteAsync();
-      return new JsonFhirResult(capabilities);
+      return new JsonFhirResult(this.CapabilitiesInteractor.Execute());
     }
   }
 }

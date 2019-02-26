@@ -16,7 +16,7 @@
 
     private IFhirRepository Repository { get; }
 
-    public async Task<CapabilityStatement> ExecuteAsync()
+    public CapabilityStatement Execute()
     {
       return new CapabilityStatement
                {
@@ -62,7 +62,8 @@
                                                     {
                                                       Code = CapabilityStatement.SystemRestfulInteraction.Transaction
                                                     },
-                                                }
+                                                },
+                                Resource = this.Repository.GetCapabilities()
                               }
                           }
                };
