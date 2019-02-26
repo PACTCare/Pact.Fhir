@@ -11,6 +11,7 @@
   using Microsoft.Extensions.DependencyInjection;
 
   using Pact.Fhir.Core.Usecase.CreateResource;
+  using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
@@ -97,9 +98,11 @@
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
       var readInteractor = new ReadResourceInteractor(fhirRepository);
+      var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository);
 
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);
+      services.AddSingleton(capabilitiesInteractor);
     }
   }
 }

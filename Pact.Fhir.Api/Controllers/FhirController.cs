@@ -6,22 +6,27 @@
 
   using Pact.Fhir.Api.Entity;
   using Pact.Fhir.Api.Presenters;
+  using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Services;
   using Pact.Fhir.Core.Usecase.CreateResource;
+  using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
 
   [ApiController]
   public class FhirController : Controller
   {
-    public FhirController(CreateResourceInteractor createResourceInteractor, ReadResourceInteractor readResourceInteractor)
+    public FhirController(CreateResourceInteractor createResourceInteractor, ReadResourceInteractor readResourceInteractor, GetCapabilitiesInteractor capabilitiesInteractor)
     {
       this.CreateResourceInteractor = createResourceInteractor;
       this.ReadResourceInteractor = readResourceInteractor;
+      this.CapabilitiesInteractor = capabilitiesInteractor;
     }
 
     private CreateResourceInteractor CreateResourceInteractor { get; }
 
     private ReadResourceInteractor ReadResourceInteractor { get; }
+
+    private GetCapabilitiesInteractor CapabilitiesInteractor { get; }
 
     [Route("api/fhir/create/{type}")]
     [HttpPost]
@@ -39,6 +44,14 @@
     {
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
       return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
+    }
+
+    [Route("api/fhir/metadata")]
+    [HttpGet]
+    public async Task<IActionResult> GetCapabilities()
+    {
+      var capabilities = await this.CapabilitiesInteractor.ExecuteAsync();
+      return new JsonFhirResult(capabilities);
     }
   }
 }
