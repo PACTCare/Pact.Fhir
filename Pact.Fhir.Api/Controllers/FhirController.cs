@@ -32,7 +32,7 @@
 
     [Route("api/fhir/create/{type}")]
     [HttpPost]
-    public async Task<IActionResult> CreateResource(string type)
+    public async Task<IActionResult> CreateResourceAsync(string type)
     {
       var response = await this.CreateResourceInteractor.ExecuteAsync(
                        new CreateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
@@ -42,7 +42,7 @@
 
     [Route("api/fhir/{type}/{id}")]
     [HttpGet]
-    public async Task<IActionResult> ReadResource(string type, string id, [FromQuery(Name = "_summary")] string summaryType)
+    public async Task<IActionResult> ReadResourceAsync(string type, string id, [FromQuery(Name = "_summary")] string summaryType)
     {
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
       return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
@@ -50,9 +50,9 @@
 
     [Route("api/fhir/metadata")]
     [HttpGet]
-    public IActionResult GetCapabilities()
+    public async Task<IActionResult> GetCapabilitiesAsync()
     {
-      return new JsonFhirResult(this.CapabilitiesInteractor.Execute());
+      return new JsonFhirResult(await this.CapabilitiesInteractor.ExecuteAsync());
     }
   }
 }
