@@ -10,6 +10,7 @@
   using Microsoft.Extensions.Configuration;
   using Microsoft.Extensions.DependencyInjection;
 
+  using Pact.Fhir.Api.Services;
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
@@ -98,7 +99,7 @@
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
       var readInteractor = new ReadResourceInteractor(fhirRepository);
-      var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository);
+      var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
 
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);

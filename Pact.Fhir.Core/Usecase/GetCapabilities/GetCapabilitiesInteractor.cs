@@ -26,33 +26,19 @@
 
       return new CapabilityStatement
                {
-                 Language = systemInformation.Language, //"en-EN",
-                 Url = systemInformation.Url, //"metadata",
-                 Name = systemInformation.Name, //"PACT Care Fhir API",
-                 Status = systemInformation.Status, // PublicationStatus.Active,
-                 Version = systemInformation.Version, // "0.0.1",
-                 Experimental = systemInformation.Experimental, // true,
-                 Publisher = systemInformation.Publisher, // "PACT Care BV",
+                 Language = systemInformation.Language,
+                 Url = systemInformation.Url,
+                 Name = systemInformation.Name,
+                 Status = systemInformation.Status,
+                 Version = systemInformation.Version,
+                 Experimental = systemInformation.Experimental,
+                 Publisher = systemInformation.Publisher,
                  Contact = systemInformation.Contact,
-                   //new List<ContactDetail>
-                   //  {
-                   //    new ContactDetail
-                   //      {
-                   //        Name = "PACT Care BV",
-                   //        Telecom = new List<ContactPoint>
-                   //                    {
-                   //                      new ContactPoint(
-                   //                        ContactPoint.ContactPointSystem.Email,
-                   //                        ContactPoint.ContactPointUse.Work,
-                   //                        "info@pact.care")
-                   //                    }
-                   //      }
-                   //  },
-                 Kind = systemInformation.Kind, //CapabilityStatement.CapabilityStatementKind.Instance,
-                 Software = systemInformation.Software, //  new CapabilityStatement.SoftwareComponent { Name = "PACT Fhir", Version = "0.0.1" },
+                 Kind = systemInformation.Kind,
+                 Software = systemInformation.Software,
                  FhirVersion = "3.0",
                  AcceptUnknown = CapabilityStatement.UnknownContentCode.Extensions,
-                 Format = systemInformation.Format, // new List<string> { "json" },
+                 Format = systemInformation.Format,
                  Rest = new List<CapabilityStatement.RestComponent>
                           {
                             new CapabilityStatement.RestComponent
