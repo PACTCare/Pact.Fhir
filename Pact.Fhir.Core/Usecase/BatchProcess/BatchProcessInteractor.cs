@@ -2,11 +2,13 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.Net;
   using System.Threading.Tasks;
 
   using Hl7.Fhir.Model;
 
   using Pact.Fhir.Core.Entity;
+  using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
   public class BatchProcessInteractor : UsecaseInteractor<BatchProcessRequest, ResourceResponse>
@@ -26,35 +28,59 @@
       foreach (var entry in request.Bundle.Entry)
       {
         var resource = entry.Resource;
-        Bundle.ResponseComponent response = null;
 
         try
         {
+          Bundle.ResponseComponent response;
+
           switch (entry.Request.Method)
           {
             case Bundle.HTTPVerb.GET:
               resource = await this.Repository.ReadResourceAsync(entry.Resource.Id);
-              response = new Bundle.ResponseComponent { Status = "200 OK" };
+              response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() };
               break;
             case Bundle.HTTPVerb.POST:
               resource = await this.Repository.CreateResourceAsync(entry.Resource);
+              response = new Bundle.ResponseComponent { Status = HttpStatusCode.Created.ToString() };
               break;
             case Bundle.HTTPVerb.PUT:
               resource = await this.Repository.UpdateResourceAsync(entry.Resource);
+              response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() };
               break;
             case Bundle.HTTPVerb.DELETE:
               await this.Repository.DeleteResourceAsync(entry.Resource.Id);
+              response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() };
               break;
             default:
-              break;
+              throw new UnsupportedOperationException(entry.Request.Method.ToString());
           }
+
+          responseBundle.Entry.Add(new Bundle.EntryComponent { Resource = resource, Response = response });
+        }
+        catch (UnsupportedOperationException)
+        {
+          responseBundle.Entry.Add(
+            new Bundle.EntryComponent
+              {
+                Resource = resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.MethodNotAllowed.ToString() }
+              });
+        }
+        catch (ResourceNotFoundException)
+        {
+          responseBundle.Entry.Add(
+            new Bundle.EntryComponent
+              {
+                Resource = resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.NotFound.ToString() }
+              });
         }
         catch
         {
-
+          responseBundle.Entry.Add(
+            new Bundle.EntryComponent
+              {
+                Resource = resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.InternalServerError.ToString() }
+              });
         }
-
-        responseBundle.Entry.Add(new Bundle.EntryComponent { Resource = resource, Response = response });
       }
 
       return new ResourceResponse { Code = ResponseCode.Success, Resource = responseBundle };
