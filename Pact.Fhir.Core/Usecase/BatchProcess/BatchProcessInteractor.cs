@@ -1,7 +1,5 @@
 ﻿namespace Pact.Fhir.Core.Usecase.BatchProcess
 {
-  using System;
-  using System.Collections.Generic;
   using System.Net;
   using System.Threading.Tasks;
 
@@ -27,42 +25,16 @@
 
       foreach (var entry in request.Bundle.Entry)
       {
-        var resource = entry.Resource;
-
         try
         {
-          Bundle.ResponseComponent response;
-
-          switch (entry.Request.Method)
-          {
-            case Bundle.HTTPVerb.GET:
-              resource = await this.Repository.ReadResourceAsync(entry.Resource.Id);
-              response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() };
-              break;
-            case Bundle.HTTPVerb.POST:
-              resource = await this.Repository.CreateResourceAsync(entry.Resource);
-              response = new Bundle.ResponseComponent { Status = HttpStatusCode.Created.ToString() };
-              break;
-            case Bundle.HTTPVerb.PUT:
-              resource = await this.Repository.UpdateResourceAsync(entry.Resource);
-              response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() };
-              break;
-            case Bundle.HTTPVerb.DELETE:
-              await this.Repository.DeleteResourceAsync(entry.Resource.Id);
-              response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() };
-              break;
-            default:
-              throw new UnsupportedOperationException(entry.Request.Method.ToString());
-          }
-
-          responseBundle.Entry.Add(new Bundle.EntryComponent { Resource = resource, Response = response });
+          responseBundle.Entry.Add(await this.ProcessEntity(entry));
         }
         catch (UnsupportedOperationException)
         {
           responseBundle.Entry.Add(
             new Bundle.EntryComponent
               {
-                Resource = resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.MethodNotAllowed.ToString() }
+                Resource = entry.Resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.MethodNotAllowed.ToString() }
               });
         }
         catch (ResourceNotFoundException)
@@ -70,7 +42,7 @@
           responseBundle.Entry.Add(
             new Bundle.EntryComponent
               {
-                Resource = resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.NotFound.ToString() }
+                Resource = entry.Resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.NotFound.ToString() }
               });
         }
         catch
@@ -78,12 +50,47 @@
           responseBundle.Entry.Add(
             new Bundle.EntryComponent
               {
-                Resource = resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.InternalServerError.ToString() }
+                Resource = entry.Resource, Response = new Bundle.ResponseComponent { Status = HttpStatusCode.InternalServerError.ToString() }
               });
         }
       }
 
       return new ResourceResponse { Code = ResponseCode.Success, Resource = responseBundle };
+    }
+
+    private async Task<Bundle.EntryComponent> ProcessEntity(Bundle.EntryComponent entry)
+    {
+      // ReSharper disable once SwitchStatementMissingSomeCases
+      switch (entry.Request.Method)
+      {
+        case Bundle.HTTPVerb.GET:
+          return new Bundle.EntryComponent
+                   {
+                     Resource = await this.Repository.ReadResourceAsync(entry.Resource.Id),
+                     Response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() }
+                   };
+        case Bundle.HTTPVerb.POST:
+          return new Bundle.EntryComponent
+                   {
+                     Resource = await this.Repository.CreateResourceAsync(entry.Resource),
+                     Response = new Bundle.ResponseComponent { Status = HttpStatusCode.Created.ToString() }
+                   };
+        case Bundle.HTTPVerb.PUT:
+          return new Bundle.EntryComponent
+                   {
+                     Resource = await this.Repository.UpdateResourceAsync(entry.Resource),
+                     Response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() }
+                   };
+        case Bundle.HTTPVerb.DELETE:
+          await this.Repository.DeleteResourceAsync(entry.Resource.Id);
+          return new Bundle.EntryComponent
+                   {
+                     Resource = entry.Resource,
+                     Response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() }
+                   };
+        default:
+          throw new UnsupportedOperationException(entry.Request.Method.ToString());
+      }
     }
   }
 }
