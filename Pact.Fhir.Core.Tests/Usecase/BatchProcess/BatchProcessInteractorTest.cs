@@ -115,7 +115,38 @@
     [TestMethod]
     public async Task TestSuccessfulBatchShouldReturnSuccessOnAllEntries()
     {
+      var resource = FhirResourceProvider.Patient;
+      resource.Id = "SOMEFHIRCONFORMID";
 
+      var repository = new InMemoryFhirRepository();
+      repository.Resources.Add(resource);
+
+      var interactor = new BatchProcessInteractor(repository);
+      var response = await interactor.ExecuteAsync(
+                       new BatchProcessRequest
+                         {
+                           Bundle = new Bundle
+                                      {
+                                        Entry = new List<Bundle.EntryComponent>
+                                                  {
+                                                    new Bundle.EntryComponent
+                                                      {
+                                                        Request = new Bundle.RequestComponent { Method = Bundle.HTTPVerb.GET, ElementId = "SOMEFHIRCONFORMID"}, 
+                                                      },
+                                                    new Bundle.EntryComponent
+                                                      {
+                                                        Request = new Bundle.RequestComponent { Method = Bundle.HTTPVerb.DELETE, ElementId = "SOMEFHIRCONFORMID"},
+                                                      },
+                                                  }
+                                      }
+                         });
+
+      var responseBundle = (Bundle)response.Resource;
+
+      Assert.AreEqual(ResponseCode.Success, response.Code);
+      Assert.AreEqual(2, responseBundle.Entry.Count);
+      Assert.IsNotNull(responseBundle.Entry[0].Resource);
+      Assert.AreEqual(0, repository.Resources.Count);
     }
   }
 }

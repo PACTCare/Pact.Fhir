@@ -66,7 +66,8 @@
         case Bundle.HTTPVerb.GET:
           return new Bundle.EntryComponent
                    {
-                     Resource = await this.Repository.ReadResourceAsync(entry.Resource.Id),
+                     // TODO: Check if this works on API level
+                     Resource = await this.Repository.ReadResourceAsync(entry.Request.ElementId),
                      Response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() }
                    };
         case Bundle.HTTPVerb.POST:
@@ -82,7 +83,7 @@
                      Response = new Bundle.ResponseComponent { Status = HttpStatusCode.OK.ToString() }
                    };
         case Bundle.HTTPVerb.DELETE:
-          await this.Repository.DeleteResourceAsync(entry.Resource.Id);
+          await this.Repository.DeleteResourceAsync(entry.Request.ElementId);
           return new Bundle.EntryComponent
                    {
                      Resource = entry.Resource,
