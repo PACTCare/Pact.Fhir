@@ -14,6 +14,7 @@
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.ValidateResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Services;
@@ -96,14 +97,17 @@
         new FhirJsonTryteSerializer(),
         new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")),
         new RandomChannelCredentialProvider());
+      var fhirParser = new FhirJsonParser();
 
-      var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
+      var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser);
       var readInteractor = new ReadResourceInteractor(fhirRepository);
       var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
+      var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
 
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);
       services.AddSingleton(capabilitiesInteractor);
+      services.AddSingleton(validationInteractor);
     }
   }
 }

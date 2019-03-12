@@ -66,9 +66,9 @@
     [HttpPost]
     public async Task<IActionResult> ValidateResourceAsync()
     {
-      //var response = await this.ValidateResourceInteractor.ExecuteAsync(new ValidateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
-
-      //return new JsonFhirResult(response.ValidationResult.Any(v => v.));
+      var response = await this.ValidateResourceInteractor.ExecuteAsync(
+                       new ValidateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
+      return ValidationResultPresenter.Present(response, this.Response);
     }
   }
 }

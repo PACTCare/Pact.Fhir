@@ -1,6 +1,8 @@
 ﻿namespace Pact.Fhir.Core.Usecase.ValidateResource
 {
   using System;
+  using System.Collections.Generic;
+  using System.ComponentModel.DataAnnotations;
   using System.Linq;
   using System.Threading.Tasks;
 
@@ -30,6 +32,13 @@
         return new ValidateResourceResponse
                  {
                    Code = ResponseCode.Success, ValidationResult = FhirResourceValidator.Validate(requestResource).ToList()
+                 };
+      }
+      catch (FormatException exception)
+      {
+        return new ValidateResourceResponse
+                 {
+                   Code = ResponseCode.Success, ValidationResult = new List<ValidationResult> { new ValidationResult(exception.Message) }
                  };
       }
       catch (Exception)
