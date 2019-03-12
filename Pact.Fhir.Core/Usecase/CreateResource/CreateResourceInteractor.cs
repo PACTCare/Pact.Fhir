@@ -26,7 +26,7 @@
     {
       try
       {
-        var requestResource = this.FhirParser.Parse<DomainResource>(request.ResourceJson);
+        var requestResource = this.FhirParser.Parse<Resource>(request.ResourceJson);
         var resource = await this.Repository.CreateResourceAsync(requestResource);
 
         return new ResourceResponse { Code = ResponseCode.Success, Resource = resource };
