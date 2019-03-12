@@ -50,11 +50,7 @@
                                                   new CapabilityStatement.SystemInteractionComponent
                                                     {
                                                       Code = CapabilityStatement.SystemRestfulInteraction.Batch
-                                                    },
-                                                  new CapabilityStatement.SystemInteractionComponent
-                                                    {
-                                                      Code = CapabilityStatement.SystemRestfulInteraction.Transaction
-                                                    },
+                                                    }
                                                 }
                               }
                           }
