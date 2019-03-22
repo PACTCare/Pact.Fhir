@@ -1,0 +1,53 @@
+﻿namespace Pact.Fhir.Api.Presenters
+{
+  using System.Collections.Generic;
+  using System.Linq;
+
+  using Hl7.Fhir.Model;
+
+  using Microsoft.AspNetCore.Http;
+  using Microsoft.AspNetCore.Mvc;
+
+  using Pact.Fhir.Api.Response;
+  using Pact.Fhir.Core.Usecase;
+  using Pact.Fhir.Core.Usecase.ValidateResource;
+
+  public static class ValidationResultPresenter
+  {
+    public static IActionResult Present(ValidateResourceResponse response, HttpResponse httpResponse)
+    {
+      if (response.Code == ResponseCode.Success)
+      {
+        if (response.ValidationResult.Count == 0)
+        {
+          return new JsonFhirResult(
+            new OperationOutcome
+              {
+                Issue = new List<OperationOutcome.IssueComponent>
+                          {
+                            new OperationOutcome.IssueComponent
+                              {
+                                Code = OperationOutcome.IssueType.Informational,
+                                Severity = OperationOutcome.IssueSeverity.Information,
+                                Details = new CodeableConcept { Text = "All OK" }
+                              }
+                          }
+              });
+        }
+
+        return new JsonFhirResult(
+          new OperationOutcome
+            {
+              Issue = response.ValidationResult.Select(
+                r => new OperationOutcome.IssueComponent
+                       {
+                         Severity = OperationOutcome.IssueSeverity.Error,
+                         Details = new CodeableConcept { Text = r.ToString() }
+                       }).ToList()
+            });
+      }
+
+      return PresenterBase.PrepareRequestFailure(response, httpResponse);
+    }
+  }
+}

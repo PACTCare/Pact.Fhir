@@ -10,8 +10,11 @@
   using Microsoft.Extensions.Configuration;
   using Microsoft.Extensions.DependencyInjection;
 
+  using Pact.Fhir.Api.Services;
   using Pact.Fhir.Core.Usecase.CreateResource;
+  using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.ValidateResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
   using Pact.Fhir.Iota.Services;
@@ -31,7 +34,7 @@
       this.Configuration = configuration;
     }
 
-    public IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -63,8 +66,7 @@
         new FallbackIotaClient(
           new List<string>
             {
-              "http://node04.iotatoken.nl:14265",
-              "http://node05.iotatoken.nl:16265",
+              "https://trinity.iota-tangle.io:14265",
               "https://nodes.thetangle.org:443",
               "http://iota1.heidger.eu:14265",
               "https://nodes.iota.cafe:443",
@@ -82,6 +84,8 @@
               "https://pow4.iota.community:443",
               "https://dyn.tangle-nodes.com:443",
               "https://pow5.iota.community:443",
+              "http://node04.iotatoken.nl:14265",
+              "http://node05.iotatoken.nl:16265",
             },
           5000),
         new PoWSrvService());
@@ -93,12 +97,17 @@
         new FhirJsonTryteSerializer(),
         new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")),
         new RandomChannelCredentialProvider());
+      var fhirParser = new FhirJsonParser();
 
-      var createInteractor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
+      var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser);
       var readInteractor = new ReadResourceInteractor(fhirRepository);
+      var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
+      var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
 
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);
+      services.AddSingleton(capabilitiesInteractor);
+      services.AddSingleton(validationInteractor);
     }
   }
 }

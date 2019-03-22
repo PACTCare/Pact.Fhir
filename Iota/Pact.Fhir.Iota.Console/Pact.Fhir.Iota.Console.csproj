@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Iota\Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj" />
-    <ProjectReference Include="..\Iota\Pact.Fhir.Iota\Pact.Fhir.Iota.csproj" />
+    <ProjectReference Include="..\Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj" />
+    <ProjectReference Include="..\Pact.Fhir.Iota\Pact.Fhir.Iota.csproj" />
   </ItemGroup>
 
   <ItemGroup>

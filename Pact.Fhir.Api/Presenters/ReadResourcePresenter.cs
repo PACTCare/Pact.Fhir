@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Pact.Fhir.Api.Presenters
+﻿namespace Pact.Fhir.Api.Presenters
 {
   using System.Net;
+
+  using Hl7.Fhir.Rest;
 
   using Microsoft.AspNetCore.Http;
   using Microsoft.AspNetCore.Mvc;
 
   using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
-  using Pact.Fhir.Core.Usecase.ReadResource;
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(UsecaseResponse response, HttpResponse httpResponse)
+    public static IActionResult Present(ResourceResponse response, HttpResponse httpResponse, SummaryType summaryType)
     {
       if (response.Code == ResponseCode.Success)
       {
         PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.OK);
-        return new JsonFhirResult(response.Resource);
+        return new JsonFhirResult(response.Resource, summaryType);
       }
 
       return PresenterBase.PrepareRequestFailure(response, httpResponse);

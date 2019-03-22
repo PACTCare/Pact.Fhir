@@ -11,7 +11,7 @@
 
   using Exception = System.Exception;
 
-  public class ReadResourceHistoryInteractor : UsecaseInteractor<ReadResourceHistoryRequest, UsecaseResponse>
+  public class ReadResourceHistoryInteractor : UsecaseInteractor<ReadResourceHistoryRequest, ResourceResponse>
   {
     /// <inheritdoc />
     public ReadResourceHistoryInteractor(IFhirRepository repository)
@@ -20,7 +20,7 @@
     }
 
     /// <inheritdoc />
-    public override async Task<UsecaseResponse> ExecuteAsync(ReadResourceHistoryRequest request)
+    public override async Task<ResourceResponse> ExecuteAsync(ReadResourceHistoryRequest request)
     {
       try
       {
@@ -30,8 +30,8 @@
           throw new ResourceNotFoundException(request.ResourceId);
         }
 
-        return new UsecaseResponse
-                 {
+        return new ResourceResponse
+        {
                    Code = ResponseCode.Success,
                    Resource = new Bundle
                                 {
@@ -42,11 +42,11 @@
       }
       catch (ResourceNotFoundException exception)
       {
-        return new UsecaseResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
+        return new ResourceResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
       }
       catch (Exception)
       {
-        return new UsecaseResponse
+        return new ResourceResponse
         {
                    Code = ResponseCode.Failure,
                    ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."

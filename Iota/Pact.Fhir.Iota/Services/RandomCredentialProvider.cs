@@ -3,6 +3,7 @@
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Entity;
+  using Pact.Fhir.Iota.Repository;
 
   using Tangle.Net.Cryptography;
   using Tangle.Net.Entity;
@@ -19,7 +20,7 @@
                {
                  ChannelKey = Seed.Random().Value,
                  Seed = seed,
-                 RootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, SecurityLevel.Medium).Root.Hash
+                 RootHash = CurlMerkleTreeFactory.Default.Create(seed, 0, 1, IotaFhirRepository.SecurityLevel).Root.Hash
                };
     }
 
