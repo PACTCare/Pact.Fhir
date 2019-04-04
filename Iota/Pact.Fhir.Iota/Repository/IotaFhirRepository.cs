@@ -31,11 +31,13 @@
       IIotaRepository repository,
       IFhirTryteSerializer serializer,
       IResourceTracker resourceTracker,
-      IChannelCredentialProvider channelCredentialProvider)
+      IChannelCredentialProvider channelCredentialProvider,
+      IReferenceResolver referenceResolver)
     {
       this.Serializer = serializer;
       this.ResourceTracker = resourceTracker;
       this.ChannelCredentialProvider = channelCredentialProvider;
+      this.ReferenceResolver = referenceResolver;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
@@ -44,6 +46,8 @@
     public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
     private IChannelCredentialProvider ChannelCredentialProvider { get; }
+
+    private IReferenceResolver ReferenceResolver { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -56,7 +60,21 @@
     /// <inheritdoc />
     public async Task<Resource> CreateResourceAsync(Resource resource)
     {
-      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync();
+      Seed seed;
+      if (resource.GetType().GetProperty("Subject") != null)
+      {
+        // TODO: null checks
+        var subject = resource.GetType().GetProperty("Subject")?.GetValue(resource) as ResourceReference;
+        seed = this.ReferenceResolver.Resolve(subject?.Reference);
+
+        // TODO: Verify option to use extension to link to resources without a subject
+      }
+      else
+      {
+        seed = Seed.Random();
+      }
+
+      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync(seed);
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
       resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);

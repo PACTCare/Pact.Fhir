@@ -13,12 +13,11 @@
   {
     /// <inheritdoc />
     public InMemoryDeterministicCredentialProvider(
-      Seed masterSeed,
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
       IAddressGenerator addressGenerator,
       IIotaRepository repository)
-      : base(masterSeed, resourceTracker, signingHelper, addressGenerator, repository)
+      : base(resourceTracker, signingHelper, addressGenerator, repository)
     {
       this.CurrentIndex = -1;
     }
@@ -26,13 +25,13 @@
     public int CurrentIndex { get; set; }
 
     /// <inheritdoc />
-    protected override async Task<int> GetCurrentSubSeedIndexAsync()
+    protected override async Task<int> GetCurrentSubSeedIndexAsync(Seed seed)
     {
       return this.CurrentIndex;
     }
 
     /// <inheritdoc />
-    protected override async Task SetCurrentSubSeedIndexAsync(int index)
+    protected override async Task SetCurrentSubSeedIndexAsync(Seed seed, int index)
     {
       this.CurrentIndex = index;
     }

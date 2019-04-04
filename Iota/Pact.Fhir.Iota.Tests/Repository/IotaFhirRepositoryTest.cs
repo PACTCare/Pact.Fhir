@@ -49,7 +49,12 @@
             ResourceRoots = new List<string> { "SOMEID" }
           });
 
-      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, new RandomChannelCredentialProvider());
+      var repository = new IotaFhirRepository(
+        iotaRepository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -63,11 +68,11 @@
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new InMemoryDeterministicCredentialProvider(
-          Seed.Random(),
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository));
+          iotaRepository),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
@@ -83,7 +88,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
       Assert.AreEqual(1, Regex.Matches(resource.Id, Id.PATTERN).Count);
@@ -106,7 +112,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -118,7 +125,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       await repository.UpdateResourceAsync(FhirResourceProvider.Patient);
     }
 
@@ -133,7 +141,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
 
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SOMEID";
@@ -149,7 +158,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.VersionId;
@@ -175,11 +185,11 @@
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new InMemoryDeterministicCredentialProvider(
-          Seed.Random(),
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository));
+          iotaRepository),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
@@ -201,11 +211,11 @@
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new InMemoryDeterministicCredentialProvider(
-          Seed.Random(),
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository));
+          iotaRepository),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var updatedResource = await repository.UpdateResourceAsync(createdResource);
