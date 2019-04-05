@@ -32,14 +32,14 @@
         }
 
         using (var command = new SQLiteCommand(
-          "CREATE TABLE CredentialIndex (CurrentIndex INTEGER NOT NULL)",
+          "CREATE TABLE CredentialIndex (CurrentIndex INTEGER NOT NULL, Seed TEXT NOT NULL)",
           connection))
         {
           command.ExecuteNonQuery();
         }
 
         using (var command = new SQLiteCommand(
-          "INSERT INTO CredentialIndex (CurrentIndex) VALUES (-1)",
+          "CREATE TABLE ResourceResolver (Reference TEXT NOT NULL PRIMARY KEY, Seed TEXT NOT NULL)",
           connection))
         {
           command.ExecuteNonQuery();

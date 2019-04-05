@@ -92,11 +92,13 @@
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
+      var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
       var fhirRepository = new IotaFhirRepository(
         iotaRepository,
         new FhirJsonTryteSerializer(),
-        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")),
-        new RandomChannelCredentialProvider());
+        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
+        new RandomChannelCredentialProvider(),
+        new SqlLiteReferenceResolver(encryption));
       var fhirParser = new FhirJsonParser();
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser);

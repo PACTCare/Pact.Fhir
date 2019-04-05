@@ -62,7 +62,7 @@
         foreach (var hash in entry.ResourceRoots)
         {
           using (var command = new SQLiteCommand(
-            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{hash}', '{resourceId}')",
+            $"INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES ('{hash}', '{resourceId}')",
             connection))
           {
             await command.ExecuteNonQueryAsync();

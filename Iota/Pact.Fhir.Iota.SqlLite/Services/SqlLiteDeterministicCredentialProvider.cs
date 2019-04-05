@@ -1,6 +1,9 @@
 ﻿namespace Pact.Fhir.Iota.SqlLite.Services
 {
+  using System.Data;
   using System.Data.SQLite;
+  using System.Security.Cryptography;
+  using System.Text;
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Services;
@@ -10,10 +13,10 @@
   using Tangle.Net.Entity;
   using Tangle.Net.Repository;
 
-  public class SqlDeterministicCredentialProvider : DeterministicCredentialProvider
+  public class SqlLiteDeterministicCredentialProvider : DeterministicCredentialProvider
   {
     /// <inheritdoc />
-    public SqlDeterministicCredentialProvider(
+    public SqlLiteDeterministicCredentialProvider(
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
       IAddressGenerator addressGenerator,
@@ -35,9 +38,20 @@
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand("SELECT CurrentIndex FROM CredentialIndex", connection))
+        using (var command = new SQLiteCommand($"SELECT CurrentIndex FROM CredentialIndex WHERE Seed='{ComputeSeedHash(seed)}'", connection))
         {
-          return int.Parse((await command.ExecuteScalarAsync()).ToString());
+          var result = await command.ExecuteScalarAsync();
+          if (result != null)
+          {
+            return int.Parse(result.ToString());
+          }
+
+          using (var innerCommand = new SQLiteCommand($"INSERT INTO CredentialIndex (CurrentIndex, Seed) VALUES (0, '{ComputeSeedHash(seed)}')", connection))
+          {
+            await innerCommand.ExecuteNonQueryAsync();
+          }
+
+          return 0;
         }
       }
     }
@@ -49,10 +63,19 @@
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand($"UPDATE CredentialIndex SET CurrentIndex={index}", connection))
+        using (var command = new SQLiteCommand($"UPDATE CredentialIndex SET CurrentIndex={index} WHERE Seed='{ComputeSeedHash(seed)}'", connection))
         {
           await command.ExecuteNonQueryAsync();
         }
+      }
+    }
+
+    private static string ComputeSeedHash(TryteString seed)
+    {
+      using (var alg = SHA256.Create())
+      {
+        var hash = alg.ComputeHash(Encoding.UTF8.GetBytes(seed.Value));
+        return Encoding.UTF8.GetString(hash);
       }
     }
   }
