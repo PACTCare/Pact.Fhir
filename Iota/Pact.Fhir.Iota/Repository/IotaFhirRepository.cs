@@ -61,17 +61,29 @@
     public async Task<Resource> CreateResourceAsync(Resource resource)
     {
       Seed seed;
-      if (resource.GetType().GetProperty("Subject") != null)
-      {
-        // TODO: null checks
-        var subject = resource.GetType().GetProperty("Subject")?.GetValue(resource) as ResourceReference;
-        seed = this.ReferenceResolver.Resolve(subject?.Reference);
+      var newReference = false;
 
-        // TODO: Verify option to use extension to link to resources without a subject
+      // check for a referenced resource and get the corresponding seed if it exists
+      if (resource.GetType().GetProperty("Subject") != null || resource.GetType().GetProperty("Patient") != null)
+      {
+        var reference = resource.GetType().GetProperty("Subject") != null
+                          ? resource.GetType().GetProperty("Subject")?.GetValue(resource)
+                          : resource.GetType().GetProperty("Patient")?.GetValue(resource);
+
+        if (reference != null && reference is ResourceReference resourceReference)
+        {
+          seed = this.ReferenceResolver.Resolve(resourceReference.Reference);
+        }
+        else
+        {
+          seed = Seed.Random();
+          newReference = true;
+        }
       }
       else
       {
         seed = Seed.Random();
+        newReference = true;
       }
 
       var channelCredentials = await this.ChannelCredentialProvider.CreateAsync(seed);
@@ -92,6 +104,12 @@
             Channel = channel,
             Subscription = this.SubscriptionFactory.Create(channelCredentials.RootHash, Mode.Restricted, channelCredentials.ChannelKey)
           });
+
+      // on a newly created seed, store the URN reference so resources can be linked via seed later
+      if (newReference)
+      {
+        this.ReferenceResolver.AddReference($"urn:iota:{resource.Id}", seed);
+      }
 
       return resource;
     }

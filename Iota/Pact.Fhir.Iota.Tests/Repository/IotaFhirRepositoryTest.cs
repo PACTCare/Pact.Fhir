@@ -84,12 +84,13 @@
     public async Task TestResourceCreationOnTangleShouldAssignHashesAsIds()
     {
       var resourceTracker = new InMemoryResourceTracker();
+      var referenceResolver = new InMemoryReferenceResolver();
       var repository = new IotaFhirRepository(
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new RandomChannelCredentialProvider(),
-        new InMemoryReferenceResolver());
+        referenceResolver);
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
       Assert.AreEqual(1, Regex.Matches(resource.Id, Id.PATTERN).Count);
@@ -102,6 +103,27 @@
 
       Assert.IsTrue(InputValidator.IsTrytes(resource.Id));
       Assert.AreEqual(1, resourceTracker.Entries.Count);
+      Assert.IsTrue(referenceResolver.References.Any(e => e.Key == $"urn:iota:{resource.Id}"));
+    }
+
+    [TestMethod]
+    public async Task TestResourceHasValidReferenceShouldUseExistingSeed()
+    {
+      var referenceResolver = new InMemoryReferenceResolver();
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        new InMemoryResourceTracker(),
+        new RandomChannelCredentialProvider(),
+        referenceResolver);
+
+      var reference = $"urn:iota:JHAGDJAHDJAHGDAJHGD";
+      referenceResolver.AddReference(reference, Seed.Random());
+
+      var observation = new Observation { Subject = new ResourceReference(reference) };
+      var resource = await repository.CreateResourceAsync(observation);
+
+      Assert.AreEqual(1, referenceResolver.References.Count);
     }
 
     [TestMethod]

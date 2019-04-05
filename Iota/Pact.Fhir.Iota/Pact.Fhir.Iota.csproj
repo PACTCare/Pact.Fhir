@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.2.0</Version>
+    <Version>0.0.2.1</Version>
     <Authors>Pact Care BV</Authors>
     <Company>Pact Care BV</Company>
     <Description>IOTA implementation to work with the FHIR core</Description>
@@ -13,7 +13,7 @@
     <PackageTags>iota fihr csharp</PackageTags>
     <RepositoryType>github</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>0.0.2.0</AssemblyVersion>
+    <AssemblyVersion>0.0.2.1</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

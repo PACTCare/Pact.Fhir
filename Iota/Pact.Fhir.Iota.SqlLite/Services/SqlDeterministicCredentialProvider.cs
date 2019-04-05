@@ -14,13 +14,12 @@
   {
     /// <inheritdoc />
     public SqlDeterministicCredentialProvider(
-      Seed masterSeed,
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
       IAddressGenerator addressGenerator,
       IIotaRepository repository,
       string databaseFilename = "iotafhir.sqlite")
-      : base(masterSeed, resourceTracker, signingHelper, addressGenerator, repository)
+      : base(resourceTracker, signingHelper, addressGenerator, repository)
     {
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
@@ -30,7 +29,7 @@
     private string ConnectionString { get; }
 
     /// <inheritdoc />
-    protected override async Task<int> GetCurrentSubSeedIndexAsync()
+    protected override async Task<int> GetCurrentSubSeedIndexAsync(Seed seed)
     {
       using (var connection = new SQLiteConnection(this.ConnectionString))
       {
@@ -44,7 +43,7 @@
     }
 
     /// <inheritdoc />
-    protected override async Task SetCurrentSubSeedIndexAsync(int index)
+    protected override async Task SetCurrentSubSeedIndexAsync(Seed seed, int index)
     {
       using (var connection = new SQLiteConnection(this.ConnectionString))
       {
