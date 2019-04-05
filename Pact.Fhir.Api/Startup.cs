@@ -21,6 +21,9 @@
   using Pact.Fhir.Iota.SqlLite.Encryption;
   using Pact.Fhir.Iota.SqlLite.Services;
 
+  using Tangle.Net.Cryptography;
+  using Tangle.Net.Cryptography.Curl;
+  using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;
   using Tangle.Net.ProofOfWork.Service;
@@ -97,7 +100,11 @@
         iotaRepository,
         new FhirJsonTryteSerializer(),
         new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
-        new RandomChannelCredentialProvider(),
+        new SqlLiteDeterministicCredentialProvider(
+          new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
+          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+          new AddressGenerator(),
+          iotaRepository),
         new SqlLiteReferenceResolver(encryption));
       var fhirParser = new FhirJsonParser();
 
