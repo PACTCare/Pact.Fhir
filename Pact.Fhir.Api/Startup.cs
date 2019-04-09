@@ -69,7 +69,6 @@
         new FallbackIotaClient(
           new List<string>
             {
-              "https://trinity.iota-tangle.io:14265",
               "https://nodes.thetangle.org:443",
               "http://iota1.heidger.eu:14265",
               "https://nodes.iota.cafe:443",
