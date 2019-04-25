@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Iota", "Iota", "{CD7611C3-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Api.Cucumber", "Pact.Fhir.Api.Cucumber\Pact.Fhir.Api.Cucumber.csproj", "{C258236A-F295-4A0E-A176-BE2FFB2A348D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Iota.Console", "Iota\Pact.Fhir.Iota.Console\Pact.Fhir.Iota.Console.csproj", "{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,10 +59,6 @@ Global
 		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,7 +68,6 @@ Global
 		{ABA3E3D5-F7DC-436A-AD2D-13FFC02C7EC3} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
 		{FA563255-F30D-4B84-91B9-4541E8651FD9} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
 		{56EDFF42-FA31-41EC-AED1-8EA619366B33} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
-		{917E9B03-DF9C-4AF5-84A1-FF9DE69773FD} = {CD7611C3-C878-47C0-A542-AFD6CA0046CF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61B556C5-BC64-482E-90D6-F042F3BC66BC}

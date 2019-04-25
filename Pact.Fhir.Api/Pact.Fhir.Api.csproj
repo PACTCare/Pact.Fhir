@@ -12,13 +12,10 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
-    <PackageReference Include="Tangle.Net.Standard.Mam" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Iota\Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj" />
-    <ProjectReference Include="..\Iota\Pact.Fhir.Iota\Pact.Fhir.Iota.csproj" />
-    <ProjectReference Include="..\Pact.Fhir.Core\Pact.Fhir.Core.csproj" />
   </ItemGroup>
 
 </Project>

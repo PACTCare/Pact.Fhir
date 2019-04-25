@@ -26,9 +26,11 @@
   using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;
+  using Tangle.Net.ProofOfWork;
   using Tangle.Net.ProofOfWork.Service;
   using Tangle.Net.Repository;
   using Tangle.Net.Repository.Client;
+  using Tangle.Net.Repository.Factory;
 
   public class Startup
   {
@@ -65,17 +67,11 @@
 
     private void InjectDependencies(IServiceCollection services)
     {
-      var iotaRepository = new RestIotaRepository(
-        new FallbackIotaClient(
-          new List<string>
-            {
-              "https://nodes.devnet.thetangle.org:443"
-            },
-          5000),
-        new PoWSrvService());
+      var iotaRepository = IotaRepositoryFactory.CreateWithFallback(new List<string> { "https://nodes.devnet.thetangle.org:443" }, PoWType.PoWSrv);
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
+
       var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
       var fhirRepository = new IotaFhirRepository(
         iotaRepository,
