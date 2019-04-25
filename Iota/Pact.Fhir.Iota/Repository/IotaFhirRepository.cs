@@ -93,7 +93,7 @@
 
       var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
-      await channel.PublishAsync(message, 14, 1);
+      await channel.PublishAsync(message, 9, 1);
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
       // This will allow us to retrieve the channel and subscription for other usecases
