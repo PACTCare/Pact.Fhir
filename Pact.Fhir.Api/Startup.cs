@@ -21,11 +21,16 @@
   using Pact.Fhir.Iota.SqlLite.Encryption;
   using Pact.Fhir.Iota.SqlLite.Services;
 
+  using Tangle.Net.Cryptography;
+  using Tangle.Net.Cryptography.Curl;
+  using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;
+  using Tangle.Net.ProofOfWork;
   using Tangle.Net.ProofOfWork.Service;
   using Tangle.Net.Repository;
   using Tangle.Net.Repository.Client;
+  using Tangle.Net.Repository.Factory;
 
   public class Startup
   {
@@ -62,41 +67,22 @@
 
     private void InjectDependencies(IServiceCollection services)
     {
-      var iotaRepository = new RestIotaRepository(
-        new FallbackIotaClient(
-          new List<string>
-            {
-              "https://trinity.iota-tangle.io:14265",
-              "https://nodes.thetangle.org:443",
-              "http://iota1.heidger.eu:14265",
-              "https://nodes.iota.cafe:443",
-              "https://potato.iotasalad.org:14265",
-              "https://durian.iotasalad.org:14265",
-              "https://turnip.iotasalad.org:14265",
-              "https://nodes.iota.fm:443",
-              "https://tuna.iotasalad.org:14265",
-              "https://iotanode2.jlld.at:443",
-              "https://node.iota.moe:443",
-              "https://wallet1.iota.town:443",
-              "https://wallet2.iota.town:443",
-              "http://node03.iotatoken.nl:15265",
-              "https://node.iota-tangle.io:14265",
-              "https://pow4.iota.community:443",
-              "https://dyn.tangle-nodes.com:443",
-              "https://pow5.iota.community:443",
-              "http://node04.iotatoken.nl:14265",
-              "http://node05.iotatoken.nl:16265",
-            },
-          5000),
-        new PoWSrvService());
+      var iotaRepository = IotaRepositoryFactory.CreateWithFallback(new List<string> { "https://nodes.devnet.thetangle.org:443" }, PoWType.PoWSrv);
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
+
+      var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
       var fhirRepository = new IotaFhirRepository(
         iotaRepository,
         new FhirJsonTryteSerializer(),
-        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, new RijndaelEncryption("somenicekey", "somenicesalt")),
-        new RandomChannelCredentialProvider());
+        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
+        new SqlLiteDeterministicCredentialProvider(
+          new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
+          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+          new AddressGenerator(),
+          iotaRepository),
+        new SqlLiteReferenceResolver(encryption));
       var fhirParser = new FhirJsonParser();
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser);

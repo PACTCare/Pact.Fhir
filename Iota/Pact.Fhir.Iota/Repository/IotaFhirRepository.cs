@@ -31,11 +31,13 @@
       IIotaRepository repository,
       IFhirTryteSerializer serializer,
       IResourceTracker resourceTracker,
-      IChannelCredentialProvider channelCredentialProvider)
+      IChannelCredentialProvider channelCredentialProvider,
+      IReferenceResolver referenceResolver)
     {
       this.Serializer = serializer;
       this.ResourceTracker = resourceTracker;
       this.ChannelCredentialProvider = channelCredentialProvider;
+      this.ReferenceResolver = referenceResolver;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
@@ -44,6 +46,8 @@
     public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
     private IChannelCredentialProvider ChannelCredentialProvider { get; }
+
+    private IReferenceResolver ReferenceResolver { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -56,14 +60,40 @@
     /// <inheritdoc />
     public async Task<Resource> CreateResourceAsync(Resource resource)
     {
-      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync();
+      Seed seed;
+      var newReference = false;
+
+      // check for a referenced resource and get the corresponding seed if it exists
+      if (resource.GetType().GetProperty("Subject") != null || resource.GetType().GetProperty("Patient") != null)
+      {
+        var reference = resource.GetType().GetProperty("Subject") != null
+                          ? resource.GetType().GetProperty("Subject")?.GetValue(resource)
+                          : resource.GetType().GetProperty("Patient")?.GetValue(resource);
+
+        if (reference != null && reference is ResourceReference resourceReference)
+        {
+          seed = this.ReferenceResolver.Resolve(resourceReference.Reference);
+        }
+        else
+        {
+          seed = Seed.Random();
+          newReference = true;
+        }
+      }
+      else
+      {
+        seed = Seed.Random();
+        newReference = true;
+      }
+
+      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync(seed);
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
       resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);
 
       var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
-      await channel.PublishAsync(message, 14, 1);
+      await channel.PublishAsync(message, 9, 1);
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
       // This will allow us to retrieve the channel and subscription for other usecases
@@ -74,6 +104,12 @@
             Channel = channel,
             Subscription = this.SubscriptionFactory.Create(channelCredentials.RootHash, Mode.Restricted, channelCredentials.ChannelKey)
           });
+
+      // on a newly created seed, store the URN reference so resources can be linked via seed later
+      if (newReference)
+      {
+        this.ReferenceResolver.AddReference($"urn:iota:{resource.Id}", seed);
+      }
 
       return resource;
     }

@@ -53,20 +53,32 @@
         var encryptedSubscription = this.Encryption.Encrypt(entry.Subscription.ToJson());
 
         using (var command = new SQLiteCommand(
-          $"INSERT INTO Resource (Channel, Subscription) VALUES ('{encryptedChannel}', '{encryptedSubscription}'); SELECT last_insert_rowid();",
+          "INSERT INTO Resource (Channel, Subscription) VALUES (@encryptedChannel, @encryptedSubscription); SELECT last_insert_rowid();",
           connection))
         {
+          command.Parameters.AddWithValue("encryptedChannel", encryptedChannel);
+          command.Parameters.AddWithValue("encryptedSubscription", encryptedSubscription);
+
           resourceId = (long)await command.ExecuteScalarAsync();
         }
 
-        foreach (var hash in entry.ResourceRoots)
+        using (var transaction = connection.BeginTransaction())
         {
-          using (var command = new SQLiteCommand(
-            $"INSERT INTO StreamHash (Hash, ResourceId) VALUES ('{hash}', '{resourceId}')",
-            connection))
+          foreach (var hash in entry.ResourceRoots)
           {
-            await command.ExecuteNonQueryAsync();
+            using (var command = new SQLiteCommand(
+              "INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES (@hash, @resourceId)",
+              connection,
+              transaction))
+            {
+              command.Parameters.AddWithValue("hash", hash);
+              command.Parameters.AddWithValue("resourceId", resourceId);
+
+              await command.ExecuteNonQueryAsync();
+            }
           }
+
+          transaction.Commit();
         }
       }
     }
@@ -74,14 +86,15 @@
     /// <inheritdoc />
     public async Task<ResourceEntry> GetEntryAsync(string id)
     {
-      ResourceEntry entry = null;
       using (var connection = new SQLiteConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE Hash LIKE '{id}%'", connection))
+        using (var command = new SQLiteCommand("SELECT * FROM StreamHash WHERE Hash LIKE @id", connection))
         {
+          command.Parameters.AddWithValue("id", $"{id}%");
+
           using (var result = await command.ExecuteReaderAsync())
           {
             if (result.Read())
@@ -96,8 +109,10 @@
         }
 
         var resourceIds = new List<string>();
-        using (var command = new SQLiteCommand($"SELECT * FROM StreamHash WHERE ResourceId = '{resourceId}'", connection))
+        using (var command = new SQLiteCommand("SELECT * FROM StreamHash WHERE ResourceId = @resourceId", connection))
         {
+          command.Parameters.AddWithValue("resourceId", resourceId);
+
           using (var result = await command.ExecuteReaderAsync())
           {
             while (result.Read())
@@ -107,27 +122,29 @@
           }
         }
 
-        using (var command = new SQLiteCommand($"SELECT * FROM Resource WHERE Id = '{resourceId}'", connection))
+        using (var command = new SQLiteCommand("SELECT * FROM Resource WHERE Id = @resourceId", connection))
         {
+          command.Parameters.AddWithValue("resourceId", resourceId);
+
           using (var result = await command.ExecuteReaderAsync())
           {
-            if (result.Read())
+            if (!result.Read())
             {
-              var decryptedChannel = this.Encryption.Decrypt(result["Channel"].ToString());
-              var decryptedSubscription = this.Encryption.Decrypt(result["Subscription"].ToString());
-
-              entry = new ResourceEntry
-                        {
-                          ResourceRoots = resourceIds,
-                          Channel = this.ChannelFactory.CreateFromJson(decryptedChannel),
-                          Subscription = this.SubscriptionFactory.CreateFromJson(decryptedSubscription)
-                        };
+              return null;
             }
+
+            var decryptedChannel = this.Encryption.Decrypt(result["Channel"].ToString());
+            var decryptedSubscription = this.Encryption.Decrypt(result["Subscription"].ToString());
+
+            return new ResourceEntry
+                      {
+                        ResourceRoots = resourceIds,
+                        Channel = this.ChannelFactory.CreateFromJson(decryptedChannel),
+                        Subscription = this.SubscriptionFactory.CreateFromJson(decryptedSubscription)
+                      };
           }
         }
       }
-
-      return entry;
     }
 
     /// <inheritdoc />
@@ -138,8 +155,10 @@
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand($"SELECT ResourceId FROM StreamHash WHERE Hash LIKE '{entry.ResourceRoots.First()}%'", connection))
+        using (var command = new SQLiteCommand("SELECT ResourceId FROM StreamHash WHERE Hash LIKE @hash", connection))
         {
+          command.Parameters.AddWithValue("hash", $"{entry.ResourceRoots.First()}%");
+
           using (var result = await command.ExecuteReaderAsync())
           {
             if (result.Read())
@@ -153,24 +172,38 @@
           }
         }
 
-        foreach (var hash in entry.ResourceRoots)
+        using (var transaction = connection.BeginTransaction())
         {
-          using (var command = new SQLiteCommand(
-            $"INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES ('{hash}', '{resourceId}')",
-            connection))
+          foreach (var hash in entry.ResourceRoots)
           {
+            using (var command = new SQLiteCommand(
+              "INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES (@hash, @resourceId)",
+              connection,
+              transaction))
+            {
+              command.Parameters.AddWithValue("hash", hash);
+              command.Parameters.AddWithValue("resourceId", resourceId);
+
+              await command.ExecuteNonQueryAsync();
+            }
+          }
+
+          var encryptedChannel = this.Encryption.Encrypt(entry.Channel.ToJson());
+          var encryptedSubscription = this.Encryption.Encrypt(entry.Subscription.ToJson());
+
+          using (var command = new SQLiteCommand(
+            $"UPDATE Resource SET Channel=@encryptedChannel, Subscription=@encryptedSubscription WHERE Id=@resourceId;",
+            connection,
+            transaction))
+          {
+            command.Parameters.AddWithValue("encryptedChannel", encryptedChannel);
+            command.Parameters.AddWithValue("encryptedSubscription", encryptedSubscription);
+            command.Parameters.AddWithValue("resourceId", resourceId);
+
             await command.ExecuteNonQueryAsync();
           }
-        }
 
-        var encryptedChannel = this.Encryption.Encrypt(entry.Channel.ToJson());
-        var encryptedSubscription = this.Encryption.Encrypt(entry.Subscription.ToJson());
-
-        using (var command = new SQLiteCommand(
-          $"UPDATE Resource SET Channel='{encryptedChannel}', Subscription='{encryptedSubscription}' WHERE Id={resourceId};",
-          connection))
-        {
-          await command.ExecuteNonQueryAsync();
+          transaction.Commit();
         }
       }
     }

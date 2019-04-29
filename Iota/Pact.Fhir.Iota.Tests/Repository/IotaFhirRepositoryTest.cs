@@ -49,7 +49,12 @@
             ResourceRoots = new List<string> { "SOMEID" }
           });
 
-      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, new RandomChannelCredentialProvider());
+      var repository = new IotaFhirRepository(
+        iotaRepository,
+        new FhirJsonTryteSerializer(),
+        resourceTracker,
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -63,11 +68,11 @@
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new InMemoryDeterministicCredentialProvider(
-          Seed.Random(),
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository));
+          iotaRepository),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
@@ -79,11 +84,13 @@
     public async Task TestResourceCreationOnTangleShouldAssignHashesAsIds()
     {
       var resourceTracker = new InMemoryResourceTracker();
+      var referenceResolver = new InMemoryReferenceResolver();
       var repository = new IotaFhirRepository(
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        referenceResolver);
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
       Assert.AreEqual(1, Regex.Matches(resource.Id, Id.PATTERN).Count);
@@ -96,6 +103,27 @@
 
       Assert.IsTrue(InputValidator.IsTrytes(resource.Id));
       Assert.AreEqual(1, resourceTracker.Entries.Count);
+      Assert.IsTrue(referenceResolver.References.Any(e => e.Key == $"urn:iota:{resource.Id}"));
+    }
+
+    [TestMethod]
+    public async Task TestResourceHasValidReferenceShouldUseExistingSeed()
+    {
+      var referenceResolver = new InMemoryReferenceResolver();
+      var repository = new IotaFhirRepository(
+        IotaResourceProvider.Repository,
+        new FhirJsonTryteSerializer(),
+        new InMemoryResourceTracker(),
+        new RandomChannelCredentialProvider(),
+        referenceResolver);
+
+      var reference = $"urn:iota:JHAGDJAHDJAHGDAJHGD";
+      referenceResolver.AddReference(reference, Seed.Random());
+
+      var observation = new Observation { Subject = new ResourceReference(reference) };
+      var resource = await repository.CreateResourceAsync(observation);
+
+      Assert.AreEqual(1, referenceResolver.References.Count);
     }
 
     [TestMethod]
@@ -106,7 +134,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -118,7 +147,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
       await repository.UpdateResourceAsync(FhirResourceProvider.Patient);
     }
 
@@ -133,7 +163,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
 
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SOMEID";
@@ -149,7 +180,8 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider());
+        new RandomChannelCredentialProvider(),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.VersionId;
@@ -175,11 +207,11 @@
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new InMemoryDeterministicCredentialProvider(
-          Seed.Random(),
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository));
+          iotaRepository),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
@@ -201,11 +233,11 @@
         new FhirJsonTryteSerializer(),
         resourceTracker,
         new InMemoryDeterministicCredentialProvider(
-          Seed.Random(),
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository));
+          iotaRepository),
+        new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var updatedResource = await repository.UpdateResourceAsync(createdResource);

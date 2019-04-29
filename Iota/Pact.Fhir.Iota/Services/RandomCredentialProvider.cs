@@ -5,17 +5,14 @@
   using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Repository;
 
-  using Tangle.Net.Cryptography;
   using Tangle.Net.Entity;
   using Tangle.Net.Mam.Merkle;
 
   public class RandomChannelCredentialProvider : IChannelCredentialProvider
   {
     /// <inheritdoc />
-    public async Task<ChannelCredentials> CreateAsync()
+    public async Task<ChannelCredentials> CreateAsync(Seed seed)
     {
-      var seed = Seed.Random();
-
       return new ChannelCredentials
                {
                  ChannelKey = Seed.Random().Value,
@@ -25,7 +22,7 @@
     }
 
     /// <inheritdoc />
-    public async Task SyncAsync()
+    public async Task SyncAsync(Seed seed)
     {
     }
   }

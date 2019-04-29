@@ -26,13 +26,12 @@ namespace Pact.Fhir.Iota.Tests.Services
     public async Task TestNoIndexIsUsedShouldUseFirstIndex()
     {
       var provider = new InMemoryDeterministicCredentialProvider(
-        Seed.Random(),
         new InMemoryResourceTracker(),
         new IssSigningHelper(new Curl(), new Curl(), new Curl()),
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      await provider.CreateAsync();
+      await provider.CreateAsync(Seed.Random());
 
       Assert.AreEqual(0, provider.CurrentIndex);
     }
@@ -41,13 +40,12 @@ namespace Pact.Fhir.Iota.Tests.Services
     public async Task TestFirstIndexHasBeenUsedShouldUseSecondIndex()
     {
       var provider = new InMemoryDeterministicCredentialProvider(
-                       Seed.Random(),
                        new InMemoryResourceTracker(),
                        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
                        new AddressGenerator(),
                        IotaResourceProvider.Repository) { CurrentIndex = 0 };
 
-      await provider.CreateAsync();
+      await provider.CreateAsync(Seed.Random());
 
       Assert.AreEqual(1, provider.CurrentIndex);
     }
@@ -59,13 +57,12 @@ namespace Pact.Fhir.Iota.Tests.Services
 
       // Publish a message as if it was published from another app
       var tempProvider = new InMemoryDeterministicCredentialProvider(
-                       seed,
                        new InMemoryResourceTracker(),
                        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
                        new AddressGenerator(),
                        IotaResourceProvider.Repository);
 
-      var credentials = await tempProvider.CreateAsync();
+      var credentials = await tempProvider.CreateAsync(seed);
       var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials.Seed,
@@ -77,13 +74,12 @@ namespace Pact.Fhir.Iota.Tests.Services
 
       // Create credentials that should skip the first index
       var provider = new InMemoryDeterministicCredentialProvider(
-                       seed,
                        new InMemoryResourceTracker(),
                        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
                        new AddressGenerator(),
                        IotaResourceProvider.Repository);
 
-      await provider.CreateAsync();
+      await provider.CreateAsync(seed);
 
       Assert.AreEqual(1, provider.CurrentIndex);
     }
@@ -95,13 +91,12 @@ namespace Pact.Fhir.Iota.Tests.Services
 
       // Publish a message as if it was published from another app
       var tempProvider = new InMemoryDeterministicCredentialProvider(
-        seed,
         new InMemoryResourceTracker(),
         new IssSigningHelper(new Curl(), new Curl(), new Curl()),
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      var credentials = await tempProvider.CreateAsync();
+      var credentials = await tempProvider.CreateAsync(seed);
       var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials.Seed,
@@ -111,7 +106,7 @@ namespace Pact.Fhir.Iota.Tests.Services
       var message = channel.CreateMessage(TryteString.FromAsciiString("Test"));
       await channel.PublishAsync(message, 14, 1);
 
-      var credentials2 = await tempProvider.CreateAsync();
+      var credentials2 = await tempProvider.CreateAsync(seed);
       var channel2 = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials2.Seed,
@@ -123,7 +118,6 @@ namespace Pact.Fhir.Iota.Tests.Services
 
       // Create credentials that should skip the first index
       var provider = new InMemoryDeterministicCredentialProvider(
-        seed,
         new InMemoryResourceTracker(),
         new IssSigningHelper(new Curl(), new Curl(), new Curl()),
         new AddressGenerator(),
@@ -132,7 +126,7 @@ namespace Pact.Fhir.Iota.Tests.Services
       var subFoundEventCounter = 0;
       provider.SubscriptionFound += (sender, args) => { subFoundEventCounter = subFoundEventCounter + 1; };
 
-      await provider.SyncAsync();
+      await provider.SyncAsync(seed);
 
       Assert.AreEqual(2, subFoundEventCounter);
       Assert.AreEqual(2, provider.CurrentIndex);
