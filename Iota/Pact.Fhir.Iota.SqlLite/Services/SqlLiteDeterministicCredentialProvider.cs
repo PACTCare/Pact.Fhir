@@ -1,6 +1,5 @@
 ﻿namespace Pact.Fhir.Iota.SqlLite.Services
 {
-  using System.Data;
   using System.Data.SQLite;
   using System.Security.Cryptography;
   using System.Text;
@@ -38,16 +37,20 @@
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand($"SELECT CurrentIndex FROM CredentialIndex WHERE Seed='{ComputeSeedHash(seed)}'", connection))
+        using (var command = new SQLiteCommand("SELECT CurrentIndex FROM CredentialIndex WHERE Seed=@seed", connection))
         {
+          var seedHash = ComputeSeedHash(seed);
+          command.Parameters.AddWithValue("seed", seedHash);
+
           var result = await command.ExecuteScalarAsync();
           if (result != null)
           {
             return int.Parse(result.ToString());
           }
 
-          using (var innerCommand = new SQLiteCommand($"INSERT INTO CredentialIndex (CurrentIndex, Seed) VALUES (0, '{ComputeSeedHash(seed)}')", connection))
+          using (var innerCommand = new SQLiteCommand("INSERT INTO CredentialIndex (CurrentIndex, Seed) VALUES (0, @seed)", connection))
           {
+            innerCommand.Parameters.AddWithValue("seed", seedHash);
             await innerCommand.ExecuteNonQueryAsync();
           }
 
@@ -63,8 +66,11 @@
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand($"UPDATE CredentialIndex SET CurrentIndex={index} WHERE Seed='{ComputeSeedHash(seed)}'", connection))
+        using (var command = new SQLiteCommand("UPDATE CredentialIndex SET CurrentIndex=@index WHERE Seed=@seed", connection))
         {
+          command.Parameters.AddWithValue("index", index);
+          command.Parameters.AddWithValue("seed", ComputeSeedHash(seed));
+
           await command.ExecuteNonQueryAsync();
         }
       }

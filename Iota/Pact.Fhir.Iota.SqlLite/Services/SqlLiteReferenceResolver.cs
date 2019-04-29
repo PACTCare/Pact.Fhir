@@ -29,8 +29,11 @@
       {
         connection.Open();
 
-        using (var command = new SQLiteCommand($"INSERT OR IGNORE INTO ResourceResolver (Reference, Seed) VALUES ('{reference}', '{this.Encryption.Encrypt(seed.Value)}')", connection))
+        using (var command = new SQLiteCommand("INSERT OR IGNORE INTO ResourceResolver (Reference, Seed) VALUES (@reference, @encryptedSeed)", connection))
         {
+          command.Parameters.AddWithValue("reference", reference);
+          command.Parameters.AddWithValue("encryptedSeed", this.Encryption.Encrypt(seed.Value));
+
           command.ExecuteNonQuery();
         }
       }
@@ -43,8 +46,10 @@
       {
         connection.Open();
 
-        using (var command = new SQLiteCommand($"SELECT Seed FROM ResourceResolver WHERE Reference='{reference}'", connection))
+        using (var command = new SQLiteCommand("SELECT Seed FROM ResourceResolver WHERE Reference=@reference", connection))
         {
+          command.Parameters.AddWithValue("reference", reference);
+
           var result = command.ExecuteScalar();
           if (result == null)
           {
