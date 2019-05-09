@@ -33,7 +33,7 @@
       DatabaseInitializer.Init(databaseFilename);
     }
 
-    public IEncryption Encryption { get; }
+    private IEncryption Encryption { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 

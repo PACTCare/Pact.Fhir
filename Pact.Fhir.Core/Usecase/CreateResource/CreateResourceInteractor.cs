@@ -20,7 +20,7 @@
       this.FhirParser = fhirParser;
     }
 
-    public FhirJsonParser FhirParser { get; }
+    private FhirJsonParser FhirParser { get; }
 
     public override async Task<ResourceResponse> ExecuteAsync(CreateResourceRequest request)
     {
