@@ -15,9 +15,6 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: DotNetCoreInstaller@0
-  inputs:
-    version: '2.1.0'
 - script: dotnet restore
 
 - task: VSBuild@1
