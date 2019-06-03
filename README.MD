@@ -1,5 +1,5 @@
 ﻿# PACT Fhir
-[![Build status](https://florencechat.visualstudio.com/PACT%20Fhir/_apis/build/status/PACT%20Fhir-CI)](https://florencechat.visualstudio.com/PACT%20Fhir/_build/latest?definitionId=13)
+[![Build Status](https://florencechat.visualstudio.com/PACT%20Fhir/_apis/build/status/PACTCare.Pact.Fhir?branchName=master)](https://florencechat.visualstudio.com/PACT%20Fhir/_build/latest?definitionId=14&branchName=master)
 
 
 > FHIR® – Fast Healthcare Interoperability Resources (hl7.org/fhir) – is a next generation standards framework created by HL7.
