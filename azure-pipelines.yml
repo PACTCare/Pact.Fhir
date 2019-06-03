@@ -15,11 +15,10 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@0
-
-- task: NuGetCommand@2
+- task: DotNetCoreInstaller@0
   inputs:
-    restoreSolution: '$(solution)'
+    version: '2.1.0'
+- script: dotnet restore
 
 - task: VSBuild@1
   inputs:
