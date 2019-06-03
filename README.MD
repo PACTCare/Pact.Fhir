@@ -1,6 +1,5 @@
-# PACT Fhir
+﻿# PACT Fhir
 [![Build status](https://florencechat.visualstudio.com/PACT%20Fhir/_apis/build/status/PACT%20Fhir-CI)](https://florencechat.visualstudio.com/PACT%20Fhir/_build/latest?definitionId=13)
-[![Documentation Status](https://readthedocs.org/projects/pact-fhir/badge/?version=latest)](https://pact-fhir.readthedocs.io/en/latest/?badge=latest)
 
 
 > FHIR® – Fast Healthcare Interoperability Resources (hl7.org/fhir) – is a next generation standards framework created by HL7.
@@ -46,7 +45,7 @@ Grab the package from nuget (https://www.nuget.org/packages/Pact.Fhir.Iota). If 
 
 > Documentation
 
-https://pact-fhir.readthedocs.io/en/latest/
+https://florencedigitalhealth.atlassian.net/wiki/spaces/IF/overview
 
 ## Contributing
 
