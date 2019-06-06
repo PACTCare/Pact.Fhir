@@ -67,7 +67,7 @@
 
     private void InjectDependencies(IServiceCollection services)
     {
-      var iotaRepository = IotaRepositoryFactory.CreateWithFallback(new List<string> { "https://nodes.devnet.thetangle.org:443" }, PoWType.PoWSrv);
+      var iotaRepository = new CachedIotaRestRepository(new FallbackIotaClient(new List<string> { "https://nodes.devnet.thetangle.org:443" }, 5000), new PoWSrvService());
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);

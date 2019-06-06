@@ -4,6 +4,8 @@
 # connection strings ignore
 connections.config
 
+PublishProfiles
+
 # database
 *.sqlite
 
