@@ -5,7 +5,7 @@
 
   public static class DatabaseInitializer
   {
-    public static void Init(string databaseFilename)
+    public static void InitFhirDatabase(string databaseFilename)
     {
       if (File.Exists(databaseFilename))
       {
@@ -41,6 +41,25 @@
         using (var command = new SQLiteCommand(
           "CREATE TABLE ResourceResolver (Reference TEXT NOT NULL PRIMARY KEY, Seed TEXT NOT NULL)",
           connection))
+        {
+          command.ExecuteNonQuery();
+        }
+      }
+    }
+
+    public static void InitCache(string databaseFilename)
+    {
+      if (File.Exists(databaseFilename))
+      {
+        return;
+      }
+
+      SQLiteConnection.CreateFile(databaseFilename);
+      using (var connection = new SQLiteConnection($"Data Source={databaseFilename};Version=3;"))
+      {
+        connection.Open();
+
+        using (var command = new SQLiteCommand("CREATE TABLE TransactionCache (Hash TEXT NOT NULL PRIMARY KEY, TransactionTrytes TEXT NOT NULL)", connection))
         {
           command.ExecuteNonQuery();
         }

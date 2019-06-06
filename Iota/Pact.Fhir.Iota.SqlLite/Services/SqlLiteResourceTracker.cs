@@ -30,7 +30,7 @@
       this.Encryption = encryption;
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
-      DatabaseInitializer.Init(databaseFilename);
+      DatabaseInitializer.InitFhirDatabase(databaseFilename);
     }
 
     private IEncryption Encryption { get; }
