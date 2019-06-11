@@ -13,6 +13,7 @@
   using Tangle.Net.ProofOfWork;
   using Tangle.Net.Repository;
   using Tangle.Net.Repository.Client;
+  using Tangle.Net.Repository.DataTransfer;
 
   public class CachedIotaRestRepository : RestIotaRepository
   {
@@ -76,6 +77,35 @@
     }
 
     /// <inheritdoc />
+    public override async Task<TransactionHashList> FindTransactionsByAddressesAsync(IEnumerable<Address> addresses)
+    {
+      using (var connection = new SQLiteConnection(this.ConnectionString))
+      {
+        var parameters = addresses.Select(a => $"'{a.Value}'").Distinct().ToList();
+
+        await connection.OpenAsync();
+
+        using (var command = new SQLiteCommand($"SELECT * FROM AddressCache WHERE Address IN ({string.Join(", ", parameters)})", connection))
+        {
+          var result = await command.ExecuteReaderAsync();
+          var transactionHashes = new List<string>();
+
+          while (result.Read())
+          {
+            transactionHashes.Add(result["TransactionHash"] as string);
+          }
+
+          if (transactionHashes.Count > 0)
+          {
+            return new TransactionHashList { Hashes = transactionHashes.Select(t => new Hash(t)).ToList() };
+          }
+        }
+      }
+
+      return await base.FindTransactionsByAddressesAsync(addresses);
+    }
+
+    /// <inheritdoc />
     public override async Task StoreTransactionsAsync(IEnumerable<TransactionTrytes> transactions)
     {
       await this.StoreTransactionsInCache(transactions);
@@ -100,6 +130,16 @@
             {
               command.Parameters.AddWithValue("hash", parsedTransaction.Hash.Value);
               command.Parameters.AddWithValue("transactionTrytes", transaction.Value);
+
+              await command.ExecuteNonQueryAsync();
+            }
+
+            using (var command = new SQLiteCommand(
+              "INSERT OR IGNORE INTO AddressCache (TransactionHash, Address) VALUES (@transactionHash, @address)",
+              connection))
+            {
+              command.Parameters.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
+              command.Parameters.AddWithValue("address", parsedTransaction.Address.Value);
 
               await command.ExecuteNonQueryAsync();
             }

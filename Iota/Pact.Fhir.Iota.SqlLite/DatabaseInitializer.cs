@@ -63,6 +63,11 @@
         {
           command.ExecuteNonQuery();
         }
+
+        using (var command = new SQLiteCommand("CREATE TABLE AddressCache (TransactionHash TEXT NOT NULL PRIMARY KEY, Address TEXT NOT NULL)", connection))
+        {
+          command.ExecuteNonQuery();
+        }
       }
     }
   }
