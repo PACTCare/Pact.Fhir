@@ -68,6 +68,11 @@
         {
           command.ExecuteNonQuery();
         }
+
+        using (var command = new SQLiteCommand("CREATE TABLE BundleCache (TransactionHash TEXT NOT NULL PRIMARY KEY, Bundle TEXT NOT NULL)", connection))
+        {
+          command.ExecuteNonQuery();
+        }
       }
     }
   }

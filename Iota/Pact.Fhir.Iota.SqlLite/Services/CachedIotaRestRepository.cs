@@ -106,6 +106,35 @@
     }
 
     /// <inheritdoc />
+    public override async Task<TransactionHashList> FindTransactionsByBundlesAsync(IEnumerable<Hash> bundleHashes)
+    {
+      using (var connection = new SQLiteConnection(this.ConnectionString))
+      {
+        var parameters = bundleHashes.Select(a => $"'{a.Value}'").Distinct().ToList();
+
+        await connection.OpenAsync();
+
+        using (var command = new SQLiteCommand($"SELECT * FROM BundleCache WHERE Bundle IN ({string.Join(", ", parameters)})", connection))
+        {
+          var result = await command.ExecuteReaderAsync();
+          var transactionHashes = new List<string>();
+
+          while (result.Read())
+          {
+            transactionHashes.Add(result["TransactionHash"] as string);
+          }
+
+          if (transactionHashes.Count > 0)
+          {
+            return new TransactionHashList { Hashes = transactionHashes.Select(t => new Hash(t)).ToList() };
+          }
+        }
+      }
+
+      return await base.FindTransactionsByBundlesAsync(bundleHashes);
+    }
+
+    /// <inheritdoc />
     public override async Task StoreTransactionsAsync(IEnumerable<TransactionTrytes> transactions)
     {
       await this.StoreTransactionsInCache(transactions);
@@ -140,6 +169,16 @@
             {
               command.Parameters.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
               command.Parameters.AddWithValue("address", parsedTransaction.Address.Value);
+
+              await command.ExecuteNonQueryAsync();
+            }
+
+            using (var command = new SQLiteCommand(
+              "INSERT OR IGNORE INTO BundleCache (TransactionHash, Bundle) VALUES (@transactionHash, @bundle)",
+              connection))
+            {
+              command.Parameters.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
+              command.Parameters.AddWithValue("bundle", parsedTransaction.BundleHash.Value);
 
               await command.ExecuteNonQueryAsync();
             }
