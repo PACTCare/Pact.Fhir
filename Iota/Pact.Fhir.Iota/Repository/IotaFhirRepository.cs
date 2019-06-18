@@ -108,7 +108,7 @@
       // on a newly created seed, store the URN reference so resources can be linked via seed later
       if (newReference)
       {
-        this.ReferenceResolver.AddReference($"urn:iota:{resource.Id}", seed);
+        this.ReferenceResolver.AddReference($"did:iota:{resource.Id}", seed);
       }
 
       return resource;

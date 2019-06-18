@@ -103,7 +103,7 @@
 
       Assert.IsTrue(InputValidator.IsTrytes(resource.Id));
       Assert.AreEqual(1, resourceTracker.Entries.Count);
-      Assert.IsTrue(referenceResolver.References.Any(e => e.Key == $"urn:iota:{resource.Id}"));
+      Assert.IsTrue(referenceResolver.References.Any(e => e.Key == $"did:iota:{resource.Id}"));
     }
 
     [TestMethod]
@@ -117,7 +117,7 @@
         new RandomChannelCredentialProvider(),
         referenceResolver);
 
-      var reference = $"urn:iota:JHAGDJAHDJAHGDAJHGD";
+      var reference = $"did:iota:JHAGDJAHDJAHGDAJHGD";
       referenceResolver.AddReference(reference, Seed.Random());
 
       var observation = new Observation { Subject = new ResourceReference(reference) };

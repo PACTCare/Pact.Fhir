@@ -27,6 +27,8 @@
       : base(client, powService, username, password)
     {
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
+
+      DatabaseInitializer.InitCache(databaseFilename);
     }
 
     /// <inheritdoc />
