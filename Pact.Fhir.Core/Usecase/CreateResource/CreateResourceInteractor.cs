@@ -14,13 +14,16 @@
   public class CreateResourceInteractor : UsecaseInteractor<CreateResourceRequest, ResourceResponse>
   {
     /// <inheritdoc />
-    public CreateResourceInteractor(IFhirRepository repository, FhirJsonParser fhirParser)
+    public CreateResourceInteractor(IFhirRepository repository, FhirJsonParser fhirParser, ISearchRepository searchRepository)
       : base(repository)
     {
       this.FhirParser = fhirParser;
+      this.SearchRepository = searchRepository;
     }
 
     private FhirJsonParser FhirParser { get; }
+
+    private ISearchRepository SearchRepository { get; }
 
     public override async Task<ResourceResponse> ExecuteAsync(CreateResourceRequest request)
     {
@@ -29,6 +32,9 @@
         var requestResource = this.FhirParser.Parse<Resource>(request.ResourceJson);
         var resource = await this.Repository.CreateResourceAsync(requestResource);
 
+        // add newly created resource to the search repository so a system wide search for resources can be performed
+        // see https://www.hl7.org/fhir/search.html for details on search
+        await this.SearchRepository.AddResourceAsync(resource);
         return new ResourceResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (FormatException exception)

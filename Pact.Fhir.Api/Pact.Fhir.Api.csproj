@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Iota\Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj" />
+    <ProjectReference Include="..\Pact.Fhir.Core.SqlLite\Pact.Fhir.Core.SqlLite.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,6 +11,7 @@
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.SearchResources;
   using Pact.Fhir.Core.Usecase.ValidateResource;
 
   [ApiController]
@@ -20,12 +21,14 @@
       CreateResourceInteractor createResourceInteractor,
       ReadResourceInteractor readResourceInteractor,
       GetCapabilitiesInteractor capabilitiesInteractor,
-      ValidateResourceInteractor validateResourceInteractor)
+      ValidateResourceInteractor validateResourceInteractor,
+      SearchResourcesInteractor searchResourcesInteractor)
     {
       this.CreateResourceInteractor = createResourceInteractor;
       this.ReadResourceInteractor = readResourceInteractor;
       this.CapabilitiesInteractor = capabilitiesInteractor;
       this.ValidateResourceInteractor = validateResourceInteractor;
+      this.SearchResourcesInteractor = searchResourcesInteractor;
     }
 
     private GetCapabilitiesInteractor CapabilitiesInteractor { get; }
@@ -35,6 +38,8 @@
     private ReadResourceInteractor ReadResourceInteractor { get; }
 
     private ValidateResourceInteractor ValidateResourceInteractor { get; }
+
+    private SearchResourcesInteractor SearchResourcesInteractor { get; }
 
     [Route("api/fhir/create/{type}")]
     [HttpPost]
@@ -60,6 +65,15 @@
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
 
       return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
+    }
+
+    [Route("api/fhir/{type}")]
+    [HttpGet]
+    public async Task<IActionResult> SearchResourcesAsync(string type)
+    {
+      var response = await this.SearchResourcesInteractor.ExecuteAsync(new SearchResourcesRequest { ResourceType = type });
+
+      return SearchResourcesPresenter.Present(response, this.Response);
     }
 
     [Route("api/fhir/{type}/$validate")]

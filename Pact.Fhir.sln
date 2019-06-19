@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pact.Fhir.Iota.SqlLite.Test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Iota", "Iota", "{CD7611C3-C878-47C0-A542-AFD6CA0046CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pact.Fhir.Core.SqlLite", "Pact.Fhir.Core.SqlLite\Pact.Fhir.Core.SqlLite.csproj", "{392A5BD6-8BCF-444B-9536-F3456BF170B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,10 +55,10 @@ Global
 		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56EDFF42-FA31-41EC-AED1-8EA619366B33}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C258236A-F295-4A0E-A176-BE2FFB2A348D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{392A5BD6-8BCF-444B-9536-F3456BF170B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{392A5BD6-8BCF-444B-9536-F3456BF170B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{392A5BD6-8BCF-444B-9536-F3456BF170B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{392A5BD6-8BCF-444B-9536-F3456BF170B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

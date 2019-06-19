@@ -11,13 +11,15 @@
   using Microsoft.Extensions.DependencyInjection;
 
   using Pact.Fhir.Api.Services;
+  using Pact.Fhir.Core.Repository;
+  using Pact.Fhir.Core.SqlLite.Repository;
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.SearchResources;
   using Pact.Fhir.Core.Usecase.ValidateResource;
   using Pact.Fhir.Iota.Repository;
   using Pact.Fhir.Iota.Serializer;
-  using Pact.Fhir.Iota.Services;
   using Pact.Fhir.Iota.SqlLite.Encryption;
   using Pact.Fhir.Iota.SqlLite.Services;
 
@@ -26,11 +28,8 @@
   using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;
-  using Tangle.Net.ProofOfWork;
   using Tangle.Net.ProofOfWork.Service;
-  using Tangle.Net.Repository;
   using Tangle.Net.Repository.Client;
-  using Tangle.Net.Repository.Factory;
 
   public class Startup
   {
@@ -67,7 +66,9 @@
 
     private void InjectDependencies(IServiceCollection services)
     {
-      var iotaRepository = new CachedIotaRestRepository(new FallbackIotaClient(new List<string> { "https://nodes.devnet.thetangle.org:443" }, 5000), new PoWSrvService());
+      var iotaRepository = new CachedIotaRestRepository(
+        new FallbackIotaClient(new List<string> { "https://nodes.devnet.thetangle.org:443" }, 5000),
+        new PoWSrvService());
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
@@ -84,16 +85,19 @@
           iotaRepository),
         new SqlLiteReferenceResolver(encryption));
       var fhirParser = new FhirJsonParser();
+      var searchRepository = new SqlLiteSearchRepository(fhirParser);
 
-      var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser);
+      var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser, searchRepository);
       var readInteractor = new ReadResourceInteractor(fhirRepository);
       var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
       var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
+      var searchInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
 
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);
       services.AddSingleton(capabilitiesInteractor);
       services.AddSingleton(validationInteractor);
+      services.AddSingleton(searchInteractor);
     }
   }
 }
