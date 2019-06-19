@@ -2,6 +2,7 @@
 {
   using System.Threading.Tasks;
 
+  using Microsoft.AspNetCore.Cors;
   using Microsoft.AspNetCore.Mvc;
 
   using Pact.Fhir.Api.Entity;
@@ -14,6 +15,7 @@
   using Pact.Fhir.Core.Usecase.SearchResources;
   using Pact.Fhir.Core.Usecase.ValidateResource;
 
+  [EnableCors("Development")]
   [ApiController]
   public class FhirController : Controller
   {
