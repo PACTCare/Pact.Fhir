@@ -22,10 +22,10 @@
     /// <inheritdoc />
     public override async Task<ResourceResponse> ExecuteAsync(SearchResourcesRequest request)
     {
+      var resources = await this.SearchRepository.FindResourcesByTypeAsync(request.ResourceType);
+
       if (string.IsNullOrEmpty(request.Parameters))
       {
-        var resources = await this.SearchRepository.FindResourcesByTypeAsync(request.ResourceType);
-
         return new ResourceResponse
                  {
                    Code = ResponseCode.Success,
@@ -36,7 +36,35 @@
                  };
       }
 
-      return new ResourceResponse();
+      var filteredResources = new List<Resource>();
+
+      if (request.Parameters.Contains("reference"))
+      {
+        var requestedReference = request.Parameters.Split('=')[1];
+        foreach (var resource in resources)
+        {
+          if (resource.GetType().GetProperty("Subject") != null || resource.GetType().GetProperty("Patient") != null)
+          {
+            var reference = resource.GetType().GetProperty("Subject") != null
+                              ? resource.GetType().GetProperty("Subject")?.GetValue(resource)
+                              : resource.GetType().GetProperty("Patient")?.GetValue(resource);
+
+            if (reference != null && reference is ResourceReference resourceReference && resourceReference.Reference.Contains(requestedReference))
+            {
+              filteredResources.Add(resource);
+            }
+          }
+        }
+      }
+
+      return new ResourceResponse
+               {
+                 Code = ResponseCode.Success,
+                 Resource = new Bundle
+                              {
+                                Entry = new List<Bundle.EntryComponent>(filteredResources.Select(r => new Bundle.EntryComponent { Resource = r }))
+                              }
+               };
     }
   }
 }

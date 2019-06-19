@@ -73,7 +73,12 @@
     [HttpGet]
     public async Task<IActionResult> SearchResourcesAsync(string type)
     {
-      var response = await this.SearchResourcesInteractor.ExecuteAsync(new SearchResourcesRequest { ResourceType = type });
+      var response = await this.SearchResourcesInteractor.ExecuteAsync(
+                       new SearchResourcesRequest
+                         {
+                           ResourceType = type,
+                           Parameters = this.Request.QueryString.HasValue ? this.Request.QueryString.Value.Substring(1) : string.Empty
+                         });
 
       return SearchResourcesPresenter.Present(response, this.Response);
     }

@@ -27,7 +27,7 @@
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SomeValueThatShouldBeIgnored";
 
-      var interactor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser());
+      var interactor = new CreateResourceInteractor(fhirRepository, new FhirJsonParser(), new InMemorySearchRepository());
       var response = await interactor.ExecuteAsync(
                        new CreateResourceRequest { ResourceJson = new FhirJsonSerializer().SerializeToString(resource) });
 
@@ -44,7 +44,7 @@
     {
       var repositoryMock = new Mock<IFhirRepository>();
       repositoryMock.Setup(r => r.CreateResourceAsync(It.IsAny<DomainResource>())).ThrowsAsync(new Exception("Catch me if you can"));
-      var interactor = new CreateResourceInteractor(repositoryMock.Object, new FhirJsonParser());
+      var interactor = new CreateResourceInteractor(repositoryMock.Object, new FhirJsonParser(), new InMemorySearchRepository());
 
       var response = await interactor.ExecuteAsync(
                        new CreateResourceRequest
@@ -60,7 +60,7 @@
     public async Task TestFhirResourceCanNotBeDeserializedShouldReturnErrorCode(string type, string data, ResponseCode expectedCode)
     {
 
-      var interactor = new CreateResourceInteractor(new InMemoryFhirRepository(), new FhirJsonParser());
+      var interactor = new CreateResourceInteractor(new InMemoryFhirRepository(), new FhirJsonParser(), new InMemorySearchRepository());
       var response = await interactor.ExecuteAsync(
                        new CreateResourceRequest { ResourceJson = data });
 
