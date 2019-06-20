@@ -22,7 +22,7 @@
       var repository = new Mock<IFhirRepository>();
       repository.Setup(r => r.ReadResourceAsync(It.IsAny<string>())).ThrowsAsync(new Exception());
 
-      var interactor = new ReadResourceInteractor(repository.Object);
+      var interactor = new ReadResourceInteractor(repository.Object, new InMemorySearchRepository());
       var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "kasfasagdssg", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.Failure, response.Code);
@@ -31,7 +31,7 @@
     [TestMethod]
     public async Task TestResourceDoesNotExistShouldReturnErrorCode()
     {
-      var interactor = new ReadResourceInteractor(new InMemoryFhirRepository());
+      var interactor = new ReadResourceInteractor(new InMemoryFhirRepository(), new InMemorySearchRepository());
       var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "kasfasagdssg", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.ResourceNotFound, response.Code);
@@ -46,7 +46,7 @@
       var repository = new InMemoryFhirRepository();
       repository.Resources.Add(resource);
 
-      var interactor = new ReadResourceInteractor(repository);
+      var interactor = new ReadResourceInteractor(repository, new InMemorySearchRepository());
       var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "SOMEFHIRCONFORMID", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
@@ -62,7 +62,7 @@
       var repository = new InMemoryFhirRepository();
       repository.Resources.Add(resource);
 
-      var interactor = new ReadResourceInteractor(repository);
+      var interactor = new ReadResourceInteractor(repository, new InMemorySearchRepository());
       var response = await interactor.ExecuteAsync(new ReadResourceRequest { ResourceId = "SOMEFHIRCONFORMID", ResourceType = "Observation" });
 
       Assert.AreEqual(ResponseCode.ResourceNotFound, response.Code);
