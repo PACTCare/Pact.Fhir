@@ -71,9 +71,24 @@
     }
 
     /// <inheritdoc />
-    public Task UpdateResourceAsync(Resource resource)
+    public async Task UpdateResourceAsync(Resource resource)
     {
-      return null;
+      using (var connection = new SQLiteConnection(this.ConnectionString))
+      {
+        connection.Open();
+
+        using (var command = new SQLiteCommand(
+          "INSERT INTO Resources (Id, VersionId, TypeName, Payload) VALUES (@Id, @VersionId, @TypeName, @Payload) ON CONFLICT (Id) DO UPDATE SET VersionId=@VersionId, TypeName=@TypeName, Payload=@Payload",
+          connection))
+        {
+          command.Parameters.AddWithValue("Id", resource.Id);
+          command.Parameters.AddWithValue("VersionId", resource.VersionId);
+          command.Parameters.AddWithValue("TypeName", resource.TypeName);
+          command.Parameters.AddWithValue("Payload", resource.ToJson());
+
+          await command.ExecuteNonQueryAsync();
+        }
+      }
     }
 
     private static void Init(string databaseFilename)

@@ -3,8 +3,6 @@
   using System;
   using System.Threading.Tasks;
 
-  using Hl7.Fhir.Model;
-
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
@@ -14,10 +12,13 @@
   public class ReadResourceInteractor : UsecaseInteractor<ReadResourceRequest, ResourceResponse>
   {
     /// <inheritdoc />
-    public ReadResourceInteractor(IFhirRepository repository)
+    public ReadResourceInteractor(IFhirRepository repository, ISearchRepository searchRepository)
       : base(repository)
     {
+      this.SearchRepository = searchRepository;
     }
+
+    private ISearchRepository SearchRepository { get; }
 
     /// <inheritdoc />
     public override async Task<ResourceResponse> ExecuteAsync(ReadResourceRequest request)
@@ -30,6 +31,8 @@
           throw new ResourceNotFoundException(request.ResourceId);
         }
 
+        await this.SearchRepository.UpdateResourceAsync(resource);
+
         return new ResourceResponse { Code = ResponseCode.Success, Resource = resource };
       }
       catch (ResourceNotFoundException exception)
@@ -39,7 +42,7 @@
       catch (Exception)
       {
         return new ResourceResponse
-        {
+                 {
                    Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
                  };
       }

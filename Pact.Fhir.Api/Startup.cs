@@ -90,7 +90,7 @@
       var searchRepository = new SqlLiteSearchRepository(fhirParser);
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser, searchRepository);
-      var readInteractor = new ReadResourceInteractor(fhirRepository);
+      var readInteractor = new ReadResourceInteractor(fhirRepository, searchRepository);
       var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
       var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
       var searchInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
