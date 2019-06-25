@@ -1,4 +1,6 @@
-﻿namespace Pact.Fhir.Api
+﻿using Pact.Fhir.Iota.Services;
+
+namespace Pact.Fhir.Api
 {
   using System.Collections.Generic;
 
@@ -76,12 +78,13 @@
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
 
       var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
+      var resourceTracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption);
       var fhirRepository = new IotaFhirRepository(
         iotaRepository,
         new FhirJsonTryteSerializer(),
-        new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
+        resourceTracker,
         new SqlLiteDeterministicCredentialProvider(
-          new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption),
+          resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
           iotaRepository),
@@ -95,11 +98,14 @@
       var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
       var searchInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
 
+      var resourceImporter = new ResourceImporter(resourceTracker, iotaRepository, searchRepository, fhirRepository);
+
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);
       services.AddSingleton(capabilitiesInteractor);
       services.AddSingleton(validationInteractor);
       services.AddSingleton(searchInteractor);
+      services.AddSingleton(resourceImporter);
     }
   }
 }

@@ -19,5 +19,20 @@
     public List<string> ResourceRoots { get; set; }
 
     public MamChannelSubscription Subscription { get; set; }
+
+    public string ChannelToJson()
+    {
+      if (this.Channel != null)
+      {
+        return this.Channel.ToJson();
+      }
+
+      return string.Empty;
+    }
+
+    public string SubscriptionToJson()
+    {
+      return this.Subscription.ToJson();
+    }
   }
 }

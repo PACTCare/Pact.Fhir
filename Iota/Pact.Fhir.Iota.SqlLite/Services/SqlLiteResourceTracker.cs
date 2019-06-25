@@ -49,8 +49,8 @@
         await connection.OpenAsync();
         long resourceId;
 
-        var encryptedChannel = this.Encryption.Encrypt(entry.Channel.ToJson());
-        var encryptedSubscription = this.Encryption.Encrypt(entry.Subscription.ToJson());
+        var encryptedChannel = this.Encryption.Encrypt(entry.ChannelToJson());
+        var encryptedSubscription = this.Encryption.Encrypt(entry.SubscriptionToJson());
 
         using (var command = new SQLiteCommand(
           "INSERT INTO Resource (Channel, Subscription) VALUES (@encryptedChannel, @encryptedSubscription); SELECT last_insert_rowid();",
@@ -139,7 +139,7 @@
             return new ResourceEntry
                       {
                         ResourceRoots = resourceIds,
-                        Channel = this.ChannelFactory.CreateFromJson(decryptedChannel),
+                        Channel = string.IsNullOrEmpty(decryptedChannel) ? null : this.ChannelFactory.CreateFromJson(decryptedChannel),
                         Subscription = this.SubscriptionFactory.CreateFromJson(decryptedSubscription)
                       };
           }
@@ -188,8 +188,8 @@
             }
           }
 
-          var encryptedChannel = this.Encryption.Encrypt(entry.Channel.ToJson());
-          var encryptedSubscription = this.Encryption.Encrypt(entry.Subscription.ToJson());
+          var encryptedChannel = this.Encryption.Encrypt(entry.ChannelToJson());
+          var encryptedSubscription = this.Encryption.Encrypt(entry.SubscriptionToJson());
 
           using (var command = new SQLiteCommand(
             $"UPDATE Resource SET Channel=@encryptedChannel, Subscription=@encryptedSubscription WHERE Id=@resourceId;",
