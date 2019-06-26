@@ -12,10 +12,12 @@ namespace Pact.Fhir.Api.Controllers
   public class IotaController : Controller
   {
     private ResourceImporter ResourceImporter { get; }
+    private IReferenceResolver ReferenceResolver { get; }
 
-    public IotaController(ResourceImporter resourceImporter)
+    public IotaController(ResourceImporter resourceImporter, IReferenceResolver referenceResolver)
     {
       ResourceImporter = resourceImporter;
+      ReferenceResolver = referenceResolver;
     }
 
     [Route("api/iota/import")]
@@ -24,6 +26,14 @@ namespace Pact.Fhir.Api.Controllers
     {
       await this.ResourceImporter.ImportResourceAccessAsync(mamKeyPair.Root, mamKeyPair.ChannelKey);
       return this.Ok();
+    }
+
+    [Route("api/iota/export/{reference}")]
+    [HttpGet]
+    public async Task<IActionResult> ResolveToSeed(string reference)
+    {
+      var seed = this.ReferenceResolver.Resolve(reference);
+      return this.Ok(seed.Value);
     }
   }
 }

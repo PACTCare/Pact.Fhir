@@ -79,6 +79,8 @@ namespace Pact.Fhir.Api
 
       var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
       var resourceTracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption);
+      var referenceResolver = new SqlLiteReferenceResolver(encryption);
+
       var fhirRepository = new IotaFhirRepository(
         iotaRepository,
         new FhirJsonTryteSerializer(),
@@ -88,7 +90,7 @@ namespace Pact.Fhir.Api
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
           iotaRepository),
-        new SqlLiteReferenceResolver(encryption));
+        referenceResolver);
       var fhirParser = new FhirJsonParser();
       var searchRepository = new SqlLiteSearchRepository(fhirParser);
 
@@ -106,6 +108,7 @@ namespace Pact.Fhir.Api
       services.AddSingleton(validationInteractor);
       services.AddSingleton(searchInteractor);
       services.AddSingleton(resourceImporter);
+      services.AddSingleton<IReferenceResolver>(referenceResolver);
     }
   }
 }
