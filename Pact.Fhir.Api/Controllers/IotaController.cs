@@ -1,28 +1,30 @@
-﻿using System.Threading.Tasks;
-using Hl7.Fhir.Model;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
-using Pact.Fhir.Api.Models;
-using Pact.Fhir.Iota.Services;
-
-namespace Pact.Fhir.Api.Controllers
+﻿namespace Pact.Fhir.Api.Controllers
 {
+  using System.Threading.Tasks;
+
+  using Microsoft.AspNetCore.Cors;
+  using Microsoft.AspNetCore.Mvc;
+
+  using Pact.Fhir.Api.Models;
+  using Pact.Fhir.Iota.Services;
+
   [EnableCors("Development")]
   [ApiController]
   public class IotaController : Controller
   {
-    private ResourceImporter ResourceImporter { get; }
-    private IReferenceResolver ReferenceResolver { get; }
-
     public IotaController(ResourceImporter resourceImporter, IReferenceResolver referenceResolver)
     {
-      ResourceImporter = resourceImporter;
-      ReferenceResolver = referenceResolver;
+      this.ResourceImporter = resourceImporter;
+      this.ReferenceResolver = referenceResolver;
     }
+
+    private IReferenceResolver ReferenceResolver { get; }
+
+    private ResourceImporter ResourceImporter { get; }
 
     [Route("api/iota/import")]
     [HttpPost]
-    public async Task<IActionResult> ImportResourceAccess([FromBody] MamKeyPair mamKeyPair)
+    public async Task<IActionResult> ImportResourceAccessAsync([FromBody] MamKeyPair mamKeyPair)
     {
       await this.ResourceImporter.ImportResourceAccessAsync(mamKeyPair.Root, mamKeyPair.ChannelKey);
       return this.Ok();
@@ -30,7 +32,7 @@ namespace Pact.Fhir.Api.Controllers
 
     [Route("api/iota/export/{reference}")]
     [HttpGet]
-    public async Task<IActionResult> ResolveToSeed(string reference)
+    public async Task<IActionResult> ResolveToSeedAsync(string reference)
     {
       var seed = this.ReferenceResolver.Resolve(reference);
       return this.Ok(seed.Value);

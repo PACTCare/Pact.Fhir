@@ -54,7 +54,7 @@
     public async Task SyncAsync(Seed seed)
     {
       // Start sync with seed at index 0 (lowest index possible)
-      await this.FindAndUpdateCurrentIndexAsync(seed, 0);
+      await this.FindAndUpdateCurrentIndexAsync(seed, 1);
     }
 
     protected abstract Task<int> GetCurrentSubSeedIndexAsync(Seed seed);
