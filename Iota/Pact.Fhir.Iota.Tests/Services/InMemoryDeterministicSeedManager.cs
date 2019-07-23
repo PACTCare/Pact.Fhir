@@ -9,10 +9,10 @@
   using Tangle.Net.Entity;
   using Tangle.Net.Repository;
 
-  public class InMemoryDeterministicCredentialProvider : DeterministicCredentialProvider
+  public class InMemoryDeterministicSeedManager : DeterministicSeedManager
   {
     /// <inheritdoc />
-    public InMemoryDeterministicCredentialProvider(
+    public InMemoryDeterministicSeedManager(
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
       IAddressGenerator addressGenerator,

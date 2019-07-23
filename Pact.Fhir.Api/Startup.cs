@@ -85,7 +85,7 @@ namespace Pact.Fhir.Api
         iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new SqlLiteDeterministicCredentialProvider(
+        new SqlLiteDeterministicSeedManager(
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),

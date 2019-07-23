@@ -53,7 +53,7 @@
         iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         new InMemoryReferenceResolver());
       await repository.ReadResourceAsync("SOMEID");
     }
@@ -67,7 +67,7 @@
         iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new InMemoryDeterministicCredentialProvider(
+        new InMemoryDeterministicSeedManager(
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
@@ -89,7 +89,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         referenceResolver);
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
@@ -114,7 +114,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         referenceResolver);
 
       var reference = $"did:iota:JHAGDJAHDJAHGDAJHGD";
@@ -134,7 +134,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         new InMemoryReferenceResolver());
       await repository.ReadResourceAsync("SOMEID");
     }
@@ -147,7 +147,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         new InMemoryReferenceResolver());
       await repository.UpdateResourceAsync(FhirResourceProvider.Patient);
     }
@@ -163,7 +163,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         new InMemoryReferenceResolver());
 
       var resource = FhirResourceProvider.Patient;
@@ -180,7 +180,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomChannelCredentialProvider(),
+        new RandomSeedManager(),
         new InMemoryReferenceResolver());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
@@ -206,7 +206,7 @@
         iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new InMemoryDeterministicCredentialProvider(
+        new InMemoryDeterministicSeedManager(
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
@@ -232,7 +232,7 @@
         iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new InMemoryDeterministicCredentialProvider(
+        new InMemoryDeterministicSeedManager(
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),

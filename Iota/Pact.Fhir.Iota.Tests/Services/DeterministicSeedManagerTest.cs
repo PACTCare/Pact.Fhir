@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pact.Fhir.Iota.Tests.Services
+﻿namespace Pact.Fhir.Iota.Tests.Services
 {
   using System.Threading.Tasks;
 
@@ -20,26 +16,12 @@ namespace Pact.Fhir.Iota.Tests.Services
   using Tangle.Net.Mam.Services;
 
   [TestClass]
-  public class DeterministicCredentialProviderTest
+  public class DeterministicSeedManagerTest
   {
-    [TestMethod]
-    public async Task TestNoIndexIsUsedShouldUseFirstIndex()
-    {
-      var provider = new InMemoryDeterministicCredentialProvider(
-        new InMemoryResourceTracker(),
-        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-        new AddressGenerator(),
-        IotaResourceProvider.Repository);
-
-      await provider.CreateAsync(Seed.Random());
-
-      Assert.AreEqual(0, provider.CurrentIndex);
-    }
-
     [TestMethod]
     public async Task TestFirstIndexHasBeenUsedShouldUseSecondIndex()
     {
-      var provider = new InMemoryDeterministicCredentialProvider(
+      var provider = new InMemoryDeterministicSeedManager(
                        new InMemoryResourceTracker(),
                        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
                        new AddressGenerator(),
@@ -56,11 +38,11 @@ namespace Pact.Fhir.Iota.Tests.Services
       var seed = Seed.Random();
 
       // Publish a message as if it was published from another app
-      var tempProvider = new InMemoryDeterministicCredentialProvider(
-                       new InMemoryResourceTracker(),
-                       new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-                       new AddressGenerator(),
-                       IotaResourceProvider.Repository);
+      var tempProvider = new InMemoryDeterministicSeedManager(
+        new InMemoryResourceTracker(),
+        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+        new AddressGenerator(),
+        IotaResourceProvider.Repository);
 
       var credentials = await tempProvider.CreateAsync(seed);
       var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
@@ -73,15 +55,29 @@ namespace Pact.Fhir.Iota.Tests.Services
       await channel.PublishAsync(message, 14, 1);
 
       // Create credentials that should skip the first index
-      var provider = new InMemoryDeterministicCredentialProvider(
-                       new InMemoryResourceTracker(),
-                       new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-                       new AddressGenerator(),
-                       IotaResourceProvider.Repository);
+      var provider = new InMemoryDeterministicSeedManager(
+        new InMemoryResourceTracker(),
+        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+        new AddressGenerator(),
+        IotaResourceProvider.Repository);
 
       await provider.CreateAsync(seed);
 
       Assert.AreEqual(1, provider.CurrentIndex);
+    }
+
+    [TestMethod]
+    public async Task TestNoIndexIsUsedShouldUseFirstIndex()
+    {
+      var provider = new InMemoryDeterministicSeedManager(
+        new InMemoryResourceTracker(),
+        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+        new AddressGenerator(),
+        IotaResourceProvider.Repository);
+
+      await provider.CreateAsync(Seed.Random());
+
+      Assert.AreEqual(0, provider.CurrentIndex);
     }
 
     [TestMethod]
@@ -90,7 +86,7 @@ namespace Pact.Fhir.Iota.Tests.Services
       var seed = Seed.Random();
 
       // Publish a message as if it was published from another app
-      var tempProvider = new InMemoryDeterministicCredentialProvider(
+      var tempProvider = new InMemoryDeterministicSeedManager(
         new InMemoryResourceTracker(),
         new IssSigningHelper(new Curl(), new Curl(), new Curl()),
         new AddressGenerator(),
@@ -117,7 +113,7 @@ namespace Pact.Fhir.Iota.Tests.Services
       await channel2.PublishAsync(message2, 14, 1);
 
       // Create credentials that should skip the first index
-      var provider = new InMemoryDeterministicCredentialProvider(
+      var provider = new InMemoryDeterministicSeedManager(
         new InMemoryResourceTracker(),
         new IssSigningHelper(new Curl(), new Curl(), new Curl()),
         new AddressGenerator(),

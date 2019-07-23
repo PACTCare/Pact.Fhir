@@ -31,12 +31,12 @@
       IIotaRepository repository,
       IFhirTryteSerializer serializer,
       IResourceTracker resourceTracker,
-      IChannelCredentialProvider channelCredentialProvider,
+      ISeedManager seedManager,
       IReferenceResolver referenceResolver)
     {
       this.Serializer = serializer;
       this.ResourceTracker = resourceTracker;
-      this.ChannelCredentialProvider = channelCredentialProvider;
+      this.SeedManager = seedManager;
       this.ReferenceResolver = referenceResolver;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
@@ -45,7 +45,7 @@
     // Working with low security level for the sake of speed
     public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
-    private IChannelCredentialProvider ChannelCredentialProvider { get; }
+    private ISeedManager SeedManager { get; }
 
     private IReferenceResolver ReferenceResolver { get; }
 
@@ -86,7 +86,7 @@
         newReference = true;
       }
 
-      var channelCredentials = await this.ChannelCredentialProvider.CreateAsync(seed);
+      var channelCredentials = await this.SeedManager.CreateAsync(seed);
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
       resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);

@@ -1,6 +1,7 @@
 ﻿namespace Pact.Fhir.Iota.Services
 {
   using System;
+  using System.Collections.Generic;
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Entity;
@@ -15,13 +16,13 @@
   using Tangle.Net.Mam.Services;
   using Tangle.Net.Repository;
 
-  public abstract class DeterministicCredentialProvider : IChannelCredentialProvider
+  public abstract class DeterministicSeedManager : ISeedManager
   {
     private const int ChannelKeyIndex = 1;
 
     private const int ChannelSeedIndex = 0;
 
-    protected DeterministicCredentialProvider(
+    protected DeterministicSeedManager(
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
       IAddressGenerator addressGenerator,
@@ -31,9 +32,10 @@
       this.SigningHelper = signingHelper;
       this.AddressGenerator = addressGenerator;
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
+      this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
     }
 
-    public event EventHandler<SubscriptionEventArgs> SubscriptionFound;
+    private MamChannelFactory ChannelFactory { get; }
 
     private IAddressGenerator AddressGenerator { get; }
 
@@ -51,9 +53,30 @@
     }
 
     /// <inheritdoc />
+    public async Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
+    {
+      var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey, true);
+
+      await this.ResourceTracker.AddEntryAsync(new ResourceEntry
+                                                 { ResourceRoots = new List<string> { root }, Subscription = subscription });
+
+      return root.Substring(0, 64);
+    }
+
+    /// <inheritdoc />
+    public async Task ImportChannelWriteAccessAsync(ChannelCredentials credentials)
+    {
+      var subscription = this.SubscriptionFactory.Create(credentials.RootHash, Mode.Restricted, credentials.ChannelKey, true);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, credentials.Seed, IotaFhirRepository.SecurityLevel, credentials.ChannelKey);
+
+      await this.ResourceTracker.AddEntryAsync(
+        new ResourceEntry { ResourceRoots = new List<string> { credentials.RootHash.Value }, Subscription = subscription, Channel = channel });
+    }
+
+    /// <inheritdoc />
     public async Task SyncAsync(Seed seed)
     {
-      // Start sync with seed at index 0 (lowest index possible)
+      // Start sync with seed at index 1 (lowest index possible)
       await this.FindAndUpdateCurrentIndexAsync(seed, 1);
     }
 
@@ -77,12 +100,14 @@
         if (message == null)
         {
           await this.SetCurrentSubSeedIndexAsync(seed, index);
-          return new ChannelCredentials { Seed = channelSeed, ChannelKey = channelKey, RootHash = rootHash };
+
+          var credentials = new ChannelCredentials { Seed = channelSeed, ChannelKey = channelKey, RootHash = rootHash };
+          await this.ImportChannelWriteAccessAsync(credentials);
+
+          return credentials;
         }
 
         // The index is already in use. Increment by one and check that in the next round of the loop
-        // Fire event for new subscription consumers can subscribe to
-        this.SubscriptionFound?.Invoke(this, new SubscriptionEventArgs(subscription));
         index++;
       }
     }

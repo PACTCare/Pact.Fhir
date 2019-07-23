@@ -12,10 +12,10 @@
   using Tangle.Net.Entity;
   using Tangle.Net.Repository;
 
-  public class SqlLiteDeterministicCredentialProvider : DeterministicCredentialProvider
+  public class SqlLiteDeterministicSeedManager : DeterministicSeedManager
   {
     /// <inheritdoc />
-    public SqlLiteDeterministicCredentialProvider(
+    public SqlLiteDeterministicSeedManager(
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
       IAddressGenerator addressGenerator,
