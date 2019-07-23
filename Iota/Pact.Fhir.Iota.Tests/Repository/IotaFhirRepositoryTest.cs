@@ -53,8 +53,7 @@
         iotaRepository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomSeedManager(),
-        new InMemoryReferenceResolver());
+        new RandomSeedManager());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -71,8 +70,7 @@
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository),
-        new InMemoryReferenceResolver());
+          iotaRepository));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
@@ -84,13 +82,12 @@
     public async Task TestResourceCreationOnTangleShouldAssignHashesAsIds()
     {
       var resourceTracker = new InMemoryResourceTracker();
-      var referenceResolver = new InMemoryReferenceResolver();
+      var seedManager = new RandomSeedManager();
       var repository = new IotaFhirRepository(
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomSeedManager(),
-        referenceResolver);
+        seedManager);
       var resource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
 
       Assert.AreEqual(1, Regex.Matches(resource.Id, Id.PATTERN).Count);
@@ -103,27 +100,26 @@
 
       Assert.IsTrue(InputValidator.IsTrytes(resource.Id));
       Assert.AreEqual(1, resourceTracker.Entries.Count);
-      Assert.IsTrue(referenceResolver.References.Any(e => e.Key == $"did:iota:{resource.Id}"));
+      Assert.IsTrue(seedManager.References.Any(e => e.Key == $"did:iota:{resource.Id}"));
     }
 
     [TestMethod]
     public async Task TestResourceHasValidReferenceShouldUseExistingSeed()
     {
-      var referenceResolver = new InMemoryReferenceResolver();
+      var seedManager = new RandomSeedManager();
       var repository = new IotaFhirRepository(
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomSeedManager(),
-        referenceResolver);
+        seedManager);
 
       var reference = $"did:iota:JHAGDJAHDJAHGDAJHGD";
-      referenceResolver.AddReference(reference, Seed.Random());
+      await seedManager.AddReferenceAsync(reference, Seed.Random());
 
       var observation = new Observation { Subject = new ResourceReference(reference) };
       var resource = await repository.CreateResourceAsync(observation);
 
-      Assert.AreEqual(1, referenceResolver.References.Count);
+      Assert.AreEqual(1, seedManager.References.Count);
     }
 
     [TestMethod]
@@ -134,8 +130,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomSeedManager(),
-        new InMemoryReferenceResolver());
+        new RandomSeedManager());
       await repository.ReadResourceAsync("SOMEID");
     }
 
@@ -147,8 +142,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         new InMemoryResourceTracker(),
-        new RandomSeedManager(),
-        new InMemoryReferenceResolver());
+        new RandomSeedManager());
       await repository.UpdateResourceAsync(FhirResourceProvider.Patient);
     }
 
@@ -163,8 +157,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomSeedManager(),
-        new InMemoryReferenceResolver());
+        new RandomSeedManager());
 
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SOMEID";
@@ -180,8 +173,7 @@
         IotaResourceProvider.Repository,
         new FhirJsonTryteSerializer(),
         resourceTracker,
-        new RandomSeedManager(),
-        new InMemoryReferenceResolver());
+        new RandomSeedManager());
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.VersionId;
@@ -210,8 +202,7 @@
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository),
-        new InMemoryReferenceResolver());
+          iotaRepository));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
@@ -236,8 +227,7 @@
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository),
-        new InMemoryReferenceResolver());
+          iotaRepository));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var updatedResource = await repository.UpdateResourceAsync(createdResource);

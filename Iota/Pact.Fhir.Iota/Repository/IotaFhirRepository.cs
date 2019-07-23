@@ -31,13 +31,11 @@
       IIotaRepository repository,
       IFhirTryteSerializer serializer,
       IResourceTracker resourceTracker,
-      ISeedManager seedManager,
-      IReferenceResolver referenceResolver)
+      ISeedManager seedManager)
     {
       this.Serializer = serializer;
       this.ResourceTracker = resourceTracker;
       this.SeedManager = seedManager;
-      this.ReferenceResolver = referenceResolver;
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
     }
@@ -46,8 +44,6 @@
     public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
     private ISeedManager SeedManager { get; }
-
-    private IReferenceResolver ReferenceResolver { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -72,7 +68,7 @@
 
         if (reference != null && reference is ResourceReference resourceReference)
         {
-          seed = this.ReferenceResolver.Resolve(resourceReference.Reference);
+          seed = await this.SeedManager.ResolveReferenceAsync(resourceReference.Reference);
         }
         else
         {
@@ -86,7 +82,7 @@
         newReference = true;
       }
 
-      var channelCredentials = await this.SeedManager.CreateAsync(seed);
+      var channelCredentials = await this.SeedManager.CreateChannelCredentialsAsync(seed);
 
       // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
       resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);
@@ -108,7 +104,7 @@
       // on a newly created seed, store the URN reference so resources can be linked via seed later
       if (newReference)
       {
-        this.ReferenceResolver.AddReference($"did:iota:{resource.Id}", seed);
+        await this.SeedManager.AddReferenceAsync($"did:iota:{resource.Id}", seed);
       }
 
       return resource;

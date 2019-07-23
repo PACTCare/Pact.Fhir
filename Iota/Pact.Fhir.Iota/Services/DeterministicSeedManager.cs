@@ -1,11 +1,9 @@
 ﻿namespace Pact.Fhir.Iota.Services
 {
-  using System;
   using System.Collections.Generic;
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Entity;
-  using Pact.Fhir.Iota.Events;
   using Pact.Fhir.Iota.Repository;
 
   using Tangle.Net.Cryptography;
@@ -35,9 +33,9 @@
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
     }
 
-    private MamChannelFactory ChannelFactory { get; }
-
     private IAddressGenerator AddressGenerator { get; }
+
+    private MamChannelFactory ChannelFactory { get; }
 
     private IResourceTracker ResourceTracker { get; }
 
@@ -46,16 +44,13 @@
     private MamChannelSubscriptionFactory SubscriptionFactory { get; }
 
     /// <inheritdoc />
-    public async Task<ChannelCredentials> CreateAsync(Seed seed)
+    public abstract Task AddReferenceAsync(string reference, Seed seed);
+
+    /// <inheritdoc />
+    public async Task<ChannelCredentials> CreateChannelCredentialsAsync(Seed seed)
     {
       // Create new channel credentials with the current index incremented by one
       return await this.FindAndUpdateCurrentIndexAsync(seed, await this.GetCurrentSubSeedIndexAsync(seed) + 1);
-    }
-
-    /// <inheritdoc />
-    public Task<Seed> ExportSeed(string reference = null)
-    {
-      return null;
     }
 
     /// <inheritdoc />
@@ -63,8 +58,7 @@
     {
       var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey, true);
 
-      await this.ResourceTracker.AddEntryAsync(new ResourceEntry
-                                                 { ResourceRoots = new List<string> { root }, Subscription = subscription });
+      await this.ResourceTracker.AddEntryAsync(new ResourceEntry { ResourceRoots = new List<string> { root }, Subscription = subscription });
 
       return root.Substring(0, 64);
     }
@@ -78,6 +72,9 @@
       await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry { ResourceRoots = new List<string> { credentials.RootHash.Value }, Subscription = subscription, Channel = channel });
     }
+
+    /// <inheritdoc />
+    public abstract Task<Seed> ResolveReferenceAsync(string reference = null);
 
     /// <inheritdoc />
     public async Task SyncAsync(Seed seed)

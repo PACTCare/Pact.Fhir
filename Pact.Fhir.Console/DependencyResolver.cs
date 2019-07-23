@@ -35,7 +35,6 @@ namespace Pact.Fhir.Console
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
 
       var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
-      var referenceResolver = new SqlLiteReferenceResolver(encryption);
       var resourceTracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption);
 
       var fhirRepository = new IotaFhirRepository(
@@ -46,8 +45,9 @@ namespace Pact.Fhir.Console
           resourceTracker,
           new IssSigningHelper(new Curl(), new Curl(), new Curl()),
           new AddressGenerator(),
-          iotaRepository),
-        referenceResolver);
+          iotaRepository,
+          encryption));
+
       var fhirParser = new FhirJsonParser();
       var searchRepository = new SqlLiteSearchRepository(fhirParser);
 
@@ -55,7 +55,6 @@ namespace Pact.Fhir.Console
       ReadResourceInteractor = new ReadResourceInteractor(fhirRepository, searchRepository);
       ValidateResourceInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
       SearchResourcesInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
-      ReferenceResolver = referenceResolver;
       ResourceTracker = resourceTracker;
     }
 
@@ -63,7 +62,6 @@ namespace Pact.Fhir.Console
     public static ReadResourceInteractor ReadResourceInteractor { get; set; }
     public static ValidateResourceInteractor ValidateResourceInteractor { get; set; }
     public static SearchResourcesInteractor SearchResourcesInteractor { get; set; }
-    public static IReferenceResolver ReferenceResolver { get; set; }
     public static IResourceTracker ResourceTracker { get; set; }
   }
 }

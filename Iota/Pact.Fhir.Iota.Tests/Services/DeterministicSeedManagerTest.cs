@@ -27,7 +27,7 @@
                        new AddressGenerator(),
                        IotaResourceProvider.Repository) { CurrentIndex = 0 };
 
-      await provider.CreateAsync(Seed.Random());
+      await provider.CreateChannelCredentialsAsync(Seed.Random());
 
       Assert.AreEqual(1, provider.CurrentIndex);
     }
@@ -44,7 +44,7 @@
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      var credentials = await tempProvider.CreateAsync(seed);
+      var credentials = await tempProvider.CreateChannelCredentialsAsync(seed);
       var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials.Seed,
@@ -61,7 +61,7 @@
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      await provider.CreateAsync(seed);
+      await provider.CreateChannelCredentialsAsync(seed);
 
       Assert.AreEqual(1, provider.CurrentIndex);
     }
@@ -75,7 +75,7 @@
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      await provider.CreateAsync(Seed.Random());
+      await provider.CreateChannelCredentialsAsync(Seed.Random());
 
       Assert.AreEqual(0, provider.CurrentIndex);
     }
@@ -92,7 +92,7 @@
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      var credentials = await tempProvider.CreateAsync(seed);
+      var credentials = await tempProvider.CreateChannelCredentialsAsync(seed);
       var channel = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials.Seed,
@@ -102,7 +102,7 @@
       var message = channel.CreateMessage(TryteString.FromAsciiString("Test"));
       await channel.PublishAsync(message, 14, 1);
 
-      var credentials2 = await tempProvider.CreateAsync(seed);
+      var credentials2 = await tempProvider.CreateChannelCredentialsAsync(seed);
       var channel2 = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, IotaResourceProvider.Repository).Create(
         Mode.Restricted,
         credentials2.Seed,

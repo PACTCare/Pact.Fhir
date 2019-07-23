@@ -12,15 +12,14 @@
   [ApiController]
   public class IotaController : Controller
   {
-    public IotaController(ResourceImporter resourceImporter, IReferenceResolver referenceResolver)
+    public IotaController(ResourceImporter resourceImporter, ISeedManager seedManager)
     {
       this.ResourceImporter = resourceImporter;
-      this.ReferenceResolver = referenceResolver;
+      this.SeedManager = seedManager;
     }
 
-    private IReferenceResolver ReferenceResolver { get; }
-
     private ResourceImporter ResourceImporter { get; }
+    private ISeedManager SeedManager { get; }
 
     [Route("api/iota/import")]
     [HttpPost]
@@ -34,7 +33,7 @@
     [HttpGet]
     public async Task<IActionResult> ResolveToSeedAsync(string reference)
     {
-      var seed = this.ReferenceResolver.Resolve(reference);
+      var seed = await this.SeedManager.ResolveReferenceAsync(reference);
       return this.Ok(seed.Value);
     }
   }
