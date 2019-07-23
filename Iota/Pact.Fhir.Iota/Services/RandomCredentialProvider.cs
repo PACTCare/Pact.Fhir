@@ -27,6 +27,24 @@
     }
 
     /// <inheritdoc />
+    public Task<Seed> ExportSeed(string reference = null)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
+    public Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
+    public Task ImportChannelWriteAccessAsync(ChannelCredentials credentials)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
     public async Task SyncAsync(Seed seed)
     {
     }

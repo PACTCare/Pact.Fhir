@@ -53,6 +53,12 @@
     }
 
     /// <inheritdoc />
+    public Task<Seed> ExportSeed(string reference = null)
+    {
+      return null;
+    }
+
+    /// <inheritdoc />
     public async Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
     {
       var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey, true);

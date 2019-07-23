@@ -81,7 +81,7 @@
     }
 
     [TestMethod]
-    public async Task TestSeedImportSetsCurrentIndexCorrectlyAndFiresEventForFoundSubscription()
+    public async Task TestSeedImportSetsCurrentIndexCorrectly()
     {
       var seed = Seed.Random();
 
@@ -119,12 +119,8 @@
         new AddressGenerator(),
         IotaResourceProvider.Repository);
 
-      var subFoundEventCounter = 0;
-      provider.SubscriptionFound += (sender, args) => { subFoundEventCounter = subFoundEventCounter + 1; };
-
       await provider.SyncAsync(seed);
 
-      Assert.AreEqual(2, subFoundEventCounter);
       Assert.AreEqual(2, provider.CurrentIndex);
     }
   }
