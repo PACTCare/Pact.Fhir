@@ -30,6 +30,7 @@ namespace Pact.Fhir.Api
   using Tangle.Net.Cryptography.Signing;
   using Tangle.Net.Mam.Merkle;
   using Tangle.Net.Mam.Services;
+  using Tangle.Net.ProofOfWork;
   using Tangle.Net.ProofOfWork.Service;
   using Tangle.Net.Repository.Client;
 
@@ -72,7 +73,7 @@ namespace Pact.Fhir.Api
     {
       var iotaRepository = new CachedIotaRestRepository(
         new FallbackIotaClient(new List<string> { "https://nodes.devnet.thetangle.org:443" }, 5000),
-        new PoWSrvService());
+        new PoWService(new CpuPearlDiver()));
 
       var channelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, iotaRepository);
       var subscriptionFactory = new MamChannelSubscriptionFactory(iotaRepository, CurlMamParser.Default, CurlMask.Default);
