@@ -43,6 +43,8 @@
     // Working with low security level for the sake of speed
     public static int SecurityLevel => Tangle.Net.Cryptography.SecurityLevel.Low;
 
+    public static int PoWDifficulty => 9;
+
     private ISeedManager SeedManager { get; }
 
     private MamChannelFactory ChannelFactory { get; }
@@ -89,7 +91,7 @@
 
       var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
-      await channel.PublishAsync(message, 9, 1);
+      await channel.PublishAsync(message, PoWDifficulty, 1);
 
       // After successfully publishing a message, we can save that to the ResourceTracker.
       // This will allow us to retrieve the channel and subscription for other usecases
@@ -227,7 +229,7 @@
 
       // upload data to tangle
       var message = resourceEntry.Channel.CreateMessage(this.Serializer.Serialize(resource));
-      await resourceEntry.Channel.PublishAsync(message, 14, 1);
+      await resourceEntry.Channel.PublishAsync(message, PoWDifficulty, 1);
 
       // after everything is done, update the state of our channel
       await this.ResourceTracker.UpdateEntryAsync(resourceEntry);

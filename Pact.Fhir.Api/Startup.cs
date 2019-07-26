@@ -81,16 +81,14 @@ namespace Pact.Fhir.Api
       var encryption = new RijndaelEncryption("somenicekey", "somenicesalt");
       var resourceTracker = new SqlLiteResourceTracker(channelFactory, subscriptionFactory, encryption);
 
-      var fhirRepository = new IotaFhirRepository(
-        iotaRepository,
-        new FhirJsonTryteSerializer(),
+      var seedManager = new SqlLiteDeterministicSeedManager(
         resourceTracker,
-        new SqlLiteDeterministicSeedManager(
-          resourceTracker,
-          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-          new AddressGenerator(),
-          iotaRepository,
-          encryption));
+        new IssSigningHelper(new Curl(), new Curl(), new Curl()),
+        new AddressGenerator(),
+        iotaRepository,
+        encryption);
+
+      var fhirRepository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, seedManager);
       var fhirParser = new FhirJsonParser();
       var searchRepository = new SqlLiteSearchRepository(fhirParser);
 
@@ -100,7 +98,7 @@ namespace Pact.Fhir.Api
       var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
       var searchInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
 
-      var resourceImporter = new ResourceImporter(resourceTracker, iotaRepository, searchRepository, fhirRepository);
+      var resourceImporter = new ResourceImporter(searchRepository, fhirRepository, seedManager);
 
       services.AddSingleton(createInteractor);
       services.AddSingleton(readInteractor);

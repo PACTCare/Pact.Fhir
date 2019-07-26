@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Pact.Fhir.Core.Tests\Pact.Fhir.Core.Tests.csproj" />
+    <ProjectReference Include="..\Pact.Fhir.Iota.SqlLite\Pact.Fhir.Iota.SqlLite.csproj" />
     <ProjectReference Include="..\Pact.Fhir.Iota\Pact.Fhir.Iota.csproj" />
   </ItemGroup>
 

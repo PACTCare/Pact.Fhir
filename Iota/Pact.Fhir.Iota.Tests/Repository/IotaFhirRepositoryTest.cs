@@ -62,15 +62,7 @@
     {
       var resourceTracker = new InMemoryResourceTracker();
       var iotaRepository = IotaResourceProvider.Repository;
-      var repository = new IotaFhirRepository(
-        iotaRepository,
-        new FhirJsonTryteSerializer(),
-        resourceTracker,
-        new InMemoryDeterministicSeedManager(
-          resourceTracker,
-          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-          new AddressGenerator(),
-          iotaRepository));
+      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, new RandomSeedManager(resourceTracker));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var readResource = await repository.ReadResourceAsync(createdResource.Id);
@@ -194,15 +186,7 @@
     {
       var resourceTracker = new InMemoryResourceTracker();
       var iotaRepository = IotaResourceProvider.Repository;
-      var repository = new IotaFhirRepository(
-        iotaRepository,
-        new FhirJsonTryteSerializer(),
-        resourceTracker,
-        new InMemoryDeterministicSeedManager(
-          resourceTracker,
-          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-          new AddressGenerator(),
-          iotaRepository));
+      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, new RandomSeedManager(resourceTracker));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var initialVersion = createdResource.Meta.VersionId;
@@ -219,15 +203,7 @@
     {
       var resourceTracker = new InMemoryResourceTracker();
       var iotaRepository = IotaResourceProvider.Repository;
-      var repository = new IotaFhirRepository(
-        iotaRepository,
-        new FhirJsonTryteSerializer(),
-        resourceTracker,
-        new InMemoryDeterministicSeedManager(
-          resourceTracker,
-          new IssSigningHelper(new Curl(), new Curl(), new Curl()),
-          new AddressGenerator(),
-          iotaRepository));
+      var repository = new IotaFhirRepository(iotaRepository, new FhirJsonTryteSerializer(), resourceTracker, new RandomSeedManager(resourceTracker));
 
       var createdResource = await repository.CreateResourceAsync(FhirResourceProvider.Patient);
       var updatedResource = await repository.UpdateResourceAsync(createdResource);

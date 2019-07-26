@@ -22,8 +22,7 @@ namespace Pact.Fhir.Iota.Tests.Services
       var resourceTracker = new InMemoryResourceTracker();
       var searchRepository = new InMemorySearchRepository();
 
-      var resourceImporter = new ResourceImporter(resourceTracker, null, searchRepository,
-        fhirRepository);
+      var resourceImporter = new ResourceImporter(searchRepository, fhirRepository, new RandomSeedManager(resourceTracker));
 
       var rootHash = Seed.Random().Value;
       var patient = FhirResourceProvider.Patient;

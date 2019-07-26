@@ -12,8 +12,16 @@
 
   public class RandomSeedManager : ISeedManager
   {
+    private IResourceTracker ResourceTracker { get; }
+
     public RandomSeedManager()
     {
+      this.References = new Dictionary<string, Seed>();
+    }
+
+    public RandomSeedManager(IResourceTracker resourceTracker)
+    {
+      this.ResourceTracker = resourceTracker;
       this.References = new Dictionary<string, Seed>();
     }
 
@@ -39,9 +47,11 @@
     }
 
     /// <inheritdoc />
-    public Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
+    public async Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
     {
-      return null;
+      await this.ResourceTracker.AddEntryAsync(new ResourceEntry { ResourceRoots = new List<string> { root } });
+
+      return root.Substring(0, 64);
     }
 
     /// <inheritdoc />
