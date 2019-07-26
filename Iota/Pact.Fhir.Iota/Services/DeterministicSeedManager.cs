@@ -56,7 +56,7 @@
     /// <inheritdoc />
     public async Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
     {
-      var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey, true);
+      var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey);
 
       await this.ResourceTracker.AddEntryAsync(new ResourceEntry { ResourceRoots = new List<string> { root }, Subscription = subscription });
 
@@ -66,7 +66,7 @@
     /// <inheritdoc />
     public async Task ImportChannelWriteAccessAsync(ChannelCredentials credentials)
     {
-      var subscription = this.SubscriptionFactory.Create(credentials.RootHash, Mode.Restricted, credentials.ChannelKey, true);
+      var subscription = this.SubscriptionFactory.Create(credentials.RootHash, Mode.Restricted, credentials.ChannelKey);
       var channel = this.ChannelFactory.Create(Mode.Restricted, credentials.Seed, IotaFhirRepository.SecurityLevel, credentials.ChannelKey);
 
       await this.ResourceTracker.AddEntryAsync(
