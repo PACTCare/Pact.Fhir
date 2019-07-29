@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Pact.Fhir.Core.Tests.Usecase.VersionReadResource
+﻿namespace Pact.Fhir.Core.Tests.Usecase.ReadResourceVersion
 {
   using System.Threading.Tasks;
 
@@ -14,13 +10,12 @@ namespace Pact.Fhir.Core.Tests.Usecase.VersionReadResource
   using Pact.Fhir.Core.Tests.Repository;
   using Pact.Fhir.Core.Tests.Utils;
   using Pact.Fhir.Core.Usecase;
-  using Pact.Fhir.Core.Usecase.ReadResource;
-  using Pact.Fhir.Core.Usecase.VersionReadResource;
+  using Pact.Fhir.Core.Usecase.ReadResourceVersion;
 
   using Exception = System.Exception;
 
   [TestClass]
-  public class VersionReadResourceInteractorTest
+  public class ReadResourceVersionInteractorTest
   {
     [TestMethod]
     public async Task TestRepositoryThrowsExceptionShouldReturnErrorCode()
@@ -28,9 +23,9 @@ namespace Pact.Fhir.Core.Tests.Usecase.VersionReadResource
       var repository = new Mock<IFhirRepository>();
       repository.Setup(r => r.ReadResourceAsync(It.IsAny<string>())).ThrowsAsync(new Exception());
 
-      var interactor = new VersionReadResourceInteractor(repository.Object);
+      var interactor = new ReadResourceVersionInteractor(repository.Object);
       var response = await interactor.ExecuteAsync(
-                       new VersionReadResourceRequest { ResourceId = "kasfasagdssg", VersionId = "aaaaaaaaa", ResourceType = "Patient" });
+                       new ReadResourceVersionRequest { ResourceId = "kasfasagdssg", VersionId = "aaaaaaaaa", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.Failure, response.Code);
     }
@@ -38,9 +33,9 @@ namespace Pact.Fhir.Core.Tests.Usecase.VersionReadResource
     [TestMethod]
     public async Task TestResourceDoesNotExistShouldReturnErrorCode()
     {
-      var interactor = new VersionReadResourceInteractor(new InMemoryFhirRepository());
+      var interactor = new ReadResourceVersionInteractor(new InMemoryFhirRepository());
       var response = await interactor.ExecuteAsync(
-                       new VersionReadResourceRequest { ResourceId = "kasfasagdssg", VersionId = "aaaaaaaaa", ResourceType = "Patient" });
+                       new ReadResourceVersionRequest { ResourceId = "kasfasagdssg", VersionId = "aaaaaaaaa", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.ResourceNotFound, response.Code);
     }
@@ -54,9 +49,9 @@ namespace Pact.Fhir.Core.Tests.Usecase.VersionReadResource
       var repository = new InMemoryFhirRepository();
       repository.Resources.Add(resource);
 
-      var interactor = new VersionReadResourceInteractor(repository);
+      var interactor = new ReadResourceVersionInteractor(repository);
       var response = await interactor.ExecuteAsync(
-                       new VersionReadResourceRequest { ResourceId = "kasfasagdssg", VersionId = "SOMEFHIRCONFORMID", ResourceType = "Patient" });
+                       new ReadResourceVersionRequest { ResourceId = "kasfasagdssg", VersionId = "SOMEFHIRCONFORMID", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
       Assert.IsTrue(response.Resource.IsExactly(resource));
@@ -71,9 +66,9 @@ namespace Pact.Fhir.Core.Tests.Usecase.VersionReadResource
       var repository = new InMemoryFhirRepository();
       repository.Resources.Add(resource);
 
-      var interactor = new VersionReadResourceInteractor(repository);
+      var interactor = new ReadResourceVersionInteractor(repository);
       var response = await interactor.ExecuteAsync(
-                       new VersionReadResourceRequest { ResourceId = "kasfasagdssg", VersionId = "aaaaaaaaa", ResourceType = "Patient" });
+                       new ReadResourceVersionRequest { ResourceId = "kasfasagdssg", VersionId = "aaaaaaaaa", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.ResourceNotFound, response.Code);
     }

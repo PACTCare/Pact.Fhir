@@ -18,6 +18,7 @@ namespace Pact.Fhir.Api
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.ReadResourceVersion;
   using Pact.Fhir.Core.Usecase.SearchResources;
   using Pact.Fhir.Core.Usecase.ValidateResource;
   using Pact.Fhir.Iota.Repository;
@@ -94,6 +95,7 @@ namespace Pact.Fhir.Api
 
       var createInteractor = new CreateResourceInteractor(fhirRepository, fhirParser, searchRepository);
       var readInteractor = new ReadResourceInteractor(fhirRepository, searchRepository);
+      var readVersionInteractor = new ReadResourceVersionInteractor(fhirRepository);
       var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
       var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
       var searchInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
@@ -106,6 +108,7 @@ namespace Pact.Fhir.Api
       services.AddSingleton(validationInteractor);
       services.AddSingleton(searchInteractor);
       services.AddSingleton(resourceImporter);
+      services.AddSingleton(readVersionInteractor);
     }
   }
 }

@@ -2,6 +2,8 @@
 {
   using System.Threading.Tasks;
 
+  using Hl7.Fhir.Rest;
+
   using Microsoft.AspNetCore.Cors;
   using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +14,7 @@
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.ReadResourceVersion;
   using Pact.Fhir.Core.Usecase.SearchResources;
   using Pact.Fhir.Core.Usecase.ValidateResource;
 
@@ -24,13 +27,15 @@
       ReadResourceInteractor readResourceInteractor,
       GetCapabilitiesInteractor capabilitiesInteractor,
       ValidateResourceInteractor validateResourceInteractor,
-      SearchResourcesInteractor searchResourcesInteractor)
+      SearchResourcesInteractor searchResourcesInteractor,
+      ReadResourceVersionInteractor readResourceVersionInteractor)
     {
       this.CreateResourceInteractor = createResourceInteractor;
       this.ReadResourceInteractor = readResourceInteractor;
       this.CapabilitiesInteractor = capabilitiesInteractor;
       this.ValidateResourceInteractor = validateResourceInteractor;
       this.SearchResourcesInteractor = searchResourcesInteractor;
+      this.ReadResourceVersionInteractor = readResourceVersionInteractor;
     }
 
     private GetCapabilitiesInteractor CapabilitiesInteractor { get; }
@@ -39,9 +44,11 @@
 
     private ReadResourceInteractor ReadResourceInteractor { get; }
 
-    private ValidateResourceInteractor ValidateResourceInteractor { get; }
+    private ReadResourceVersionInteractor ReadResourceVersionInteractor { get; }
 
     private SearchResourcesInteractor SearchResourcesInteractor { get; }
+
+    private ValidateResourceInteractor ValidateResourceInteractor { get; }
 
     [Route("api/fhir/create/{type}")]
     [HttpPost]
@@ -67,6 +74,16 @@
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
 
       return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
+    }
+
+    [Route("api/fhir/{type}/{id}/_history/{versionId}")]
+    [HttpGet]
+    public async Task<IActionResult> ReadResourceVersionAsync(string type, string id, string versionId)
+    {
+      var response = await this.ReadResourceVersionInteractor.ExecuteAsync(
+                       new ReadResourceVersionRequest { ResourceId = id, ResourceType = type, VersionId = versionId });
+
+      return ReadResourcePresenter.Present(response, this.Response, SummaryType.False);
     }
 
     [Route("api/fhir/{type}")]

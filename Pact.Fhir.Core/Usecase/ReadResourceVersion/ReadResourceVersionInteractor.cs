@@ -1,4 +1,4 @@
-﻿namespace Pact.Fhir.Core.Usecase.VersionReadResource
+﻿namespace Pact.Fhir.Core.Usecase.ReadResourceVersion
 {
   using System;
   using System.Threading.Tasks;
@@ -6,16 +6,16 @@
   using Pact.Fhir.Core.Exception;
   using Pact.Fhir.Core.Repository;
 
-  public class VersionReadResourceInteractor : UsecaseInteractor<VersionReadResourceRequest, ResourceResponse>
+  public class ReadResourceVersionInteractor : UsecaseInteractor<ReadResourceVersionRequest, ResourceResponse>
   {
     /// <inheritdoc />
-    public VersionReadResourceInteractor(IFhirRepository repository)
+    public ReadResourceVersionInteractor(IFhirRepository repository)
       : base(repository)
     {
     }
 
     /// <inheritdoc />
-    public override async Task<ResourceResponse> ExecuteAsync(VersionReadResourceRequest request)
+    public override async Task<ResourceResponse> ExecuteAsync(ReadResourceVersionRequest request)
     {
       try
       {
