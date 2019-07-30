@@ -59,6 +59,7 @@
     {
       var resource = FhirResourceProvider.Patient;
       resource.Id = "SOMEFHIRCONFORMID";
+      resource.Meta = new Meta { LastUpdated = DateTimeOffset.UtcNow };
 
       var repository = new InMemoryFhirRepository();
       repository.Resources.Add(resource);
@@ -67,8 +68,11 @@
       var response = await interactor.ExecuteAsync(new ReadResourceHistoryRequest { ResourceId = "SOMEFHIRCONFORMID", ResourceType = "Patient" });
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
-      Assert.IsTrue(((Bundle)response.Resource).Entry.First().Resource.IsExactly(resource));
-      Assert.AreEqual(Bundle.HTTPVerb.POST, ((Bundle)response.Resource).Entry.First().Request.Method);
+
+      var bundleComponent = ((Bundle)response.Resource).Entry.First();
+      Assert.IsTrue(bundleComponent.Resource.IsExactly(resource));
+      Assert.AreEqual(Bundle.HTTPVerb.POST, bundleComponent.Request.Method);
+      Assert.AreEqual(resource.Meta.LastUpdated.Value.Millisecond, bundleComponent.Response.LastModified.Value.Millisecond);
     }
 
     [TestMethod]

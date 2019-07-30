@@ -39,7 +39,9 @@
                                     resources.Select(
                                       r => new Bundle.EntryComponent
                                              {
-                                               Resource = r, Request = new Bundle.RequestComponent { Method = Bundle.HTTPVerb.POST }
+                                               Resource = r,
+                                               Request = new Bundle.RequestComponent { Method = Bundle.HTTPVerb.POST },
+                                               Response = new Bundle.ResponseComponent { LastModified = r.Meta.LastUpdated }
                                              })),
                                   Type = Bundle.BundleType.History
                                 }
