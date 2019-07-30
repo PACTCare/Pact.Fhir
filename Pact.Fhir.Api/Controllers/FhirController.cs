@@ -14,6 +14,7 @@
   using Pact.Fhir.Core.Usecase.CreateResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
+  using Pact.Fhir.Core.Usecase.ReadResourceHistory;
   using Pact.Fhir.Core.Usecase.ReadResourceVersion;
   using Pact.Fhir.Core.Usecase.SearchResources;
   using Pact.Fhir.Core.Usecase.ValidateResource;
@@ -28,7 +29,8 @@
       GetCapabilitiesInteractor capabilitiesInteractor,
       ValidateResourceInteractor validateResourceInteractor,
       SearchResourcesInteractor searchResourcesInteractor,
-      ReadResourceVersionInteractor readResourceVersionInteractor)
+      ReadResourceVersionInteractor readResourceVersionInteractor,
+      ReadResourceHistoryInteractor readResourceHistoryInteractor)
     {
       this.CreateResourceInteractor = createResourceInteractor;
       this.ReadResourceInteractor = readResourceInteractor;
@@ -36,6 +38,7 @@
       this.ValidateResourceInteractor = validateResourceInteractor;
       this.SearchResourcesInteractor = searchResourcesInteractor;
       this.ReadResourceVersionInteractor = readResourceVersionInteractor;
+      this.ReadResourceHistoryInteractor = readResourceHistoryInteractor;
     }
 
     private GetCapabilitiesInteractor CapabilitiesInteractor { get; }
@@ -45,6 +48,8 @@
     private ReadResourceInteractor ReadResourceInteractor { get; }
 
     private ReadResourceVersionInteractor ReadResourceVersionInteractor { get; }
+
+    private ReadResourceHistoryInteractor ReadResourceHistoryInteractor { get; }
 
     private SearchResourcesInteractor SearchResourcesInteractor { get; }
 
@@ -84,6 +89,15 @@
                        new ReadResourceVersionRequest { ResourceId = id, ResourceType = type, VersionId = versionId });
 
       return ReadResourcePresenter.Present(response, this.Response, SummaryType.False);
+    }
+
+    [Route("api/fhir/{type}/{id}/_history")]
+    [HttpGet]
+    public async Task<IActionResult> ReadResourceHistoryAsync(string type, string id)
+    {
+      var response = await this.ReadResourceHistoryInteractor.ExecuteAsync(new ReadResourceHistoryRequest { ResourceType = type, ResourceId = id });
+
+      return SearchResourcesPresenter.Present(response, this.Response);
     }
 
     [Route("api/fhir/{type}")]

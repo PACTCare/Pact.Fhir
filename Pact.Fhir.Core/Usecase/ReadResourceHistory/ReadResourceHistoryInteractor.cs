@@ -31,11 +31,16 @@
         }
 
         return new ResourceResponse
-        {
+                 {
                    Code = ResponseCode.Success,
                    Resource = new Bundle
                                 {
-                                  Entry = new List<Bundle.EntryComponent>(resources.Select(r => new Bundle.EntryComponent { Resource = r })),
+                                  Entry = new List<Bundle.EntryComponent>(
+                                    resources.Select(
+                                      r => new Bundle.EntryComponent
+                                             {
+                                               Resource = r, Request = new Bundle.RequestComponent { Method = Bundle.HTTPVerb.POST }
+                                             })),
                                   Type = Bundle.BundleType.History
                                 }
                  };

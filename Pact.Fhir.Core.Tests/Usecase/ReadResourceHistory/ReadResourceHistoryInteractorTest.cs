@@ -68,6 +68,7 @@
 
       Assert.AreEqual(ResponseCode.Success, response.Code);
       Assert.IsTrue(((Bundle)response.Resource).Entry.First().Resource.IsExactly(resource));
+      Assert.AreEqual(Bundle.HTTPVerb.POST, ((Bundle)response.Resource).Entry.First().Request.Method);
     }
 
     [TestMethod]

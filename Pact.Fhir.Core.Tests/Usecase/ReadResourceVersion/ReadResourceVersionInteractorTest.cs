@@ -1,7 +1,5 @@
 ﻿namespace Pact.Fhir.Core.Tests.Usecase.ReadResourceVersion
 {
-  using System.Threading.Tasks;
-
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
   using Moq;
@@ -13,6 +11,7 @@
   using Pact.Fhir.Core.Usecase.ReadResourceVersion;
 
   using Exception = System.Exception;
+  using Task = System.Threading.Tasks.Task;
 
   [TestClass]
   public class ReadResourceVersionInteractorTest
