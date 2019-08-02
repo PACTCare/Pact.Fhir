@@ -1,6 +1,7 @@
 ﻿namespace Pact.Fhir.Core.SqlLite.Repository
 {
   using System.Collections.Generic;
+  using System.Data;
   using System.Data.SQLite;
   using System.IO;
   using System.Threading.Tasks;
@@ -14,32 +15,38 @@
 
   public class SqlLiteSearchRepository : ISearchRepository
   {
-    public SqlLiteSearchRepository(FhirJsonParser jsonParser, string databaseFilename = "resources.sqlite")
+    public SqlLiteSearchRepository(
+      FhirJsonParser jsonParser,
+      IDbConnectionSupplier connectionSupplier = null,
+      string databaseFilename = "resources.sqlite")
     {
       this.JsonParser = jsonParser;
-      this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
-      Init(databaseFilename);
+      this.ConnectionSupplier = connectionSupplier ?? new DefaultDbConnectionSupplier();
+      this.ConnectionString = $"Data Source={databaseFilename};";
+      this.Init(databaseFilename);
     }
 
     private string ConnectionString { get; }
+
+    private IDbConnectionSupplier ConnectionSupplier { get; }
 
     private FhirJsonParser JsonParser { get; }
 
     /// <inheritdoc />
     public async Task AddResourceAsync(Resource resource)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
-        connection.Open();
+        await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand(
-          "INSERT OR IGNORE INTO Resources (Id, VersionId, TypeName, Payload) VALUES (@Id, @VersionId, @TypeName, @Payload)",
-          connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("Id", resource.Id);
-          command.Parameters.AddWithValue("VersionId", resource.VersionId);
-          command.Parameters.AddWithValue("TypeName", resource.TypeName);
-          command.Parameters.AddWithValue("Payload", resource.ToJson());
+          command.CommandText = "INSERT OR IGNORE INTO Resources (Id, VersionId, TypeName, Payload) VALUES (@Id, @VersionId, @TypeName, @Payload)";
+
+          command.AddWithValue("Id", resource.Id);
+          command.AddWithValue("VersionId", resource.VersionId);
+          command.AddWithValue("TypeName", resource.TypeName);
+          command.AddWithValue("Payload", resource.ToJson());
 
           await command.ExecuteNonQueryAsync();
         }
@@ -51,13 +58,15 @@
     {
       var resources = new List<Resource>();
 
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
-        connection.Open();
+        await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand("SELECT Payload FROM Resources WHERE TypeName=@typeName", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("TypeName", typeName);
+          command.CommandText = "SELECT Payload FROM Resources WHERE TypeName=@typeName";
+
+          command.AddWithValue("TypeName", typeName);
 
           var result = await command.ExecuteReaderAsync();
           while (result.Read())
@@ -73,25 +82,26 @@
     /// <inheritdoc />
     public async Task UpdateResourceAsync(Resource resource)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
-        connection.Open();
+        await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand(
-          "INSERT INTO Resources (Id, VersionId, TypeName, Payload) VALUES (@Id, @VersionId, @TypeName, @Payload) ON CONFLICT (Id) DO UPDATE SET VersionId=@VersionId, TypeName=@TypeName, Payload=@Payload",
-          connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("Id", resource.Id);
-          command.Parameters.AddWithValue("VersionId", resource.VersionId);
-          command.Parameters.AddWithValue("TypeName", resource.TypeName);
-          command.Parameters.AddWithValue("Payload", resource.ToJson());
+          command.CommandText =
+            "INSERT INTO Resources (Id, VersionId, TypeName, Payload) VALUES (@Id, @VersionId, @TypeName, @Payload) ON CONFLICT (Id) DO UPDATE SET VersionId=@VersionId, TypeName=@TypeName, Payload=@Payload";
+
+          command.AddWithValue("Id", resource.Id);
+          command.AddWithValue("VersionId", resource.VersionId);
+          command.AddWithValue("TypeName", resource.TypeName);
+          command.AddWithValue("Payload", resource.ToJson());
 
           await command.ExecuteNonQueryAsync();
         }
       }
     }
 
-    private static void Init(string databaseFilename)
+    private void Init(string databaseFilename)
     {
       if (File.Exists(databaseFilename))
       {
@@ -99,14 +109,15 @@
       }
 
       SQLiteConnection.CreateFile(databaseFilename);
-      using (var connection = new SQLiteConnection($"Data Source={databaseFilename};Version=3;"))
+      using (var connection = this.ConnectionSupplier.GetConnection($"Data Source={databaseFilename};Version=3;"))
       {
         connection.Open();
 
-        using (var command = new SQLiteCommand(
-          "CREATE TABLE Resources (Id TEXT NOT NULL PRIMARY KEY, VersionId TEXT NOT NULL, TypeName TEXT NOT NULL, Payload TEXT NOT NULL)",
-          connection))
+        using (var command = connection.CreateCommand())
         {
+          command.CommandText =
+            "CREATE TABLE Resources (Id TEXT NOT NULL PRIMARY KEY, VersionId TEXT NOT NULL, TypeName TEXT NOT NULL, Payload TEXT NOT NULL)";
+
           command.ExecuteNonQuery();
         }
       }

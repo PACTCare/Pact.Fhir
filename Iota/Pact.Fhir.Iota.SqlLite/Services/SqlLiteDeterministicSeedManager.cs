@@ -6,6 +6,8 @@
   using System.Text;
   using System.Threading.Tasks;
 
+  using Pact.Fhir.Core.SqlLite;
+  using Pact.Fhir.Core.SqlLite.Repository;
   using Pact.Fhir.Iota.Services;
   using Pact.Fhir.Iota.SqlLite.Encryption;
 
@@ -17,6 +19,7 @@
   public class SqlLiteDeterministicSeedManager : DeterministicSeedManager
   {
     private IEncryption Encryption { get; }
+    private IDbConnectionSupplier ConnectionSupplier { get; }
 
     /// <inheritdoc />
     public SqlLiteDeterministicSeedManager(
@@ -25,13 +28,15 @@
       IAddressGenerator addressGenerator,
       IIotaRepository repository,
       IEncryption encryption,
+      IDbConnectionSupplier connectionSupplier = null,
       string databaseFilename = "iotafhir.sqlite")
       : base(resourceTracker, signingHelper, addressGenerator, repository)
     {
       this.Encryption = encryption;
+      this.ConnectionSupplier = connectionSupplier ?? new DefaultDbConnectionSupplier();
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
-      DatabaseInitializer.InitFhirDatabase(databaseFilename);
+      DatabaseInitializer.InitFhirDatabase(this.ConnectionSupplier, databaseFilename);
     }
 
     private string ConnectionString { get; }
@@ -39,14 +44,16 @@
     /// <inheritdoc />
     public override async Task AddReferenceAsync(string reference, Seed seed)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand("INSERT OR IGNORE INTO ResourceResolver (Reference, Seed) VALUES (@reference, @encryptedSeed)", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("reference", reference);
-          command.Parameters.AddWithValue("encryptedSeed", this.Encryption.Encrypt(seed.Value));
+          command.CommandText = "INSERT OR IGNORE INTO ResourceResolver (Reference, Seed) VALUES (@reference, @encryptedSeed)";
+
+          command.AddWithValue("reference", reference);
+          command.AddWithValue("encryptedSeed", this.Encryption.Encrypt(seed.Value));
 
           await command.ExecuteNonQueryAsync();
         }
@@ -56,13 +63,14 @@
     /// <inheritdoc />
     public override async Task<Seed> ResolveReferenceAsync(string reference = null)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand("SELECT Seed FROM ResourceResolver WHERE Reference=@reference", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("reference", reference);
+          command.CommandText = "SELECT Seed FROM ResourceResolver WHERE Reference=@reference";
+          command.AddWithValue("reference", reference);
 
           var result = await command.ExecuteScalarAsync();
           if (result == null)
@@ -78,14 +86,16 @@
     /// <inheritdoc />
     protected override async Task<int> GetCurrentSubSeedIndexAsync(Seed seed)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand("SELECT CurrentIndex FROM CredentialIndex WHERE Seed=@seed", connection))
+        using (var command = connection.CreateCommand())
         {
+          command.CommandText = "SELECT CurrentIndex FROM CredentialIndex WHERE Seed=@seed";
+
           var seedHash = ComputeSeedHash(seed);
-          command.Parameters.AddWithValue("seed", seedHash);
+          command.AddWithValue("seed", seedHash);
 
           var result = await command.ExecuteScalarAsync();
           if (result != null)
@@ -93,9 +103,11 @@
             return int.Parse(result.ToString());
           }
 
-          using (var innerCommand = new SQLiteCommand("INSERT INTO CredentialIndex (CurrentIndex, Seed) VALUES (0, @seed)", connection))
+          using (var innerCommand = connection.CreateCommand())
           {
-            innerCommand.Parameters.AddWithValue("seed", seedHash);
+            innerCommand.CommandText = "INSERT INTO CredentialIndex (CurrentIndex, Seed) VALUES (0, @seed)";
+
+            innerCommand.AddWithValue("seed", seedHash);
             await innerCommand.ExecuteNonQueryAsync();
           }
 
@@ -107,14 +119,16 @@
     /// <inheritdoc />
     protected override async Task SetCurrentSubSeedIndexAsync(Seed seed, int index)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand("UPDATE CredentialIndex SET CurrentIndex=@index WHERE Seed=@seed", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("index", index);
-          command.Parameters.AddWithValue("seed", ComputeSeedHash(seed));
+          command.CommandText = "UPDATE CredentialIndex SET CurrentIndex=@index WHERE Seed=@seed";
+
+          command.AddWithValue("index", index);
+          command.AddWithValue("seed", ComputeSeedHash(seed));
 
           await command.ExecuteNonQueryAsync();
         }

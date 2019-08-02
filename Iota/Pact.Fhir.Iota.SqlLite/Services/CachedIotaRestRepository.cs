@@ -6,6 +6,9 @@
   using System.Linq;
   using System.Threading.Tasks;
 
+  using Pact.Fhir.Core.SqlLite;
+  using Pact.Fhir.Core.SqlLite.Repository;
+
   using RestSharp;
 
   using Tangle.Net.Cryptography;
@@ -17,18 +20,22 @@
 
   public class CachedIotaRestRepository : RestIotaRepository
   {
+    private IDbConnectionSupplier ConnectionSupplier { get; }
+
     /// <inheritdoc />
     public CachedIotaRestRepository(
       IRestClient client,
       IPoWService powService = null,
       string username = null,
       string password = null,
+      IDbConnectionSupplier connectionSupplier = null,
       string databaseFilename = "iotacache.sqlite")
       : base(client, powService, username, password)
     {
+      this.ConnectionSupplier = connectionSupplier ?? new DefaultDbConnectionSupplier();
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
-      DatabaseInitializer.InitCache(databaseFilename);
+      DatabaseInitializer.InitCache(this.ConnectionSupplier, databaseFilename);
     }
 
     /// <inheritdoc />
@@ -36,12 +43,14 @@
       IIotaClient client,
       IPoWService powService,
       IAddressGenerator addressGenerator = null,
+      IDbConnectionSupplier connectionSupplier = null,
       string databaseFilename = "iotacache.sqlite")
       : base(client, powService, addressGenerator)
     {
+      this.ConnectionSupplier = connectionSupplier ?? new DefaultDbConnectionSupplier();
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
-      DatabaseInitializer.InitCache(databaseFilename);
+      DatabaseInitializer.InitCache(this.ConnectionSupplier, databaseFilename);
     }
 
     private string ConnectionString { get; }
@@ -52,14 +61,15 @@
       var transactionTrytes = new List<string>();
       var parameters = hashes.Select(h => $"'{h.Value}'").Distinct().ToList();
 
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand($"SELECT * FROM TransactionCache WHERE Hash IN ({string.Join(", ", parameters)})", connection))
+        using (var command = connection.CreateCommand())
         {
-          var result = await command.ExecuteReaderAsync();
+          command.CommandText = $"SELECT * FROM TransactionCache WHERE Hash IN ({string.Join(", ", parameters)})";
 
+          var result = await command.ExecuteReaderAsync();
           while (result.Read())
           {
             transactionTrytes.Add(result["TransactionTrytes"] as string);
@@ -81,14 +91,15 @@
     /// <inheritdoc />
     public override async Task<TransactionHashList> FindTransactionsByAddressesAsync(IEnumerable<Address> addresses)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         var parameters = addresses.Select(a => $"'{a.Value}'").Distinct().ToList();
 
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand($"SELECT * FROM AddressCache WHERE Address IN ({string.Join(", ", parameters)})", connection))
+        using (var command = connection.CreateCommand())
         {
+          command.CommandText = $"SELECT * FROM AddressCache WHERE Address IN ({string.Join(", ", parameters)})";
           var result = await command.ExecuteReaderAsync();
           var transactionHashes = new List<string>();
 
@@ -110,17 +121,18 @@
     /// <inheritdoc />
     public override async Task<TransactionHashList> FindTransactionsByBundlesAsync(IEnumerable<Hash> bundleHashes)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         var parameters = bundleHashes.Select(a => $"'{a.Value}'").Distinct().ToList();
 
         await connection.OpenAsync();
 
-        using (var command = new SQLiteCommand($"SELECT * FROM BundleCache WHERE Bundle IN ({string.Join(", ", parameters)})", connection))
+        using (var command = connection.CreateCommand())
         {
-          var result = await command.ExecuteReaderAsync();
-          var transactionHashes = new List<string>();
+          command.CommandText = $"SELECT * FROM BundleCache WHERE Bundle IN ({string.Join(", ", parameters)})";
 
+          var transactionHashes = new List<string>();
+          var result = await command.ExecuteReaderAsync();
           while (result.Read())
           {
             transactionHashes.Add(result["TransactionHash"] as string);
@@ -145,7 +157,7 @@
 
     private async Task StoreTransactionsInCache(IEnumerable<TransactionTrytes> transactions)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
@@ -155,32 +167,32 @@
           {
             var parsedTransaction = Transaction.FromTrytes(transaction);
 
-            using (var command = new SQLiteCommand(
-              "INSERT OR IGNORE INTO TransactionCache (Hash, TransactionTrytes) VALUES (@hash, @transactionTrytes)",
-              connection))
+            using (var command = connection.CreateCommand())
             {
-              command.Parameters.AddWithValue("hash", parsedTransaction.Hash.Value);
-              command.Parameters.AddWithValue("transactionTrytes", transaction.Value);
+              command.CommandText = "INSERT OR IGNORE INTO TransactionCache (Hash, TransactionTrytes) VALUES (@hash, @transactionTrytes)";
+
+              command.AddWithValue("hash", parsedTransaction.Hash.Value);
+              command.AddWithValue("transactionTrytes", transaction.Value);
 
               await command.ExecuteNonQueryAsync();
             }
 
-            using (var command = new SQLiteCommand(
-              "INSERT OR IGNORE INTO AddressCache (TransactionHash, Address) VALUES (@transactionHash, @address)",
-              connection))
+            using (var command = connection.CreateCommand())
             {
-              command.Parameters.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
-              command.Parameters.AddWithValue("address", parsedTransaction.Address.Value);
+              command.CommandText = "INSERT OR IGNORE INTO AddressCache (TransactionHash, Address) VALUES (@transactionHash, @address)";
+
+              command.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
+              command.AddWithValue("address", parsedTransaction.Address.Value);
 
               await command.ExecuteNonQueryAsync();
             }
 
-            using (var command = new SQLiteCommand(
-              "INSERT OR IGNORE INTO BundleCache (TransactionHash, Bundle) VALUES (@transactionHash, @bundle)",
-              connection))
+            using (var command = connection.CreateCommand())
             {
-              command.Parameters.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
-              command.Parameters.AddWithValue("bundle", parsedTransaction.BundleHash.Value);
+              command.CommandText = "INSERT OR IGNORE INTO BundleCache (TransactionHash, Bundle) VALUES (@transactionHash, @bundle)";
+
+              command.AddWithValue("transactionHash", parsedTransaction.Hash.Value);
+              command.AddWithValue("bundle", parsedTransaction.BundleHash.Value);
 
               await command.ExecuteNonQueryAsync();
             }

@@ -7,6 +7,8 @@
   using System.Threading.Tasks;
 
   using Pact.Fhir.Core.Exception;
+  using Pact.Fhir.Core.SqlLite;
+  using Pact.Fhir.Core.SqlLite.Repository;
   using Pact.Fhir.Iota.Entity;
   using Pact.Fhir.Iota.Services;
   using Pact.Fhir.Iota.SqlLite.Encryption;
@@ -23,17 +25,20 @@
       MamChannelFactory channelFactory,
       MamChannelSubscriptionFactory subscriptionFactory,
       IEncryption encryption,
+      IDbConnectionSupplier connectionSupplier = null,
       string databaseFilename = "iotafhir.sqlite")
     {
       this.ChannelFactory = channelFactory;
       this.SubscriptionFactory = subscriptionFactory;
       this.Encryption = encryption;
+      this.ConnectionSupplier = connectionSupplier ?? new DefaultDbConnectionSupplier();
       this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
 
-      DatabaseInitializer.InitFhirDatabase(databaseFilename);
+      DatabaseInitializer.InitFhirDatabase(this.ConnectionSupplier, databaseFilename);
     }
 
     private IEncryption Encryption { get; }
+    private IDbConnectionSupplier ConnectionSupplier { get; }
 
     private MamChannelFactory ChannelFactory { get; }
 
@@ -44,7 +49,7 @@
     /// <inheritdoc />
     public async Task AddEntryAsync(ResourceEntry entry)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
         long resourceId;
@@ -52,12 +57,13 @@
         var encryptedChannel = this.Encryption.Encrypt(entry.ChannelToJson());
         var encryptedSubscription = this.Encryption.Encrypt(entry.SubscriptionToJson());
 
-        using (var command = new SQLiteCommand(
-          "INSERT INTO Resource (Channel, Subscription) VALUES (@encryptedChannel, @encryptedSubscription); SELECT last_insert_rowid();",
-          connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("encryptedChannel", encryptedChannel);
-          command.Parameters.AddWithValue("encryptedSubscription", encryptedSubscription);
+          command.CommandText =
+            "INSERT INTO Resource (Channel, Subscription) VALUES (@encryptedChannel, @encryptedSubscription); SELECT last_insert_rowid();";
+
+          command.AddWithValue("encryptedChannel", encryptedChannel);
+          command.AddWithValue("encryptedSubscription", encryptedSubscription);
 
           resourceId = (long)await command.ExecuteScalarAsync();
         }
@@ -66,13 +72,13 @@
         {
           foreach (var hash in entry.ResourceRoots)
           {
-            using (var command = new SQLiteCommand(
-              "INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES (@hash, @resourceId)",
-              connection,
-              transaction))
+            using (var command = connection.CreateCommand())
             {
-              command.Parameters.AddWithValue("hash", hash);
-              command.Parameters.AddWithValue("resourceId", resourceId);
+              command.CommandText = "INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES (@hash, @resourceId)";
+              command.Transaction = transaction;
+
+              command.AddWithValue("hash", hash);
+              command.AddWithValue("resourceId", resourceId);
 
               await command.ExecuteNonQueryAsync();
             }
@@ -86,14 +92,15 @@
     /// <inheritdoc />
     public async Task<ResourceEntry> GetEntryAsync(string id)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand("SELECT * FROM StreamHash WHERE Hash LIKE @id", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("id", $"{id}%");
+          command.CommandText = "SELECT * FROM StreamHash WHERE Hash LIKE @id";
+          command.AddWithValue("id", $"{id}%");
 
           using (var result = await command.ExecuteReaderAsync())
           {
@@ -109,9 +116,10 @@
         }
 
         var resourceIds = new List<string>();
-        using (var command = new SQLiteCommand("SELECT * FROM StreamHash WHERE ResourceId = @resourceId", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("resourceId", resourceId);
+          command.CommandText = "SELECT * FROM StreamHash WHERE ResourceId = @resourceId";
+          command.AddWithValue("resourceId", resourceId);
 
           using (var result = await command.ExecuteReaderAsync())
           {
@@ -122,9 +130,10 @@
           }
         }
 
-        using (var command = new SQLiteCommand("SELECT * FROM Resource WHERE Id = @resourceId", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("resourceId", resourceId);
+          command.CommandText = "SELECT * FROM Resource WHERE Id = @resourceId";
+          command.AddWithValue("resourceId", resourceId);
 
           using (var result = await command.ExecuteReaderAsync())
           {
@@ -150,14 +159,15 @@
     /// <inheritdoc />
     public async Task UpdateEntryAsync(ResourceEntry entry)
     {
-      using (var connection = new SQLiteConnection(this.ConnectionString))
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
       {
         await connection.OpenAsync();
 
         long resourceId;
-        using (var command = new SQLiteCommand("SELECT ResourceId FROM StreamHash WHERE Hash LIKE @hash", connection))
+        using (var command = connection.CreateCommand())
         {
-          command.Parameters.AddWithValue("hash", $"{entry.ResourceRoots.First()}%");
+          command.CommandText = "SELECT ResourceId FROM StreamHash WHERE Hash LIKE @hash";
+          command.AddWithValue("hash", $"{entry.ResourceRoots.First()}%");
 
           using (var result = await command.ExecuteReaderAsync())
           {
@@ -176,13 +186,13 @@
         {
           foreach (var hash in entry.ResourceRoots)
           {
-            using (var command = new SQLiteCommand(
-              "INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES (@hash, @resourceId)",
-              connection,
-              transaction))
+            using (var command = connection.CreateCommand())
             {
-              command.Parameters.AddWithValue("hash", hash);
-              command.Parameters.AddWithValue("resourceId", resourceId);
+              command.CommandText = "INSERT OR IGNORE INTO StreamHash (Hash, ResourceId) VALUES (@hash, @resourceId)";
+              command.Transaction = transaction;
+
+              command.AddWithValue("hash", hash);
+              command.AddWithValue("resourceId", resourceId);
 
               await command.ExecuteNonQueryAsync();
             }
@@ -191,14 +201,14 @@
           var encryptedChannel = this.Encryption.Encrypt(entry.ChannelToJson());
           var encryptedSubscription = this.Encryption.Encrypt(entry.SubscriptionToJson());
 
-          using (var command = new SQLiteCommand(
-            $"UPDATE Resource SET Channel=@encryptedChannel, Subscription=@encryptedSubscription WHERE Id=@resourceId;",
-            connection,
-            transaction))
+          using (var command = connection.CreateCommand())
           {
-            command.Parameters.AddWithValue("encryptedChannel", encryptedChannel);
-            command.Parameters.AddWithValue("encryptedSubscription", encryptedSubscription);
-            command.Parameters.AddWithValue("resourceId", resourceId);
+            command.CommandText = $"UPDATE Resource SET Channel=@encryptedChannel, Subscription=@encryptedSubscription WHERE Id=@resourceId;";
+            command.Transaction = transaction;
+
+            command.AddWithValue("encryptedChannel", encryptedChannel);
+            command.AddWithValue("encryptedSubscription", encryptedSubscription);
+            command.AddWithValue("resourceId", resourceId);
 
             await command.ExecuteNonQueryAsync();
           }
