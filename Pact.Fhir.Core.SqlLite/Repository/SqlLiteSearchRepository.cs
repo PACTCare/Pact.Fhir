@@ -22,7 +22,7 @@
     {
       this.JsonParser = jsonParser;
       this.ConnectionSupplier = connectionSupplier ?? new DefaultDbConnectionSupplier();
-      this.ConnectionString = $"Data Source={databaseFilename};";
+      this.ConnectionString = $"Data Source={databaseFilename};Version=3;";
       this.Init(databaseFilename);
     }
 

@@ -1,9 +1,11 @@
 ﻿namespace Pact.Fhir.Iota.Services
 {
+  using System;
   using System.Collections.Generic;
   using System.Threading.Tasks;
 
   using Pact.Fhir.Iota.Entity;
+  using Pact.Fhir.Iota.Events;
   using Pact.Fhir.Iota.Repository;
 
   using Tangle.Net.Cryptography;
@@ -19,6 +21,8 @@
     private const int ChannelKeyIndex = 1;
 
     private const int ChannelSeedIndex = 0;
+
+    public static event EventHandler<SubscriptionAddedEventArgs> SubscriptionAdded;
 
     protected DeterministicSeedManager(
       IResourceTracker resourceTracker,
@@ -109,6 +113,8 @@
 
           return credentials;
         }
+
+        SubscriptionAdded?.Invoke(this, new SubscriptionAddedEventArgs(rootHash.Value.Substring(0, 64)));
 
         // The index is already in use. Increment by one and check that in the next round of the loop
         index++;
