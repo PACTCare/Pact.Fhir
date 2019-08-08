@@ -100,6 +100,7 @@
         var channelKey = (await this.AddressGenerator.GetAddressAsync(subSeed, SecurityLevel.Low, ChannelKeyIndex)).Value;
 
         var rootHash = CurlMerkleTreeFactory.Default.Create(channelSeed, 0, 1, IotaFhirRepository.SecurityLevel).Root.Hash;
+        var credentials = new ChannelCredentials { Seed = channelSeed, ChannelKey = channelKey, RootHash = rootHash };
 
         // Check if the index was used by another application. If not, return the corresponding channel credentials
         var subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey);
@@ -107,13 +108,12 @@
         if (message == null)
         {
           await this.SetCurrentSubSeedIndexAsync(seed, index);
-
-          var credentials = new ChannelCredentials { Seed = channelSeed, ChannelKey = channelKey, RootHash = rootHash };
           await this.ImportChannelWriteAccessAsync(credentials);
 
           return credentials;
         }
 
+        await this.ImportChannelWriteAccessAsync(credentials);
         SubscriptionAdded?.Invoke(this, new SubscriptionAddedEventArgs(rootHash.Value.Substring(0, 64)));
 
         // The index is already in use. Increment by one and check that in the next round of the loop
