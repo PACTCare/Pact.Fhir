@@ -37,22 +37,19 @@
       }
       catch (FormatException exception)
       {
-        return new ResourceResponse { Code = ResponseCode.UnprocessableEntity, ExceptionMessage = exception.Message };
+        return new ResourceResponse { Code = ResponseCode.UnprocessableEntity, Exception = exception };
       }
       catch (ResourceNotFoundException exception)
       {
-        return new ResourceResponse { Code = ResponseCode.MethodNotAllowed, ExceptionMessage = exception.Message };
+        return new ResourceResponse { Code = ResponseCode.MethodNotAllowed, Exception = exception };
       }
       catch (AuthorizationRequiredException exception)
       {
-        return new ResourceResponse { Code = ResponseCode.AuthorizationRequired, ExceptionMessage = exception.Message };
+        return new ResourceResponse { Code = ResponseCode.AuthorizationRequired, Exception = exception };
       }
-      catch (Exception)
+      catch (Exception exception)
       {
-        return new ResourceResponse
-        {
-                   Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
-                 };
+        return new ResourceResponse { Code = ResponseCode.Failure, Exception = exception };
       }
     }
   }

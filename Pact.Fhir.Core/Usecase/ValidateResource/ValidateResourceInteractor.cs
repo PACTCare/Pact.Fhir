@@ -38,16 +38,14 @@
       {
         return new ValidateResourceResponse
                  {
-                   Code = ResponseCode.Success, ValidationResult = new List<ValidationResult> { new ValidationResult(exception.Message) }
+                   Code = ResponseCode.Success,
+                   ValidationResult = new List<ValidationResult> { new ValidationResult(exception.Message) },
+                   Exception = exception
                  };
       }
-      catch (Exception)
+      catch (Exception exception)
       {
-        return new ValidateResourceResponse
-        {
-                   Code = ResponseCode.Failure,
-                   ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
-                 };
+        return new ValidateResourceResponse { Code = ResponseCode.Failure, Exception = exception };
       }
     }
   }

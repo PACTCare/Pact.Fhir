@@ -37,14 +37,11 @@
       }
       catch (ResourceNotFoundException exception)
       {
-        return new ResourceResponse { Code = ResponseCode.ResourceNotFound, ExceptionMessage = exception.Message };
+        return new ResourceResponse { Code = ResponseCode.ResourceNotFound, Exception = exception};
       }
-      catch (Exception)
+      catch (Exception exception)
       {
-        return new ResourceResponse
-                 {
-                   Code = ResponseCode.Failure, ExceptionMessage = "Given resource was not processed. Please take a look at internal logs."
-                 };
+        return new ResourceResponse { Code = ResponseCode.Failure, Exception = exception };
       }
     }
   }
