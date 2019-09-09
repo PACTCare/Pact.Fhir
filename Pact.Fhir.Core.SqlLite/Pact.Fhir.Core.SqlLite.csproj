@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pact.Fhir.Core" Version="0.0.4" />
+    <PackageReference Include="Pact.Fhir.Core" Version="0.0.4.1" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
   </ItemGroup>
 
