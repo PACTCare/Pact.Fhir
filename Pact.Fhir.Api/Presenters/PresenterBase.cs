@@ -25,7 +25,7 @@
               {
                 Code = OperationOutcome.IssueType.Structure,
                 Severity = OperationOutcome.IssueSeverity.Error,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
+                Details = new CodeableConcept { Text = response.Exception.Message }
               });
           break;
         case ResponseCode.UnsupportedResource:
@@ -35,7 +35,7 @@
               {
                 Code = OperationOutcome.IssueType.NotSupported,
                 Severity = OperationOutcome.IssueSeverity.Error,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
+                Details = new CodeableConcept { Text = response.Exception.Message }
               });
           break;
         case ResponseCode.ResourceNotFound:
@@ -45,7 +45,7 @@
               {
                 Code = OperationOutcome.IssueType.NotFound,
                 Severity = OperationOutcome.IssueSeverity.Error,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
+                Details = new CodeableConcept { Text = response.Exception.Message }
               });
           break;
         default:
@@ -55,7 +55,7 @@
               {
                 Code = OperationOutcome.IssueType.Exception,
                 Severity = OperationOutcome.IssueSeverity.Fatal,
-                Details = new CodeableConcept { Text = response.ExceptionMessage }
+                Details = new CodeableConcept { Text = response.Exception.Message }
               });
           break;
       }

@@ -60,7 +60,7 @@
     /// <inheritdoc />
     public async Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
     {
-      var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey);
+      var subscription = this.SubscriptionFactory.Create(new Hash(root), Mode.Restricted, channelKey, true);
 
       await this.ResourceTracker.AddEntryAsync(new ResourceEntry { ResourceRoots = new List<string> { root }, Subscription = subscription });
 
@@ -70,8 +70,8 @@
     /// <inheritdoc />
     public async Task ImportChannelWriteAccessAsync(ChannelCredentials credentials)
     {
-      var subscription = this.SubscriptionFactory.Create(credentials.RootHash, Mode.Restricted, credentials.ChannelKey);
-      var channel = this.ChannelFactory.Create(Mode.Restricted, credentials.Seed, IotaFhirRepository.SecurityLevel, credentials.ChannelKey);
+      var subscription = this.SubscriptionFactory.Create(credentials.RootHash, Mode.Restricted, credentials.ChannelKey, true);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, credentials.Seed, IotaFhirRepository.SecurityLevel, credentials.ChannelKey, true);
 
       await this.ResourceTracker.AddEntryAsync(
         new ResourceEntry { ResourceRoots = new List<string> { credentials.RootHash.Value }, Subscription = subscription, Channel = channel });
@@ -103,7 +103,7 @@
         var credentials = new ChannelCredentials { Seed = channelSeed, ChannelKey = channelKey, RootHash = rootHash };
 
         // Check if the index was used by another application. If not, return the corresponding channel credentials
-        var subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey);
+        var subscription = this.SubscriptionFactory.Create(rootHash, Mode.Restricted, channelKey, true);
         var message = await subscription.FetchSingle(rootHash);
         if (message == null)
         {
@@ -114,7 +114,7 @@
         }
 
         await this.ImportChannelWriteAccessAsync(credentials);
-        SubscriptionAdded?.Invoke(this, new SubscriptionAddedEventArgs(rootHash.Value.Substring(0, 64)));
+        SubscriptionAdded?.Invoke(this, new SubscriptionAddedEventArgs(rootHash.Value.Substring(0, 64), seed));
 
         // The index is already in use. Increment by one and check that in the next round of the loop
         index++;

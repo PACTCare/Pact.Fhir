@@ -44,8 +44,8 @@
       await resourceTracker.AddEntryAsync(
         new ResourceEntry
           {
-            Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random().Value),
-            Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random().Value),
+            Channel = channelFactory.Create(Mode.Restricted, Seed.Random(), SecurityLevel.Medium, Seed.Random().Value, true),
+            Subscription = subscriptionFactory.Create(new Hash(Seed.Random().Value), Mode.Restricted, Seed.Random().Value, true),
             ResourceRoots = new List<string> { "SOMEID" }
           });
 

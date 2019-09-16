@@ -89,7 +89,7 @@
       // New FHIR resources SHALL be assigned a logical and a version id. Take root of first message for that
       resource.PopulateMetadata(channelCredentials.RootHash.Value, channelCredentials.RootHash.Value);
 
-      var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey);
+      var channel = this.ChannelFactory.Create(Mode.Restricted, channelCredentials.Seed, SecurityLevel, channelCredentials.ChannelKey, true);
       var message = channel.CreateMessage(this.Serializer.Serialize(resource));
       await channel.PublishAsync(message, PoWDifficulty, 1);
 
@@ -100,7 +100,7 @@
           {
             ResourceRoots = new List<string> { channelCredentials.RootHash.Value },
             Channel = channel,
-            Subscription = this.SubscriptionFactory.Create(channelCredentials.RootHash, Mode.Restricted, channelCredentials.ChannelKey)
+            Subscription = this.SubscriptionFactory.Create(channelCredentials.RootHash, Mode.Restricted, channelCredentials.ChannelKey, true)
           });
 
       // on a newly created seed, store the URN reference so resources can be linked via seed later

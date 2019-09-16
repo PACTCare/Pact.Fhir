@@ -1,5 +1,6 @@
 ﻿namespace Pact.Fhir.Api.Controllers
 {
+  using System;
   using System.Threading.Tasks;
 
   using Microsoft.AspNetCore.Cors;
@@ -25,8 +26,15 @@
     [HttpPost]
     public async Task<IActionResult> ImportResourceAccessAsync([FromBody] MamKeyPair mamKeyPair)
     {
-      await this.ResourceImporter.ImportResourceAccessAsync(mamKeyPair.Root, mamKeyPair.ChannelKey);
-      return this.Ok();
+      try
+      {
+        await this.ResourceImporter.ImportResourceAccessAsync(mamKeyPair.Root, mamKeyPair.ChannelKey);
+        return this.Ok();
+      }
+      catch (Exception exception)
+      {
+        return this.Json(new { Message = exception.Message, Stacktrace = exception.StackTrace });
+      }
     }
 
     [Route("api/iota/export/{reference}")]
