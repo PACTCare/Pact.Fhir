@@ -14,5 +14,7 @@
     Task<List<Resource>> FindResourcesByTypeAsync(string typeName);
 
     Task UpdateResourceAsync(Resource resource);
+
+    Task DeleteResourceAsync(string resourceId);
   }
 }

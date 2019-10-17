@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.4.4</Version>
+    <Version>0.0.4.5</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Pact Care BV</Authors>
     <Company>Pact Care BV</Company>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pact.Fhir.Core" Version="0.0.4.1" />
+    <PackageReference Include="Pact.Fhir.Core" Version="0.0.4.2" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
   </ItemGroup>
 

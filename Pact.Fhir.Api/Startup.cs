@@ -9,6 +9,7 @@ namespace Pact.Fhir.Api
   using Microsoft.AspNetCore.Builder;
   using Microsoft.AspNetCore.Hosting;
   using Microsoft.AspNetCore.Mvc;
+  using Microsoft.Extensions.Caching.Memory;
   using Microsoft.Extensions.Configuration;
   using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ namespace Pact.Fhir.Api
   using Pact.Fhir.Core.Repository;
   using Pact.Fhir.Core.SqlLite.Repository;
   using Pact.Fhir.Core.Usecase.CreateResource;
+  using Pact.Fhir.Core.Usecase.DeleteResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
   using Pact.Fhir.Core.Usecase.ReadResourceHistory;
@@ -35,6 +37,8 @@ namespace Pact.Fhir.Api
   using Tangle.Net.ProofOfWork;
   using Tangle.Net.ProofOfWork.Service;
   using Tangle.Net.Repository.Client;
+
+  using MemoryCache = System.Runtime.Caching.MemoryCache;
 
   public class Startup
   {
@@ -65,6 +69,7 @@ namespace Pact.Fhir.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
+      services.AddMemoryCache();
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
       services.AddCors(
         options => options.AddPolicy("Development", builder => { builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod(); }));
@@ -102,19 +107,22 @@ namespace Pact.Fhir.Api
       var capabilitiesInteractor = new GetCapabilitiesInteractor(fhirRepository, new AppConfigSystemInformation(this.Configuration));
       var validationInteractor = new ValidateResourceInteractor(fhirRepository, fhirParser);
       var searchInteractor = new SearchResourcesInteractor(fhirRepository, searchRepository);
+      var deleteInteractor = new DeleteResourceInteractor(fhirRepository, searchRepository);
 
       var resourceImporter = new ResourceImporter(searchRepository, fhirRepository, seedManager);
 
-      services.AddSingleton(createInteractor);
-      services.AddSingleton(readInteractor);
-      services.AddSingleton(capabilitiesInteractor);
-      services.AddSingleton(validationInteractor);
-      services.AddSingleton(searchInteractor);
-      services.AddSingleton(resourceImporter);
-      services.AddSingleton(readVersionInteractor);
-      services.AddSingleton(readHistoryInteractor);
+      services.AddScoped(provider => createInteractor);
+      services.AddScoped(provider => readInteractor);
+      services.AddScoped(provider => capabilitiesInteractor);
+      services.AddScoped(provider => validationInteractor);
+      services.AddScoped(provider => searchInteractor);
+      services.AddScoped(provider => resourceImporter);
+      services.AddScoped(provider => readVersionInteractor);
+      services.AddScoped(provider => readHistoryInteractor);
+      services.AddScoped(provider => deleteInteractor);
 
-      services.AddSingleton<ISeedManager>(seedManager);
+      services.AddScoped<ISeedManager>(provider => seedManager);
+      services.AddSingleton<IMemoryCache>(new Microsoft.Extensions.Caching.Memory.MemoryCache(new MemoryCacheOptions()));
     }
   }
 }

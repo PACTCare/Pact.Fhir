@@ -36,6 +36,12 @@
     }
 
     /// <inheritdoc />
+    public override async Task DeleteReferenceAsync(string reference)
+    {
+      this.References.Remove(reference);
+    }
+
+    /// <inheritdoc />
     public override async Task<Seed> ResolveReferenceAsync(string reference = null)
     {
       return this.References.FirstOrDefault(e => e.Key == reference).Value;

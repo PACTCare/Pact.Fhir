@@ -101,6 +101,23 @@
       }
     }
 
+    /// <inheritdoc />
+    public async Task DeleteResourceAsync(string resourceId)
+    {
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
+      {
+        await connection.OpenAsync();
+
+        using (var command = connection.CreateCommand())
+        {
+          command.CommandText = "DELETE FROM Resources WHERE Id=@Id";
+
+          command.AddWithValue("Id", resourceId);
+          await command.ExecuteNonQueryAsync();
+        }
+      }
+    }
+
     private void Init(string databaseFilename)
     {
       if (File.Exists(databaseFilename))

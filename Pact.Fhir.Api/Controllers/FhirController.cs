@@ -6,12 +6,16 @@
 
   using Microsoft.AspNetCore.Cors;
   using Microsoft.AspNetCore.Mvc;
+  using Microsoft.Extensions.Caching.Memory;
 
   using Pact.Fhir.Api.Entity;
   using Pact.Fhir.Api.Presenters;
   using Pact.Fhir.Api.Response;
+  using Pact.Fhir.Api.Services;
   using Pact.Fhir.Core.Services;
+  using Pact.Fhir.Core.Usecase;
   using Pact.Fhir.Core.Usecase.CreateResource;
+  using Pact.Fhir.Core.Usecase.DeleteResource;
   using Pact.Fhir.Core.Usecase.GetCapabilities;
   using Pact.Fhir.Core.Usecase.ReadResource;
   using Pact.Fhir.Core.Usecase.ReadResourceHistory;
@@ -30,7 +34,8 @@
       ValidateResourceInteractor validateResourceInteractor,
       SearchResourcesInteractor searchResourcesInteractor,
       ReadResourceVersionInteractor readResourceVersionInteractor,
-      ReadResourceHistoryInteractor readResourceHistoryInteractor)
+      ReadResourceHistoryInteractor readResourceHistoryInteractor,
+      DeleteResourceInteractor deleteResourceInteractor)
     {
       this.CreateResourceInteractor = createResourceInteractor;
       this.ReadResourceInteractor = readResourceInteractor;
@@ -39,6 +44,8 @@
       this.SearchResourcesInteractor = searchResourcesInteractor;
       this.ReadResourceVersionInteractor = readResourceVersionInteractor;
       this.ReadResourceHistoryInteractor = readResourceHistoryInteractor;
+      this.DeleteResourceInteractor = deleteResourceInteractor;
+      this.Cache = new SqlLiteGlucoseCache();
     }
 
     private GetCapabilitiesInteractor CapabilitiesInteractor { get; }
@@ -50,6 +57,8 @@
     private ReadResourceVersionInteractor ReadResourceVersionInteractor { get; }
 
     private ReadResourceHistoryInteractor ReadResourceHistoryInteractor { get; }
+    private DeleteResourceInteractor DeleteResourceInteractor { get; }
+    private SqlLiteGlucoseCache Cache { get; }
 
     private SearchResourcesInteractor SearchResourcesInteractor { get; }
 
@@ -63,6 +72,24 @@
                        new CreateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
 
       return CreateResourcePresenter.Present(response, this.Request, this.Response, type);
+    }
+
+    [Route("api/fhir/{type}/{id}")]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteResourceAsync(string type, string id)
+    {
+      var response = await this.DeleteResourceInteractor.ExecuteAsync(new DeleteResourceRequest { ResourceId = id, ResourceType = type });
+      if (response.Code == ResponseCode.Success)
+      {
+        if (type == "Observation")
+        {
+          await this.Cache.DeleteDataAsync(id);
+        }
+
+        return this.Ok();
+      }
+
+      return this.BadRequest();
     }
 
     [Route("api/fhir/metadata")]

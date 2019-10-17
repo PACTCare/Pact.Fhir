@@ -8,10 +8,13 @@
 
   public class DeleteResourceInteractor : UsecaseInteractor<DeleteResourceRequest, UsecaseResponse>
   {
+    private ISearchRepository SearchRepository { get; }
+
     /// <inheritdoc />
-    public DeleteResourceInteractor(IFhirRepository repository)
+    public DeleteResourceInteractor(IFhirRepository repository, ISearchRepository searchRepository)
       : base(repository)
     {
+      this.SearchRepository = searchRepository;
     }
 
     /// <inheritdoc />
@@ -20,6 +23,8 @@
       try
       {
         await this.Repository.DeleteResourceAsync(request.ResourceId);
+        await this.SearchRepository.DeleteResourceAsync(request.ResourceId);
+
         return new UsecaseResponse { Code = ResponseCode.Success };
       }
       catch (ResourceNotFoundException exception)

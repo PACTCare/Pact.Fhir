@@ -113,9 +113,10 @@
     }
 
     /// <inheritdoc />
-    public Task DeleteResourceAsync(string id)
+    public async Task DeleteResourceAsync(string id)
     {
-      throw new UnsupportedOperationException("Delete");
+      await this.SeedManager.DeleteReferenceAsync($"did:iota:{id}");
+      await this.ResourceTracker.DeleteEntryAsync(id);
     }
 
     /// <inheritdoc />

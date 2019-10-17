@@ -217,5 +217,56 @@
         }
       }
     }
+
+    /// <inheritdoc />
+    public async Task DeleteEntryAsync(string id)
+    {
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
+      {
+        await connection.OpenAsync();
+
+        long resourceId;
+        using (var command = connection.CreateCommand())
+        {
+          command.CommandText = "SELECT * FROM StreamHash WHERE Hash LIKE @id";
+          command.AddWithValue("id", $"{id}%");
+
+          using (var result = await command.ExecuteReaderAsync())
+          {
+            if (result.Read())
+            {
+              resourceId = (long)result["ResourceId"];
+            }
+            else
+            {
+              return;
+            }
+          }
+        }
+
+        using (var transaction = connection.BeginTransaction())
+        {
+          using (var command = connection.CreateCommand())
+          {
+            command.CommandText = "DELETE FROM StreamHash WHERE ResourceId = @resourceId";
+            command.Transaction = transaction;
+            command.AddWithValue("resourceId", resourceId);
+
+            await command.ExecuteNonQueryAsync();
+          }
+
+          using (var command = connection.CreateCommand())
+          {
+            command.CommandText = "DELETE FROM Resource WHERE Id = @resourceId";
+            command.Transaction = transaction;
+            command.AddWithValue("resourceId", resourceId);
+
+            await command.ExecuteNonQueryAsync();
+          }
+
+          transaction.Commit();
+        }
+      }
+    }
   }
 }

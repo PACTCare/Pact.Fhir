@@ -22,8 +22,6 @@
 
     private const int ChannelSeedIndex = 0;
 
-    public static event EventHandler<SubscriptionAddedEventArgs> SubscriptionAdded;
-
     protected DeterministicSeedManager(
       IResourceTracker resourceTracker,
       ISigningHelper signingHelper,
@@ -36,6 +34,8 @@
       this.SubscriptionFactory = new MamChannelSubscriptionFactory(repository, CurlMamParser.Default, CurlMask.Default);
       this.ChannelFactory = new MamChannelFactory(CurlMamFactory.Default, CurlMerkleTreeFactory.Default, repository);
     }
+
+    public static event EventHandler<SubscriptionAddedEventArgs> SubscriptionAdded;
 
     private IAddressGenerator AddressGenerator { get; }
 
@@ -54,8 +54,10 @@
     public async Task<ChannelCredentials> CreateChannelCredentialsAsync(Seed seed)
     {
       // Create new channel credentials with the current index incremented by one
-      return await this.FindAndUpdateCurrentIndexAsync(seed, await this.GetCurrentSubSeedIndexAsync(seed) + 1);
+      return await this.FindAndUpdateCurrentIndexAsync(seed, await this.GetCurrentSubSeedIndexAsync(seed));
     }
+
+    public abstract Task DeleteReferenceAsync(string reference);
 
     /// <inheritdoc />
     public async Task<string> ImportChannelReadAccessAsync(string root, string channelKey)
@@ -83,8 +85,7 @@
     /// <inheritdoc />
     public async Task SyncAsync(Seed seed)
     {
-      // Start sync with seed at index 1 (lowest index possible)
-      await this.FindAndUpdateCurrentIndexAsync(seed, 1);
+      await this.FindAndUpdateCurrentIndexAsync(seed, 0);
     }
 
     protected abstract Task<int> GetCurrentSubSeedIndexAsync(Seed seed);

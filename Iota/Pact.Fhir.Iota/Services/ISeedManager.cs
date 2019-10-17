@@ -19,5 +19,7 @@
     Task SyncAsync(Seed seed);
 
     Task AddReferenceAsync(string reference, Seed seed);
+
+    Task DeleteReferenceAsync(string reference);
   }
 }

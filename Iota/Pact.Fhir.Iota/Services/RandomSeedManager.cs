@@ -36,6 +36,12 @@
     }
 
     /// <inheritdoc />
+    public async Task DeleteReferenceAsync(string reference)
+    {
+      this.References.Remove(reference);
+    }
+
+    /// <inheritdoc />
     public async Task<ChannelCredentials> CreateChannelCredentialsAsync(Seed seed)
     {
       return new ChannelCredentials

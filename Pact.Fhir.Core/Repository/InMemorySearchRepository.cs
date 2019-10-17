@@ -42,5 +42,11 @@
         resourceToUpdate = resource;
       }
     }
+
+    /// <inheritdoc />
+    public async Task DeleteResourceAsync(string resourceId)
+    {
+      this.Resources.Remove(this.Resources.First(r => r.Id == resourceId));
+    }
   }
 }

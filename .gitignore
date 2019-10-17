@@ -180,3 +180,7 @@ $RECYCLE.BIN/
 
 # Sonarqube
 .sonarqube
+/Pact.Fhir.Api/Services/SqlLiteGlucoseCache.cs
+/Pact.Fhir.Api/Models/GlucoseSummary.cs
+/Pact.Fhir.Api/Models/GlucoseDailyReport.cs
+/Pact.Fhir.Api/Controllers/GlucoseController.cs

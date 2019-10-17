@@ -14,5 +14,7 @@
     Task<ResourceEntry> GetEntryAsync(string id);
 
     Task UpdateEntryAsync(ResourceEntry entry);
+
+    Task DeleteEntryAsync(string id);
   }
 }

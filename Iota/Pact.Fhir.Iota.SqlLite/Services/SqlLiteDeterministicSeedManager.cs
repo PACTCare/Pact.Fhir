@@ -61,6 +61,23 @@
     }
 
     /// <inheritdoc />
+    public override async Task DeleteReferenceAsync(string reference)
+    {
+      using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))
+      {
+        await connection.OpenAsync();
+
+        using (var command = connection.CreateCommand())
+        {
+          command.CommandText = "DELETE FROM ResourceResolver WHERE Reference = @reference";
+          command.AddWithValue("reference", reference);
+
+          await command.ExecuteNonQueryAsync();
+        }
+      }
+    }
+
+    /// <inheritdoc />
     public override async Task<Seed> ResolveReferenceAsync(string reference = null)
     {
       using (var connection = this.ConnectionSupplier.GetConnection(this.ConnectionString))

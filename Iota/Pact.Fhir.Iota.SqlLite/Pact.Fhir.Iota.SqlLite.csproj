@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.4.4</Version>
+    <Version>0.0.4.5</Version>
     <Company>Pact Care BV</Company>
     <Authors>Pact Care BV</Authors>
     <Description>Sql Lite implementation of the IOTA FHIR layer</Description>
@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pact.Fhir.Core.SqlLite" Version="0.0.4.4" />
-    <PackageReference Include="Pact.Fhir.Iota" Version="0.0.4.5" />
+    <PackageReference Include="Pact.Fhir.Core.SqlLite" Version="0.0.4.5" />
+    <PackageReference Include="Pact.Fhir.Iota" Version="0.0.4.9" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
   </ItemGroup>
 

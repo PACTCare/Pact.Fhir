@@ -39,5 +39,11 @@
         existingEntry.Subscription = entry.Subscription;
       }
     }
+
+    /// <inheritdoc />
+    public async Task DeleteEntryAsync(string id)
+    {
+      this.Entries.Remove(this.Entries.First(e => e.ResourceRoots.Contains(id)));
+    }
   }
 }
