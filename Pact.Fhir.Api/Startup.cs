@@ -3,6 +3,8 @@
 namespace Pact.Fhir.Api
 {
   using System.Collections.Generic;
+  using System.IO;
+  using System.Reflection;
 
   using Hl7.Fhir.Serialization;
 
@@ -73,6 +75,19 @@ namespace Pact.Fhir.Api
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
       services.AddCors(
         options => options.AddPolicy("Development", builder => { builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod(); }));
+
+      var extensionPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\Extensions";
+      if (!Directory.Exists(extensionPath))
+      {
+        Directory.CreateDirectory(extensionPath);
+      }
+
+      foreach (var file in Directory.GetFiles(extensionPath, "*.dll"))
+      {
+        services.AddMvc()
+          .AddApplicationPart(Assembly.LoadFile(file))
+          .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+      }
 
       this.InjectDependencies(services);
     }
