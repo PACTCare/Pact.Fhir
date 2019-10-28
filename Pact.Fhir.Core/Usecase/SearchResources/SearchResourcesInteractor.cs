@@ -1,8 +1,10 @@
 ﻿namespace Pact.Fhir.Core.Usecase.SearchResources
 {
   using System.Collections.Generic;
+  using System.Collections.Specialized;
   using System.Linq;
   using System.Threading.Tasks;
+  using System.Web;
 
   using Hl7.Fhir.Model;
 
@@ -23,7 +25,6 @@
     public override async Task<ResourceResponse> ExecuteAsync(SearchResourcesRequest request)
     {
       var resources = await this.SearchRepository.FindResourcesByTypeAsync(request.ResourceType);
-
       if (string.IsNullOrEmpty(request.Parameters))
       {
         return new ResourceResponse
@@ -36,11 +37,26 @@
                  };
       }
 
-      var filteredResources = new List<Resource>();
+      var parameters = HttpUtility.ParseQueryString(request.Parameters);
+      var filteredResources = FilterResourcesByStandardParameters(parameters, resources);
+      filteredResources = FilterByNonStandardParameters(parameters, filteredResources);
 
-      if (request.Parameters.Contains("reference"))
+      return new ResourceResponse
+               {
+                 Code = ResponseCode.Success,
+                 Resource = new Bundle
+                              {
+                                Entry = new List<Bundle.EntryComponent>(filteredResources.Select(r => new Bundle.EntryComponent { Resource = r }))
+                              }
+               };
+    }
+
+    private static List<Resource> FilterByNonStandardParameters(NameValueCollection parameters, List<Resource> resources)
+    {
+      var filteredResources = new List<Resource>();
+      if (parameters.AllKeys.Any(k => k == "reference"))
       {
-        var requestedReference = request.Parameters.Split('=')[1];
+        var requestedReference = parameters.Get("reference");
         foreach (var resource in resources)
         {
           if (resource.GetType().GetProperty("Subject") != null || resource.GetType().GetProperty("Patient") != null)
@@ -57,14 +73,14 @@
         }
       }
 
-      return new ResourceResponse
-               {
-                 Code = ResponseCode.Success,
-                 Resource = new Bundle
-                              {
-                                Entry = new List<Bundle.EntryComponent>(filteredResources.Select(r => new Bundle.EntryComponent { Resource = r }))
-                              }
-               };
+      return filteredResources;
+    }
+
+    private static List<Resource> FilterResourcesByStandardParameters(NameValueCollection parameters, List<Resource> resources)
+    {
+      var filteredResources = resources;
+
+      return filteredResources;
     }
   }
 }

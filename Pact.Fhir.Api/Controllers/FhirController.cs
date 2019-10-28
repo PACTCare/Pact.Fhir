@@ -6,12 +6,10 @@
 
   using Microsoft.AspNetCore.Cors;
   using Microsoft.AspNetCore.Mvc;
-  using Microsoft.Extensions.Caching.Memory;
 
   using Pact.Fhir.Api.Entity;
   using Pact.Fhir.Api.Presenters;
   using Pact.Fhir.Api.Response;
-  using Pact.Fhir.Api.Services;
   using Pact.Fhir.Core.Services;
   using Pact.Fhir.Core.Usecase;
   using Pact.Fhir.Core.Usecase.CreateResource;
@@ -45,20 +43,18 @@
       this.ReadResourceVersionInteractor = readResourceVersionInteractor;
       this.ReadResourceHistoryInteractor = readResourceHistoryInteractor;
       this.DeleteResourceInteractor = deleteResourceInteractor;
-      this.Cache = new SqlLiteGlucoseCache();
     }
 
     private GetCapabilitiesInteractor CapabilitiesInteractor { get; }
 
     private CreateResourceInteractor CreateResourceInteractor { get; }
+    private DeleteResourceInteractor DeleteResourceInteractor { get; }
+
+    private ReadResourceHistoryInteractor ReadResourceHistoryInteractor { get; }
 
     private ReadResourceInteractor ReadResourceInteractor { get; }
 
     private ReadResourceVersionInteractor ReadResourceVersionInteractor { get; }
-
-    private ReadResourceHistoryInteractor ReadResourceHistoryInteractor { get; }
-    private DeleteResourceInteractor DeleteResourceInteractor { get; }
-    private SqlLiteGlucoseCache Cache { get; }
 
     private SearchResourcesInteractor SearchResourcesInteractor { get; }
 
@@ -83,7 +79,7 @@
       {
         if (type == "Observation")
         {
-          await this.Cache.DeleteDataAsync(id);
+          // await this.Cache.DeleteDataAsync(id);
         }
 
         return this.Ok();
@@ -108,6 +104,15 @@
       return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
     }
 
+    [Route("api/fhir/{type}/{id}/_history")]
+    [HttpGet]
+    public async Task<IActionResult> ReadResourceHistoryAsync(string type, string id)
+    {
+      var response = await this.ReadResourceHistoryInteractor.ExecuteAsync(new ReadResourceHistoryRequest { ResourceType = type, ResourceId = id });
+
+      return SearchResourcesPresenter.Present(response, this.Response);
+    }
+
     [Route("api/fhir/{type}/{id}/_history/{versionId}")]
     [HttpGet]
     public async Task<IActionResult> ReadResourceVersionAsync(string type, string id, string versionId)
@@ -118,27 +123,18 @@
       return ReadResourcePresenter.Present(response, this.Response, SummaryType.False);
     }
 
-    [Route("api/fhir/{type}/{id}/_history")]
+    [Route("api/fhir/{type}")]
     [HttpGet]
-    public async Task<IActionResult> ReadResourceHistoryAsync(string type, string id)
+    public async Task<IActionResult> SearchResourcesGetAsync(string type)
     {
-      var response = await this.ReadResourceHistoryInteractor.ExecuteAsync(new ReadResourceHistoryRequest { ResourceType = type, ResourceId = id });
-
-      return SearchResourcesPresenter.Present(response, this.Response);
+      return await this.SearchResourcesAsync(type);
     }
 
     [Route("api/fhir/{type}")]
-    [HttpGet]
-    public async Task<IActionResult> SearchResourcesAsync(string type)
+    [HttpPost]
+    public async Task<IActionResult> SearchResourcesPostAsync(string type)
     {
-      var response = await this.SearchResourcesInteractor.ExecuteAsync(
-                       new SearchResourcesRequest
-                         {
-                           ResourceType = type,
-                           Parameters = this.Request.QueryString.HasValue ? this.Request.QueryString.Value.Substring(1) : string.Empty
-                         });
-
-      return SearchResourcesPresenter.Present(response, this.Response);
+      return await this.SearchResourcesAsync(type);
     }
 
     [Route("api/fhir/{type}/$validate")]
@@ -149,6 +145,18 @@
                        new ValidateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
 
       return ValidationResultPresenter.Present(response, this.Response);
+    }
+
+    private async Task<IActionResult> SearchResourcesAsync(string type)
+    {
+      var response = await this.SearchResourcesInteractor.ExecuteAsync(
+                       new SearchResourcesRequest
+                         {
+                           ResourceType = type,
+                           Parameters = this.Request.QueryString.HasValue ? this.Request.QueryString.Value.Substring(1) : string.Empty
+                         });
+
+      return SearchResourcesPresenter.Present(response, this.Response);
     }
   }
 }
