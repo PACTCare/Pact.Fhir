@@ -80,6 +80,24 @@
     {
       var filteredResources = resources;
 
+      for (var i = 0; i < parameters.Count; i++)
+      {
+        var intermediateResources = new List<Resource>();
+
+        switch (parameters.AllKeys[i])
+        {
+          case "_id":
+            intermediateResources.AddRange(resources.Where(r => r.Id == parameters.Get(i)));
+            break;
+          case "_tag":
+            var tagPayload = parameters.Get(i).Split('|');
+            intermediateResources.AddRange(resources.Where(r => r.Meta.Tag.Any(t => t.Code == tagPayload[0] && t.System == tagPayload[1])));
+            break;
+        }
+
+        filteredResources = intermediateResources;
+      }
+
       return filteredResources;
     }
   }
