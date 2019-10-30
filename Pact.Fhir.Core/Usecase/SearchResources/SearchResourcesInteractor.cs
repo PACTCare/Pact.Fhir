@@ -72,6 +72,10 @@
           }
         }
       }
+      else
+      {
+        return resources;
+      }
 
       return filteredResources;
     }
@@ -89,7 +93,7 @@
             break;
           case "_tag":
             var tagPayload = parameters.Get(i).Split('|');
-            filteredResources = filteredResources.Where(r => r.Meta.Tag.Any(t => t.Code == tagPayload[0] && t.System == tagPayload[1])).ToList();
+            filteredResources = filteredResources.Where(r => r.Meta.Tag.Any(t => t.System == tagPayload[0] && (string.IsNullOrEmpty(tagPayload[1]) || t.Code == tagPayload[1]))).ToList();
             break;
         }
       }
