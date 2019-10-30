@@ -20,5 +20,6 @@
                          }
         };
 
+    public static Observation Observation => new Observation { Id = "0987654321", Subject = new ResourceReference("did:iota:1234567890") };
   }
 }

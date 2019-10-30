@@ -54,9 +54,9 @@
     private static List<Resource> FilterByNonStandardParameters(NameValueCollection parameters, List<Resource> resources)
     {
       var filteredResources = new List<Resource>();
-      if (parameters.AllKeys.Any(k => k == "reference"))
+      if (parameters.AllKeys.Any(k => k == "_reference"))
       {
-        var requestedReference = parameters.Get("reference");
+        var requestedReference = parameters.Get("_reference");
         foreach (var resource in resources)
         {
           if (resource.GetType().GetProperty("Subject") != null || resource.GetType().GetProperty("Patient") != null)
@@ -82,20 +82,16 @@
 
       for (var i = 0; i < parameters.Count; i++)
       {
-        var intermediateResources = new List<Resource>();
-
         switch (parameters.AllKeys[i])
         {
           case "_id":
-            intermediateResources.AddRange(resources.Where(r => r.Id == parameters.Get(i)));
+            filteredResources = filteredResources.Where(r => r.Id == parameters.Get(i)).ToList();
             break;
           case "_tag":
             var tagPayload = parameters.Get(i).Split('|');
-            intermediateResources.AddRange(resources.Where(r => r.Meta.Tag.Any(t => t.Code == tagPayload[0] && t.System == tagPayload[1])));
+            filteredResources = filteredResources.Where(r => r.Meta.Tag.Any(t => t.Code == tagPayload[0] && t.System == tagPayload[1])).ToList();
             break;
         }
-
-        filteredResources = intermediateResources;
       }
 
       return filteredResources;

@@ -35,7 +35,7 @@
     /// <inheritdoc />
     public async Task UpdateResourceAsync(Resource resource)
     {
-      var resourceToUpdate = this.Resources.First(r => r.Id == resource.Id);
+      var resourceToUpdate = this.Resources.FirstOrDefault(r => r.Id == resource.Id);
 
       if (resourceToUpdate != null)
       {
