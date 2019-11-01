@@ -1,5 +1,6 @@
 ﻿namespace Pact.Fhir.Core.Usecase.SearchResources
 {
+  using System;
   using System.Collections.Generic;
   using System.Collections.Specialized;
   using System.Linq;
@@ -86,19 +87,61 @@
 
       for (var i = 0; i < parameters.Count; i++)
       {
+        var parameterValue = parameters.Get(i);
         switch (parameters.AllKeys[i])
         {
           case "_id":
-            filteredResources = filteredResources.Where(r => r.Id == parameters.Get(i)).ToList();
+            filteredResources = filteredResources.Where(r => r.Id == parameterValue).ToList();
             break;
           case "_tag":
-            var tagPayload = parameters.Get(i).Split('|');
+            var tagPayload = parameterValue.Split('|');
             filteredResources = filteredResources.Where(r => r.Meta.Tag.Any(t => t.System == tagPayload[0] && (string.IsNullOrEmpty(tagPayload[1]) || t.Code == tagPayload[1]))).ToList();
+            break;
+          case "_lastUpdated":
+            if (SearchPrefix.HasPrefix(parameterValue))
+            {
+              filteredResources = FilterWithPrefix(parameterValue.Substring(0, 2), new string(parameterValue.Skip(2).ToArray()), filteredResources);
+            }
+            else
+            {
+              filteredResources = FilterWithPrefix(SearchPrefix.Equal, parameterValue, filteredResources);
+            }
+
             break;
         }
       }
 
       return filteredResources;
+    }
+
+    private static List<Resource> FilterWithPrefix(string prefix, string value, List<Resource> resources)
+    {
+      var parsedPrefix = SearchPrefix.Dictionary[prefix];
+      switch (parsedPrefix)
+      {
+        case SearchPrefix.Prefix.Equal:
+          break;
+        case SearchPrefix.Prefix.NotEqual:
+          break;
+        case SearchPrefix.Prefix.GreaterThan:
+          break;
+        case SearchPrefix.Prefix.LessThan:
+          break;
+        case SearchPrefix.Prefix.GreaterThanOrEqual:
+          break;
+        case SearchPrefix.Prefix.LessThanOrEqual:
+          break;
+        case SearchPrefix.Prefix.StartsAfter:
+          break;
+        case SearchPrefix.Prefix.EndsBefore:
+          break;
+        case SearchPrefix.Prefix.ApproximatelySame:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+
+      return resources;
     }
   }
 }
