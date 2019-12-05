@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pact.Fhir.Core" Version="0.0.4.2" />
+    <PackageReference Include="Pact.Fhir.Core.SqlLite" Version="0.0.4.5" />
+    <PackageReference Include="Pact.Fhir.Iota" Version="0.0.4.10" />
+    <PackageReference Include="Pact.Fhir.Iota.SqlLite" Version="0.0.4.5" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.6.292" />
+  </ItemGroup>
+
+</Project>
