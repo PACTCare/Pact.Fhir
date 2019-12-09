@@ -12,15 +12,15 @@
 
   public static class ReadResourcePresenter
   {
-    public static IActionResult Present(ResourceResponse response, HttpResponse httpResponse, SummaryType summaryType)
+    public static IActionResult Present(ResourceResponse response, string contentType, HttpResponse httpResponse, SummaryType summaryType)
     {
       if (response.Code == ResponseCode.Success)
       {
         PresenterBase.SetBasicResponseAttributes(response, httpResponse, HttpStatusCode.OK);
-        return new JsonFhirResult(response.Resource, summaryType);
+        return new FhirResult(response.Resource, contentType, summaryType);
       }
 
-      return PresenterBase.PrepareRequestFailure(response, httpResponse);
+      return PresenterBase.PrepareRequestFailure(response, httpResponse, contentType);
     }
   }
 }

@@ -72,7 +72,7 @@ namespace Pact.Fhir.Api
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddMemoryCache();
-      services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+      services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddXmlDataContractSerializerFormatters();
       services.AddCors(
         options => options.AddPolicy("Development", builder => { builder.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod(); }));
 

@@ -1,23 +1,18 @@
 ﻿namespace Pact.Fhir.Api.Presenters
 {
-  using System.Net;
-
   using Microsoft.AspNetCore.Http;
   using Microsoft.AspNetCore.Mvc;
 
   using Pact.Fhir.Api.Response;
   using Pact.Fhir.Core.Usecase;
 
-  public class SearchResourcesPresenter
+  public static class SearchResourcesPresenter
   {
-    public static IActionResult Present(ResourceResponse response, HttpResponse httpResponse)
+    public static IActionResult Present(ResourceResponse response, HttpResponse httpResponse, string contentType)
     {
-      if (response.Code == ResponseCode.Success)
-      {
-        return new JsonFhirResult(response.Resource);
-      }
-
-      return PresenterBase.PrepareRequestFailure(response, httpResponse);
+      return response.Code == ResponseCode.Success
+               ? new FhirResult(response.Resource, contentType)
+               : PresenterBase.PrepareRequestFailure(response, httpResponse, contentType);
     }
   }
 }

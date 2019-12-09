@@ -16,12 +16,9 @@
   {
     public static IActionResult Present(ResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
     {
-      if (response.Code == ResponseCode.Success)
-      {
-        return PrepareRequestSuccess(response, httpRequest, httpResponse, type);
-      }
+      if (response.Code == ResponseCode.Success) return PrepareRequestSuccess(response, httpRequest, httpResponse, type);
 
-      return PresenterBase.PrepareRequestFailure(response, httpResponse);
+      return PresenterBase.PrepareRequestFailure(response, httpResponse, httpRequest.ContentType);
     }
 
     private static IActionResult PrepareRequestSuccess(ResourceResponse response, HttpRequest httpRequest, HttpResponse httpResponse, string type)
@@ -33,17 +30,14 @@
         $"{httpRequest.Scheme}://{httpRequest.Host.Value}/api/fhir/{type}/{response.Resource.Id}/_history/{response.Resource.VersionId}");
 
       var prefer = httpRequest.Headers.FirstOrDefault(h => h.Key == "Prefer");
-      if (string.IsNullOrEmpty(prefer.Key))
-      {
-        return new EmptyJsonFhirResult();
-      }
+      if (string.IsNullOrEmpty(prefer.Key)) return new EmptyFhirResult(httpRequest.ContentType);
 
       switch (prefer.Value.First())
       {
         case "representation":
-          return new JsonFhirResult(response.Resource);
+          return new FhirResult(response.Resource, httpRequest.ContentType);
         case "OperationOutcome":
-          return new JsonFhirResult(
+          return new FhirResult(
             new OperationOutcome
               {
                 Issue = new List<OperationOutcome.IssueComponent>
@@ -55,9 +49,10 @@
                                 Details = new CodeableConcept { Text = "All OK" }
                               }
                           }
-              });
+              },
+            httpRequest.ContentType);
         default:
-          return new EmptyJsonFhirResult();
+          return new EmptyFhirResult(httpRequest.ContentType);
       }
     }
   }

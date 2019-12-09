@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Pact Care BV</Authors>
+    <Description>Pact Fhir Core implementation to run with xamarin</Description>
+    <Copyright>2019 PACT Care</Copyright>
+    <PackageProjectUrl>https://ecosystem.iota.org/projects/untangle-care</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PACTCare/Pact.Fhir</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>iota fihr csharp xamarin</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.4.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +20,13 @@
     <PackageReference Include="Pact.Fhir.Iota" Version="0.0.4.10" />
     <PackageReference Include="Pact.Fhir.Iota.SqlLite" Version="0.0.4.5" />
     <PackageReference Include="sqlite-net-pcl" Version="1.6.292" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

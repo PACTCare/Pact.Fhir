@@ -77,11 +77,6 @@
       var response = await this.DeleteResourceInteractor.ExecuteAsync(new DeleteResourceRequest { ResourceId = id, ResourceType = type });
       if (response.Code == ResponseCode.Success)
       {
-        if (type == "Observation")
-        {
-          // await this.Cache.DeleteDataAsync(id);
-        }
-
         return this.Ok();
       }
 
@@ -92,7 +87,8 @@
     [HttpGet]
     public async Task<IActionResult> GetCapabilitiesAsync()
     {
-      return new JsonFhirResult(await this.CapabilitiesInteractor.ExecuteAsync());
+      var capabilityStatement = await this.CapabilitiesInteractor.ExecuteAsync();
+      return new FhirResult(capabilityStatement, this.Request.ContentType);
     }
 
     [Route("api/fhir/{type}/{id}")]
@@ -101,7 +97,7 @@
     {
       var response = await this.ReadResourceInteractor.ExecuteAsync(new ReadResourceRequest { ResourceId = id, ResourceType = type });
 
-      return ReadResourcePresenter.Present(response, this.Response, SummaryTypeParser.Parse(summaryType));
+      return ReadResourcePresenter.Present(response, this.Request.ContentType, this.Response, SummaryTypeParser.Parse(summaryType));
     }
 
     [Route("api/fhir/{type}/{id}/_history")]
@@ -110,7 +106,7 @@
     {
       var response = await this.ReadResourceHistoryInteractor.ExecuteAsync(new ReadResourceHistoryRequest { ResourceType = type, ResourceId = id });
 
-      return SearchResourcesPresenter.Present(response, this.Response);
+      return SearchResourcesPresenter.Present(response, this.Response, this.Request.ContentType);
     }
 
     [Route("api/fhir/{type}/{id}/_history/{versionId}")]
@@ -120,7 +116,7 @@
       var response = await this.ReadResourceVersionInteractor.ExecuteAsync(
                        new ReadResourceVersionRequest { ResourceId = id, ResourceType = type, VersionId = versionId });
 
-      return ReadResourcePresenter.Present(response, this.Response, SummaryType.False);
+      return ReadResourcePresenter.Present(response, this.Request.ContentType, this.Response, SummaryType.False);
     }
 
     [Route("api/fhir/{type}")]
@@ -144,7 +140,7 @@
       var response = await this.ValidateResourceInteractor.ExecuteAsync(
                        new ValidateResourceRequest { ResourceJson = await this.Request.ReadBodyAsync() });
 
-      return ValidationResultPresenter.Present(response, this.Response);
+      return ValidationResultPresenter.Present(response, this.Response, this.Request.ContentType);
     }
 
     private async Task<IActionResult> SearchResourcesAsync(string type)
@@ -156,7 +152,7 @@
                            Parameters = this.Request.QueryString.HasValue ? this.Request.QueryString.Value.Substring(1) : string.Empty
                          });
 
-      return SearchResourcesPresenter.Present(response, this.Response);
+      return SearchResourcesPresenter.Present(response, this.Response, this.Request.ContentType);
     }
   }
 }

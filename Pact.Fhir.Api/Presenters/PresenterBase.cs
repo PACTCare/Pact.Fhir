@@ -13,7 +13,7 @@
 
   public static class PresenterBase
   {
-    internal static IActionResult PrepareRequestFailure(UsecaseResponse response, HttpResponse httpResponse)
+    internal static IActionResult PrepareRequestFailure(UsecaseResponse response, HttpResponse httpResponse, string contentType)
     {
       var outcome = new OperationOutcome { Issue = new List<OperationOutcome.IssueComponent>() };
       switch (response.Code)
@@ -60,7 +60,7 @@
           break;
       }
 
-      return new JsonFhirResult(outcome);
+      return new FhirResult(outcome, contentType);
     }
 
     internal static void SetBasicResponseAttributes(ResourceResponse response, HttpResponse httpResponse, HttpStatusCode statusCode)
